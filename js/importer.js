@@ -63,6 +63,7 @@ export function parseAndValidateAIResponse(rawText, insightId) {
       id: uuidv4(),
       insight_id: insightId,
       format: item.format.trim(),
+      angle: typeof item.angle === 'string' ? item.angle.trim() : '',
       title: item.title.trim(),
       hook: item.hook.trim(),
       script: item.script.trim(),

@@ -16,7 +16,7 @@ import { FeedbackView } from './components/feedbackView.js';
 import { LibraryView } from './components/library.js';
 import { SettingsView } from './components/settings.js';
 import { rescheduleMissedPosts } from './scheduler.js';
-import { formatDate, getSystemDate, showToast, getTimeShiftDays, setTimeShiftDays } from './utils.js';
+import { formatDate, getSystemDate } from './utils.js';
 
 class ContentOSApp {
   constructor() {
@@ -48,6 +48,10 @@ class ContentOSApp {
 
     // 3. Setup Navigation & Routing
     this.setupNavigation();
+    window.addEventListener('doctor-os-system-date-change', () => {
+      if (this.headerDate) this.headerDate.textContent = formatDate(getSystemDate());
+      this.updateBadges();
+    });
 
     // 4. Setup Modal listeners
     this.setupModals();
@@ -71,20 +75,6 @@ class ContentOSApp {
       this.openModal('insightCreate');
     });
 
-    // Header Quick Actions
-    document.getElementById('header-btn-timetravel')?.addEventListener('click', async () => {
-      const current = getTimeShiftDays();
-      setTimeShiftDays(current + 3);
-      const profile = await db.getProfile();
-      if (profile.missedPostRescheduleMode === 'auto') await rescheduleMissedPosts();
-      showToast('Fast-forwarded +3 days in system date! Check Feedback Due.', 'success');
-      if (this.headerDate) {
-        this.headerDate.textContent = formatDate(getSystemDate());
-      }
-      this.navigateTo(this.currentView);
-      this.updateBadges();
-    });
-
     document.getElementById('header-btn-note')?.addEventListener('click', () => {
       this.openModal('quickNote');
     });
@@ -93,12 +83,6 @@ class ContentOSApp {
       this.openModal('insightCreate');
     });
 
-    // Sidebar Load Demo
-    document.getElementById('btn-load-demo-sidebar')?.addEventListener('click', async () => {
-      await populateSampleDoctorWorkspace();
-      this.navigateTo('dashboard');
-      this.updateBadges();
-    });
   }
 
   async navigateTo(viewName) {
@@ -242,9 +226,12 @@ class ContentOSApp {
     }).length;
 
     const badgeFeedD = document.getElementById('badge-feedback-count');
-    if (badgeFeedD) {
+    const badgeFeedM = document.getElementById('bnav-badge-feedback');
+    if (badgeFeedD && badgeFeedM) {
       badgeFeedD.textContent = feedbackDueCount;
+      badgeFeedM.textContent = feedbackDueCount;
       badgeFeedD.classList.toggle('hidden', feedbackDueCount === 0);
+      badgeFeedM.classList.toggle('hidden', feedbackDueCount === 0);
     }
 
     // Notes badge

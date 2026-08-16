@@ -55,13 +55,14 @@ export const InsightCreateModal = {
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="insight-references">Optional References / Real Patient Context</label>
+            <label class="form-label" for="insight-references">Extra context for the AI <span class="form-sublabel">optional</span></label>
             <input 
               type="text" 
               id="insight-references" 
               class="form-input" 
-              placeholder="e.g. 42-year-old marathon runner case study or JACC 2024 review" 
+              placeholder="e.g. Keep the tone calm and reassuring; speak to worried first-time patients"
             />
+            <p style="font-size: 11.5px; color: var(--text-tertiary); margin-top: 3px;">Add any non-script direction, such as tone, audience context, or details the AI should keep in mind.</p>
           </div>
 
           <div class="flex justify-between items-center" style="margin-top: 20px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">

@@ -1,410 +1,125 @@
-/**
- * Content OS for Doctors — Doctor Profile & System Settings
- * Customizes prompt engine rules, sprinkle scheduling parameters, workflow toggles, and time travel testing.
- */
+/** Doctor profile, workflow settings, data controls, and gated developer tools. */
 
 import { db } from '../db.js';
 import { recalculateFutureSchedule } from '../scheduler.js';
 import { populateSampleDoctorWorkspace } from '../sampleData.js';
-import { showToast, escapeHtml, getTimeShiftDays, setTimeShiftDays } from '../utils.js';
+import { showToast, escapeHtml, copyToClipboard, getTimeShiftDays, setTimeShiftDays, getDevToolsEnabled, setDevToolsEnabled } from '../utils.js';
+import { getDefaultPromptTemplate } from '../prompt.js';
+
+const DEV_ACCESS_KEYS = new Set(['kg-01', 'sm-01', 'tj-01']);
+
+function cardHead(icon, title, description) {
+  return `<div class="settings-card-head"><div class="settings-card-icon" aria-hidden="true">${icon}</div><div><h3 class="settings-card-title">${title}</h3><p class="settings-card-description">${description}</p></div></div>`;
+}
 
 export const SettingsView = {
-  async render(container, navigateTo, openModal) {
+  async render(container, navigateTo) {
     const profile = await db.getProfile();
     const timeShift = getTimeShiftDays();
+    const devToolsEnabled = getDevToolsEnabled();
+    const activePrompt = profile.promptTemplate || getDefaultPromptTemplate();
 
-    let html = `
-      <div class="action-deck">
-        <div class="schedule-header">
-          <div>
-            <h2 style="font-family: var(--font-heading); font-size: 20px; font-weight: 700;">
-              Doctor Profile & System Settings
-            </h2>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">
-              Customize prompt engine rules, 2-week sprinkle scheduling, and workflow preferences.
-            </p>
-          </div>
+    container.innerHTML = `
+      <div class="settings-shell">
+        <header class="settings-hero">
+          <p class="settings-eyebrow">Workspace preferences</p>
+          <h2 class="settings-title">Settings that stay out of your way</h2>
+          <p class="settings-subtitle">Set up your voice, scheduling rules, workflow, and backups in one organized workspace.</p>
+        </header>
+
+        <div class="settings-grid">
+          <form id="form-doctor-profile" class="card settings-card settings-card-wide">
+            ${cardHead('🧑‍⚕️', 'Doctor profile & voice', 'These choices are applied to every new content prompt.')}
+            <div class="settings-form-grid">
+              <div class="form-group"><label class="form-label" for="prof-name">Doctor name *</label><input type="text" id="prof-name" class="form-input" value="${escapeHtml(profile.name || '')}" required></div>
+              <div class="form-group"><label class="form-label" for="prof-specialty">Medical specialty *</label><input type="text" id="prof-specialty" class="form-input" value="${escapeHtml(profile.specialty || '')}" required></div>
+              <div class="form-group"><label class="form-label" for="prof-audience">Target audience</label><select id="prof-audience" class="form-select"><option value="Patients" ${profile.audience === 'Patients' ? 'selected' : ''}>Patients</option><option value="Doctors" ${profile.audience === 'Doctors' ? 'selected' : ''}>Doctors</option><option value="Both" ${profile.audience === 'Both' ? 'selected' : ''}>Both</option></select></div>
+              <div class="form-group"><label class="form-label" for="prof-lang">Primary language / dialect</label><select id="prof-lang" class="form-select"><option value="English" ${profile.language === 'English' ? 'selected' : ''}>English</option><option value="Hinglish" ${profile.language === 'Hinglish' ? 'selected' : ''}>Hinglish</option><option value="Hindi" ${profile.language === 'Hindi' ? 'selected' : ''}>Hindi</option><option value="Spanish" ${profile.language === 'Spanish' ? 'selected' : ''}>Spanish</option></select></div>
+              <div class="form-group"><label class="form-label" for="prof-tone">Preferred tone</label><select id="prof-tone" class="form-select"><option value="Conversational & Empathetic" ${profile.tone === 'Conversational & Empathetic' ? 'selected' : ''}>Conversational & empathetic</option><option value="Authoritative & Evidence-Based" ${profile.tone === 'Authoritative & Evidence-Based' ? 'selected' : ''}>Authoritative & evidence-based</option><option value="Friendly & Approachable" ${profile.tone === 'Friendly & Approachable' ? 'selected' : ''}>Friendly & approachable</option></select></div>
+              <div class="form-group full-width"><label class="form-label" for="prof-clinic">Clinic / hospital name <span class="form-sublabel">optional</span></label><input type="text" id="prof-clinic" class="form-input" value="${escapeHtml(profile.clinicName || '')}" placeholder="e.g. Heart & Vascular Institute"></div>
+            </div><div class="settings-card-actions"><button type="submit" class="btn btn-primary">Save profile</button></div>
+          </form>
+
+          <section class="card settings-card settings-card-wide">
+            ${cardHead('✦', 'AI script prompt', 'Edit the complete prompt used to generate every new insight.')}
+            <div class="prompt-safe-guide"><strong>Please keep the format the same—do not break it, otherwise scripts will not work well.</strong><p>It is better to give this prompt to an AI to make edits, so it does not accidentally change the structure or the JSON output format.</p></div>
+            <label class="form-label" for="setting-active-prompt">Working prompt</label><p class="settings-helper" style="margin-bottom:8px;">Text inside {{double braces}} is automatically filled with the doctor and insight details when you generate a prompt.</p>
+            <textarea id="setting-active-prompt" class="form-textarea prompt-preview" rows="22">${escapeHtml(activePrompt)}</textarea>
+            <div class="settings-card-actions"><button class="btn btn-primary btn-sm" id="btn-save-active-prompt">Save prompt</button><button class="btn btn-secondary btn-sm" id="btn-copy-active-prompt">Copy whole prompt</button><button class="btn btn-secondary btn-sm" id="btn-restore-original-prompt">Restore original prompt</button></div>
+          </section>
+
+          <section class="card settings-card">
+            ${cardHead('🗓️', 'Schedule', 'Space approved scripts evenly and avoid overloading a single day.')}
+            <div class="form-group"><label class="form-label" for="setting-sprinkle-window">Scheduling window</label><select id="setting-sprinkle-window" class="form-select"><option value="7" ${profile.sprinkleWindowDays === 7 ? 'selected' : ''}>1 week (7 days)</option><option value="14" ${!profile.sprinkleWindowDays || profile.sprinkleWindowDays === 14 ? 'selected' : ''}>2 weeks (14 days)</option><option value="21" ${profile.sprinkleWindowDays === 21 ? 'selected' : ''}>3 weeks (21 days)</option><option value="30" ${profile.sprinkleWindowDays === 30 ? 'selected' : ''}>1 month (30 days)</option></select></div>
+            <div class="form-group"><label class="form-label" for="setting-max-posts">Maximum posts per day</label><select id="setting-max-posts" class="form-select"><option value="1" ${!profile.maxPostsPerDay || profile.maxPostsPerDay === 1 ? 'selected' : ''}>1 post</option><option value="2" ${profile.maxPostsPerDay === 2 ? 'selected' : ''}>2 posts</option><option value="3" ${profile.maxPostsPerDay === 3 ? 'selected' : ''}>3 posts</option></select></div>
+            <div class="form-group"><label class="form-label" for="setting-sprinkle-strategy">Distribution</label><select id="setting-sprinkle-strategy" class="form-select"><option value="uniform" ${!profile.sprinkleStrategy || profile.sprinkleStrategy === 'uniform' ? 'selected' : ''}>Uniform spacing</option><option value="front_loaded" ${profile.sprinkleStrategy === 'front_loaded' ? 'selected' : ''}>Front-loaded</option></select></div><div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-resprinkle-now">Re-space schedule</button><button class="btn btn-primary btn-sm" id="btn-save-sprinkle-settings">Save</button></div>
+          </section>
+
+          <section class="card settings-card">
+            ${cardHead('🎬', 'Workflow', 'Keep only the steps that match how you work.')}
+            <div class="settings-choice"><input type="checkbox" id="setting-enable-filming" ${profile.enableFilmingWorkflow ? 'checked' : ''}><div><label for="setting-enable-filming">Enable filming status workflow</label><p>Show filming queues and “Mark filmed” actions before posting.</p></div></div>
+            <div class="form-group" style="margin-top:16px; margin-bottom:0;"><label class="form-label" for="setting-missed-post-mode">When a post is missed</label><select id="setting-missed-post-mode" class="form-select"><option value="manual" ${(profile.missedPostRescheduleMode || 'manual') === 'manual' ? 'selected' : ''}>Ask me first</option><option value="auto" ${profile.missedPostRescheduleMode === 'auto' ? 'selected' : ''}>Automatically reschedule</option></select><p class="settings-helper">Automatic mode moves only missed posts and leaves filmed reels in place.</p></div>
+          </section>
+
+          <section class="card settings-card">${cardHead('↥', 'Backup & restore', 'Your workspace stays in this browser. Save a JSON backup before changing devices or resetting data.')}<div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-export-json">Export backup</button><button class="btn btn-secondary btn-sm" id="btn-import-json-trigger">Restore backup</button><input type="file" id="input-file-backup" accept=".json,application/json" class="hidden"></div></section>
+
+          <section class="card settings-card developer-card">
+            ${cardHead('⌘', 'Developer options', 'Testing tools are hidden by default so the regular workspace stays clean.')}
+            <div class="settings-choice"><input type="checkbox" id="setting-dev-tools" ${devToolsEnabled ? 'checked' : ''}><div><label for="setting-dev-tools">Enable developer options for this session</label><p>Includes 3-day time travel and the Cardiology demo workspace.</p></div></div>
+            ${!devToolsEnabled ? `<form class="dev-access-panel hidden" id="dev-access-form"><label class="form-label" for="dev-access-key">Developer access key</label><input id="dev-access-key" type="password" class="form-input" autocomplete="off" autocapitalize="none" spellcheck="false"><div class="settings-card-actions"><button class="btn btn-primary btn-sm" type="submit">Unlock developer options</button></div></form>` : `<div class="dev-tools-panel"><h4>Developer tools are active</h4><p>These testing controls are available only for this browser session.</p><div class="settings-card-actions"><button class="btn btn-accent btn-sm" id="btn-test-time-travel">⏩ Add 3 days</button>${timeShift !== 0 ? '<button class="btn btn-secondary btn-sm" id="btn-reset-time-travel">Reset to today</button>' : ''}<button class="btn btn-secondary btn-sm" id="btn-load-demo-settings">Load Cardiology demo</button></div><p style="margin-top:10px; margin-bottom:0; color:${timeShift ? 'var(--accent-purple)' : 'var(--text-tertiary)'};">${timeShift ? `Time shift active: +${timeShift} days` : 'System date: actual today'}</p></div>`}
+          </section>
+
+          <section class="card settings-card settings-card-wide settings-danger">${cardHead('⚠️', 'Reset workspace', 'Permanently delete insights, notes, scripts, and scheduled reels from this browser.')}<div class="settings-card-actions"><button class="btn btn-danger" id="btn-reset-all-data">Delete all data & reset workspace</button></div></section>
         </div>
+      </div>`;
 
-        <form id="form-doctor-profile" class="card">
-          <h3 style="font-family: var(--font-heading); font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">
-            🧑‍⚕️ Doctor Profile & Prompt Persona
-          </h3>
+    const saveProfile = async (changes, message) => { Object.assign(profile, changes); await db.saveProfile(profile); if (message) showToast(message, 'success'); };
 
-          <div class="form-group">
-            <label class="form-label" for="prof-name">Doctor Name *</label>
-            <input type="text" id="prof-name" class="form-input" value="${escapeHtml(profile.name || '')}" required />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="prof-specialty">Medical Specialty *</label>
-            <input type="text" id="prof-specialty" class="form-input" value="${escapeHtml(profile.specialty || '')}" required />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Target Audience *</label>
-            <div class="segmented-control" id="ctrl-audience">
-              <button type="button" class="segmented-btn ${profile.audience === 'Patients' ? 'active' : ''}" data-val="Patients">Patients</button>
-              <button type="button" class="segmented-btn ${profile.audience === 'Doctors' ? 'active' : ''}" data-val="Doctors">Doctors</button>
-              <button type="button" class="segmented-btn ${profile.audience === 'Both' ? 'active' : ''}" data-val="Both">Both</button>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Primary Language / Dialect *</label>
-            <select id="prof-lang" class="form-select">
-              <option value="English" ${profile.language === 'English' ? 'selected' : ''}>English (Natural & Clear)</option>
-              <option value="Hinglish" ${profile.language === 'Hinglish' ? 'selected' : ''}>Hinglish (Hindi + English conversational)</option>
-              <option value="Hindi" ${profile.language === 'Hindi' ? 'selected' : ''}>Hindi (Formal clinical Hindi)</option>
-              <option value="Spanish" ${profile.language === 'Spanish' ? 'selected' : ''}>Spanish (Español)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Preferred Tone *</label>
-            <select id="prof-tone" class="form-select">
-              <option value="Conversational & Empathetic" ${profile.tone === 'Conversational & Empathetic' ? 'selected' : ''}>Conversational & Empathetic (Reassuring clinician)</option>
-              <option value="Authoritative & Evidence-Based" ${profile.tone === 'Authoritative & Evidence-Based' ? 'selected' : ''}>Authoritative & Evidence-Based (Senior consultant)</option>
-              <option value="Friendly & Approachable" ${profile.tone === 'Friendly & Approachable' ? 'selected' : ''}>Friendly & Approachable (Community health)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Default Call-To-Action (Fallback) *</label>
-            <select id="prof-cta" class="form-select">
-              <option value="both" ${profile.cta === 'both' ? 'selected' : ''}>Generate Both Versions (Read caption + Comment keyword)</option>
-              <option value="Read caption for full medical details" ${profile.cta === 'Read caption for full medical details' ? 'selected' : ''}>Read Caption Only</option>
-              <option value="Comment for guide" ${profile.cta === 'Comment for guide' ? 'selected' : ''}>Comment Keyword ("HEART", "TEST")</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="prof-clinic">Clinic / Hospital Name (Optional)</label>
-            <input type="text" id="prof-clinic" class="form-input" value="${escapeHtml(profile.clinicName || '')}" placeholder="e.g. Heart & Vascular Institute" />
-          </div>
-
-          <div class="flex justify-between items-center" style="margin-top: 16px; border-top: 1px solid var(--border-subtle); padding-top: 14px;">
-            <button type="submit" class="btn btn-primary btn-lg">
-              <span>Save Doctor Profile</span>
-            </button>
-          </div>
-        </form>
-
-        <div class="card" style="margin-top: 16px;">
-          <h3 style="font-family: var(--font-heading); font-size: 16px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">
-            AI Script Generation Prompt
-          </h3>
-          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-            Add standing instructions for every generated prompt—for example, required disclaimers, a writing style, or formats to avoid. These are saved in your profile and included in backups.
-          </p>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" for="setting-custom-prompt">Custom prompt instructions</label>
-            <textarea id="setting-custom-prompt" class="form-textarea" rows="7" placeholder="e.g. Keep the language simple, use Indian clinical context, and always include a short safety note.">${escapeHtml(profile.customPromptInstructions || '')}</textarea>
-          </div>
-          <div style="margin-top: 12px;">
-            <button class="btn btn-primary btn-sm" id="btn-save-custom-prompt">Save Prompt Instructions</button>
-          </div>
-        </div>
-
-        <!-- Sprinkle Mechanics Customization Card -->
-        <div class="card" style="margin-top: 16px;">
-          <h3 style="font-family: var(--font-heading); font-size: 16px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">
-            🗓️ Sprinkle & Scheduling Engine Settings
-          </h3>
-          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
-            Control how approved scripts are uniformly distributed over time. Approved scripts are spaced evenly across your window rather than clumping today.
-          </p>
-
-          <div class="form-group">
-            <label class="form-label" for="setting-sprinkle-window">Scheduling Window Duration</label>
-            <select id="setting-sprinkle-window" class="form-select">
-              <option value="7" ${profile.sprinkleWindowDays === 7 ? 'selected' : ''}>1 Week (7 Days)</option>
-              <option value="14" ${!profile.sprinkleWindowDays || profile.sprinkleWindowDays === 14 ? 'selected' : ''}>2 Weeks (14 Days) — Recommended</option>
-              <option value="21" ${profile.sprinkleWindowDays === 21 ? 'selected' : ''}>3 Weeks (21 Days)</option>
-              <option value="30" ${profile.sprinkleWindowDays === 30 ? 'selected' : ''}>1 Month (30 Days)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="setting-max-posts">Max Posts Per Day</label>
-            <select id="setting-max-posts" class="form-select">
-              <option value="1" ${!profile.maxPostsPerDay || profile.maxPostsPerDay === 1 ? 'selected' : ''}>Max 1 Post / Day (Balanced)</option>
-              <option value="2" ${profile.maxPostsPerDay === 2 ? 'selected' : ''}>Max 2 Posts / Day</option>
-              <option value="3" ${profile.maxPostsPerDay === 3 ? 'selected' : ''}>Max 3 Posts / Day</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="setting-sprinkle-strategy">Distribution Strategy</label>
-            <select id="setting-sprinkle-strategy" class="form-select">
-              <option value="uniform" ${!profile.sprinkleStrategy || profile.sprinkleStrategy === 'uniform' ? 'selected' : ''}>Uniform Spacing (Equal gaps over 2 weeks)</option>
-              <option value="front_loaded" ${profile.sprinkleStrategy === 'front_loaded' ? 'selected' : ''}>Front-Loaded (Fill upcoming slots sequentially)</option>
-            </select>
-          </div>
-
-          <div class="flex gap-2 justify-between items-center" style="border-top: 1px solid var(--border-subtle); padding-top: 12px; margin-top: 12px;">
-            <button class="btn btn-secondary btn-sm" id="btn-resprinkle-now">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
-              <span>Re-Sprinkle & Uniformly Space Schedule</span>
-            </button>
-            <button class="btn btn-primary btn-sm" id="btn-save-sprinkle-settings">Save Sprinkle Settings</button>
-          </div>
-        </div>
-
-        <!-- Workflow Preferences Card (Filming workflow optional toggle) -->
-        <div class="card" style="margin-top: 16px;">
-          <h3 style="font-family: var(--font-heading); font-size: 16px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">
-            🎬 Workflow Preferences
-          </h3>
-          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-            Keep your workflow clean and un-overwhelming.
-          </p>
-
-          <div class="form-group" style="display: flex; align-items: center; gap: 10px; background: var(--bg-subtle); padding: 12px 14px; border-radius: var(--radius-md);">
-            <input type="checkbox" id="setting-enable-filming" style="width: 18px; height: 18px; cursor: pointer;" ${profile.enableFilmingWorkflow ? 'checked' : ''} />
-            <div>
-              <label for="setting-enable-filming" style="font-size: 14px; font-weight: 600; cursor: pointer;">Enable Filming Status Workflow</label>
-              <p style="font-size: 12px; color: var(--text-tertiary); margin-top: 2px;">
-                Uncheck to hide "Mark Filmed" buttons and filming queues so you can go straight from script to posting.
-              </p>
-            </div>
-          </div>
-
-          <div class="form-group" style="margin-top: 12px;">
-            <label class="form-label" for="setting-missed-post-mode">When a post is missed</label>
-            <select id="setting-missed-post-mode" class="form-select">
-              <option value="manual" ${(profile.missedPostRescheduleMode || 'manual') === 'manual' ? 'selected' : ''}>Ask me — reschedule after I tap</option>
-              <option value="auto" ${profile.missedPostRescheduleMode === 'auto' ? 'selected' : ''}>Automatically reschedule when I open Today</option>
-            </select>
-            <p style="font-size: 12px; color: var(--text-tertiary); margin-top: 4px;">Automatic mode only moves missed posts; it keeps your future plan and filmed reels in place.</p>
-          </div>
-        </div>
-
-        <!-- Time Travel Testing Card -->
-        <div class="card" style="margin-top: 16px; border-left: 4px solid var(--accent-purple);">
-          <h3 style="font-family: var(--font-heading); font-size: 16px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">
-            🧪 Testing Tool: Time Travel Fast-Forward (+3 Days)
-          </h3>
-          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-            Artificially advance simulated system time into the future so you can test out the <strong>Feedback Due</strong> page and 3-day performance evaluation workflow immediately.
-          </p>
-
-          <div class="flex items-center gap-3" style="flex-wrap: wrap;">
-            <button class="btn btn-accent btn-sm" id="btn-test-time-travel">
-              <span>⏩ Fast-Forward +3 Days</span>
-            </button>
-
-            ${
-              timeShift !== 0
-                ? `<button class="btn btn-secondary btn-sm" id="btn-reset-time-travel">
-                    <span>↺ Reset to Actual Today (+0)</span>
-                  </button>`
-                : ''
-            }
-
-            <span style="font-size: 12px; font-weight: 600; color: ${timeShift > 0 ? 'var(--accent-purple)' : 'var(--text-tertiary)'};">
-              ${timeShift > 0 ? `📍 Active Shift: +${timeShift} days in future` : '📍 System Date: Actual Today'}
-            </span>
-          </div>
-        </div>
-
-        <!-- Backup & Demo Reset -->
-        <div class="card" style="margin-top: 16px;">
-          <h3 style="font-family: var(--font-heading); font-size: 16px; font-weight: 700; margin-bottom: 6px;">
-            Local-First Backup & Data Management
-          </h3>
-          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
-            All your data is stored locally in your browser. Export a zero-loss JSON backup at any time.
-          </p>
-
-          <div class="flex gap-2" style="flex-wrap: wrap;">
-            <button class="btn btn-secondary btn-sm" id="btn-export-json">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              <span>Export Backup JSON</span>
-            </button>
-
-            <button class="btn btn-secondary btn-sm" id="btn-import-json-trigger">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              <span>Restore from JSON</span>
-            </button>
-
-            <input type="file" id="input-file-backup" accept=".json" class="hidden" />
-
-            <button class="btn btn-secondary btn-sm" id="btn-load-demo-settings">
-              <span>Load Cardiology Demo</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Danger Zone: Reset All Data -->
-        <div class="card" style="margin-top: 16px; border: 1.5px dashed var(--accent-red); background: var(--accent-red-subtle);">
-          <h3 style="font-family: var(--font-heading); font-size: 16px; font-weight: 700; color: var(--accent-red); margin-bottom: 4px;">
-            ⚠️ Reset All Data & Start Fresh
-          </h3>
-          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
-            Permanently delete all insights, quick notes, generated scripts, and scheduled reels.
-          </p>
-
-          <button class="btn btn-danger btn-lg" id="btn-reset-all-data">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            <span>Delete All Data & Reset Workspace</span>
-          </button>
-        </div>
-      </div>
-    `;
-
-    container.innerHTML = html;
-
-    // Segmented Audience Control
-    let selectedAudience = profile.audience || 'Patients';
-    container.querySelectorAll('#ctrl-audience .segmented-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        container.querySelectorAll('#ctrl-audience .segmented-btn').forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedAudience = btn.dataset.val;
-      });
+    document.getElementById('form-doctor-profile')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      await saveProfile({ name: document.getElementById('prof-name').value.trim(), specialty: document.getElementById('prof-specialty').value.trim(), audience: document.getElementById('prof-audience').value, language: document.getElementById('prof-lang').value, tone: document.getElementById('prof-tone').value, clinicName: document.getElementById('prof-clinic').value.trim(), onboarded: true }, 'Doctor profile saved.');
+      const sideName = document.getElementById('sidebar-dr-name'); if (sideName) sideName.textContent = profile.name || 'Doctor Workspace';
+    });
+    document.getElementById('btn-save-active-prompt')?.addEventListener('click', async () => {
+      const promptTemplate = document.getElementById('setting-active-prompt').value.trim();
+      if (!promptTemplate) { showToast('Prompt cannot be empty.', 'error'); return; }
+      await saveProfile({ promptTemplate }, 'Working prompt saved.');
+    });
+    document.getElementById('btn-copy-active-prompt')?.addEventListener('click', async () => {
+      const promptTemplate = document.getElementById('setting-active-prompt').value;
+      if (!promptTemplate.trim()) { showToast('Prompt cannot be empty.', 'error'); return; }
+      await copyToClipboard(promptTemplate);
+    });
+    document.getElementById('btn-restore-original-prompt')?.addEventListener('click', async () => {
+      if (!confirm('Restore the original working prompt? Your saved edits will be replaced.')) return;
+      delete profile.promptTemplate;
+      await db.saveProfile(profile);
+      document.getElementById('setting-active-prompt').value = getDefaultPromptTemplate();
+      showToast('Original prompt restored.', 'success');
     });
 
-    // Save Profile
-    document.getElementById('form-doctor-profile')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const updated = {
-        ...profile,
-        name: document.getElementById('prof-name').value.trim(),
-        specialty: document.getElementById('prof-specialty').value.trim(),
-        audience: selectedAudience,
-        language: document.getElementById('prof-lang').value,
-        tone: document.getElementById('prof-tone').value,
-        cta: document.getElementById('prof-cta').value,
-        clinicName: document.getElementById('prof-clinic').value.trim(),
-        onboarded: true
-      };
+    const saveSchedule = async (andRespace = false) => { await saveProfile({ sprinkleWindowDays: Number(document.getElementById('setting-sprinkle-window').value), maxPostsPerDay: Number(document.getElementById('setting-max-posts').value), sprinkleStrategy: document.getElementById('setting-sprinkle-strategy').value }); const result = await recalculateFutureSchedule(); showToast(andRespace ? `Re-spaced ${result.updatedCount} future reels.` : 'Schedule settings saved and re-spaced.', 'success'); };
+    document.getElementById('btn-save-sprinkle-settings')?.addEventListener('click', () => saveSchedule(false));
+    document.getElementById('btn-resprinkle-now')?.addEventListener('click', () => saveSchedule(true));
+    document.getElementById('setting-enable-filming')?.addEventListener('change', (event) => saveProfile({ enableFilmingWorkflow: event.target.checked }, event.target.checked ? 'Filming workflow enabled.' : 'Filming workflow disabled.'));
+    document.getElementById('setting-missed-post-mode')?.addEventListener('change', (event) => saveProfile({ missedPostRescheduleMode: event.target.value }, 'Missed-post preference saved.'));
 
-      await db.saveProfile(updated);
-      showToast('Doctor Profile updated successfully!', 'success');
-      
-      const sideName = document.getElementById('sidebar-dr-name');
-      if (sideName) sideName.textContent = updated.name;
+    document.getElementById('setting-dev-tools')?.addEventListener('change', (event) => {
+      if (event.target.checked && !getDevToolsEnabled()) { event.target.checked = false; document.getElementById('dev-access-form')?.classList.remove('hidden'); document.getElementById('dev-access-key')?.focus(); }
+      else if (!event.target.checked) { setDevToolsEnabled(false); showToast('Developer options locked.', 'info'); this.render(container, navigateTo); }
     });
-
-    // Save Sprinkle Settings
-    document.getElementById('btn-save-sprinkle-settings')?.addEventListener('click', async () => {
-      const windowDays = parseInt(document.getElementById('setting-sprinkle-window').value, 10);
-      const maxPosts = parseInt(document.getElementById('setting-max-posts').value, 10);
-      const strategy = document.getElementById('setting-sprinkle-strategy').value;
-
-      const updated = {
-        ...profile,
-        sprinkleWindowDays: windowDays,
-        maxPostsPerDay: maxPosts,
-        sprinkleStrategy: strategy
-      };
-
-      await db.saveProfile(updated);
-      await recalculateFutureSchedule();
-      showToast('Sprinkle settings saved & schedule re-spaced!', 'success');
+    document.getElementById('dev-access-form')?.addEventListener('submit', (event) => {
+      event.preventDefault(); const key = document.getElementById('dev-access-key').value.trim();
+      if (!DEV_ACCESS_KEYS.has(key.toLowerCase())) { showToast('Incorrect access key.', 'error'); return; }
+      setDevToolsEnabled(true); showToast('Developer options unlocked for this session.', 'success'); this.render(container, navigateTo);
     });
+    document.getElementById('btn-test-time-travel')?.addEventListener('click', () => { setTimeShiftDays(getTimeShiftDays() + 3); showToast('System date advanced by 3 days.', 'success'); this.render(container, navigateTo); });
+    document.getElementById('btn-reset-time-travel')?.addEventListener('click', () => { setTimeShiftDays(0); showToast('System date reset to today.', 'info'); this.render(container, navigateTo); });
+    document.getElementById('btn-load-demo-settings')?.addEventListener('click', async () => { await populateSampleDoctorWorkspace(); showToast('Cardiology demo workspace loaded.', 'success'); navigateTo('dashboard'); });
 
-    document.getElementById('btn-save-custom-prompt')?.addEventListener('click', async () => {
-      const customPromptInstructions = document.getElementById('setting-custom-prompt').value.trim();
-      await db.saveProfile({ ...profile, customPromptInstructions });
-      showToast('Prompt instructions saved and will be included in backups.', 'success');
-    });
-
-    // Re-Sprinkle Now Button
-    document.getElementById('btn-resprinkle-now')?.addEventListener('click', async () => {
-      // Save visible settings before recalculating so this action never uses
-      // stale profile values.
-      const updatedProfile = {
-        ...profile,
-        sprinkleWindowDays: parseInt(document.getElementById('setting-sprinkle-window').value, 10),
-        maxPostsPerDay: parseInt(document.getElementById('setting-max-posts').value, 10),
-        sprinkleStrategy: document.getElementById('setting-sprinkle-strategy').value
-      };
-      await db.saveProfile(updatedProfile);
-      const res = await recalculateFutureSchedule();
-      showToast(`Uniformly re-sprinkled ${res.updatedCount} future reels across ${updatedProfile.sprinkleWindowDays || 14} days!`, 'success');
-    });
-
-    // Toggle Filming Workflow Checkbox
-    document.getElementById('setting-enable-filming')?.addEventListener('change', async (e) => {
-      const enabled = e.target.checked;
-      const updated = {
-        ...profile,
-        enableFilmingWorkflow: enabled
-      };
-      await db.saveProfile(updated);
-      showToast(enabled ? 'Filming status workflow enabled' : 'Filming workflow disabled (simplified mode)', 'info');
-    });
-
-    document.getElementById('setting-missed-post-mode')?.addEventListener('change', async (e) => {
-      await db.saveProfile({ ...profile, missedPostRescheduleMode: e.target.value });
-      showToast(e.target.value === 'auto' ? 'Missed posts will reschedule when you open Today.' : 'Missed posts will wait for your approval.', 'info');
-    });
-
-    // Time Travel +3 Days Button
-    document.getElementById('btn-test-time-travel')?.addEventListener('click', async () => {
-      const current = getTimeShiftDays();
-      setTimeShiftDays(current + 3);
-      showToast(`System time fast-forwarded +3 days! Check Feedback Due page.`, 'success');
-      window.location.reload();
-    });
-
-    // Reset Time Travel Button
-    document.getElementById('btn-reset-time-travel')?.addEventListener('click', async () => {
-      setTimeShiftDays(0);
-      showToast(`System time reset to actual today!`, 'info');
-      window.location.reload();
-    });
-
-    // Export JSON Backup
-    document.getElementById('btn-export-json')?.addEventListener('click', async () => {
-      const backup = await db.exportFullDatabase();
-      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `doctor-content-os-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('Backup JSON downloaded!', 'success');
-    });
-
-    // Trigger file input
-    document.getElementById('btn-import-json-trigger')?.addEventListener('click', () => {
-      document.getElementById('input-file-backup')?.click();
-    });
-
-    // Handle JSON file restore
-    document.getElementById('input-file-backup')?.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      try {
-        const text = await file.text();
-        const parsed = JSON.parse(text);
-        await db.importFullDatabase(parsed);
-        showToast('Workspace restored from JSON!', 'success');
-        navigateTo('dashboard');
-      } catch (err) {
-        showToast(`Restore failed: ${err.message}`, 'error');
-      }
-    });
-
-    // Load Demo Data
-    document.getElementById('btn-load-demo-settings')?.addEventListener('click', async () => {
-      await populateSampleDoctorWorkspace();
-      showToast('Demo workspace loaded!', 'success');
-      navigateTo('dashboard');
-    });
-
-    // Reset All Data
-    document.getElementById('btn-reset-all-data')?.addEventListener('click', async () => {
-      if (confirm('Are you sure you want to delete ALL data (insights, notes, scripts, scheduled reels) and reset your workspace?')) {
-        await db.resetAllData();
-        showToast('All workspace data deleted!', 'info');
-        window.location.reload();
-      }
-    });
+    document.getElementById('btn-export-json')?.addEventListener('click', async () => { const backup = await db.exportFullDatabase(); const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })); const link = document.createElement('a'); link.href = url; link.download = `doctor-content-os-backup-${new Date().toISOString().slice(0, 10)}.json`; link.click(); URL.revokeObjectURL(url); showToast('Backup JSON downloaded.', 'success'); });
+    document.getElementById('btn-import-json-trigger')?.addEventListener('click', () => document.getElementById('input-file-backup')?.click());
+    document.getElementById('input-file-backup')?.addEventListener('change', async (event) => { const file = event.target.files[0]; if (!file) return; try { await db.importFullDatabase(JSON.parse(await file.text())); showToast('Workspace restored from JSON.', 'success'); navigateTo('dashboard'); } catch (error) { showToast(`Restore failed: ${error.message}`, 'error'); } });
+    document.getElementById('btn-reset-all-data')?.addEventListener('click', async () => { if (confirm('Delete all workspace data? This cannot be undone.')) { await db.resetAllData(); showToast('Workspace reset.', 'info'); window.location.reload(); } });
   }
 };

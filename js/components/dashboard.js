@@ -7,6 +7,45 @@ import { db } from '../db.js';
 import { formatDate, formatRelativeDate, formatDateForInput, showToast, getSystemDate } from '../utils.js';
 import { rescheduleMissedPosts } from '../scheduler.js';
 
+const greetingBank = {
+  morning: [
+    'Good morning, Dr. {{name}}. Let\'s set a calm, focused pace for the day.',
+    'Good morning, Dr. {{name}}. Your content plan is ready when you are.',
+    'Good morning, Dr. {{name}}. A clear start makes today\'s work lighter.',
+    'Good morning, Dr. {{name}}. Let\'s turn today\'s expertise into useful content.',
+    'Good morning, Dr. {{name}}. Your next helpful post starts here.'
+  ],
+  afternoon: [
+    'Good afternoon, Dr. {{name}}. Let\'s make a little progress between appointments.',
+    'Good afternoon, Dr. {{name}}. Your content workspace is ready for the next step.',
+    'Good afternoon, Dr. {{name}}. A few focused minutes can move the plan forward.',
+    'Good afternoon, Dr. {{name}}. Let\'s keep today\'s content moving.',
+    'Good afternoon, Dr. {{name}}. Pick up exactly where you left off.'
+  ],
+  evening: [
+    'Good evening, Dr. {{name}}. Let\'s make today\'s final content decisions easy.',
+    'Good evening, Dr. {{name}}. A quick review now keeps tomorrow clear.',
+    'Good evening, Dr. {{name}}. Your day\'s content priorities are right here.',
+    'Good evening, Dr. {{name}}. Let\'s wrap up today with one useful step.',
+    'Good evening, Dr. {{name}}. Your plan is ready whenever clinic slows down.'
+  ],
+  night: [
+    'Good night, Dr. {{name}}. Take one last look at tomorrow\'s content plan.',
+    'Good night, Dr. {{name}}. A small step now can make tomorrow smoother.',
+    'Good night, Dr. {{name}}. Your workspace has tomorrow\'s priorities waiting.',
+    'Good night, Dr. {{name}}. Close the day with a clear content plan.',
+    'Good night, Dr. {{name}}. Everything important for tomorrow is in one place.'
+  ]
+};
+
+function getDashboardGreeting(date, name) {
+  const hour = date.getHours();
+  const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 22 ? 'evening' : 'night';
+  const messages = greetingBank[timeOfDay];
+  const greeting = messages[(date.getDate() + date.getMonth() * 3 + hour) % messages.length];
+  return greeting.replace('{{name}}', name || 'Doctor');
+}
+
 export const DashboardView = {
   async render(container, navigateTo, openModal) {
     const profile = await db.getProfile();
@@ -28,6 +67,9 @@ export const DashboardView = {
     const filmingQueue = enableFilming
       ? allReels.filter((r) => r.status === 'scheduled' && !r.is_filmed).slice(0, 3)
       : [];
+    const filmingToday = enableFilming
+      ? allReels.filter((r) => r.scheduled_date === todayStr && r.status !== 'posted' && r.status !== 'archived' && !r.is_filmed).length
+      : 0;
 
     // C. Posts That Were Missed (scheduled < today and unposted)
     // Anything scheduled in the past but not published must be surfaced—even
@@ -54,21 +96,16 @@ export const DashboardView = {
     let html = `
       <div class="action-deck">
         
-        <!-- Hero Doctor Greeting & Primary Capture Actions -->
+        <!-- Time-aware greeting and daily snapshot. Capture actions live in the header. -->
         <div class="card card-hero">
-          <h2>Good day, ${profile.name || 'Doctor'}</h2>
-          <p>You have <strong>${todayPosts.length}</strong> post scheduled today, <strong>${pendingScripts.length}</strong> scripts waiting for review, and <strong>${feedbackDuePosts.length}</strong> performance checks due.</p>
-          
-          <div class="flex gap-3" style="flex-wrap: wrap;">
-            <button class="btn btn-accent btn-lg" id="dash-hero-record-insight">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span>Record a New Insight</span>
-            </button>
-
-            <button class="btn btn-secondary btn-lg" id="dash-hero-quick-note" style="background: rgba(255,255,255,0.15); color: #FFF; border-color: rgba(255,255,255,0.2);">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              <span>Quick Thought / Note</span>
-            </button>
+          <p class="dashboard-greeting-eyebrow">Today\'s workspace</p>
+          <h2>${getDashboardGreeting(systemDate, profile.name)}</h2>
+          <p>Here\'s what needs your attention today.</p>
+          <div class="dashboard-daily-summary" aria-label="Today\'s content summary">
+            <div class="dashboard-summary-item"><strong>${todayPosts.length}</strong><span>${todayPosts.length === 1 ? 'post scheduled' : 'posts scheduled'}</span></div>
+            <div class="dashboard-summary-item"><strong>${pendingScripts.length}</strong><span>${pendingScripts.length === 1 ? 'script to review' : 'scripts to review'}</span></div>
+            <div class="dashboard-summary-item"><strong>${feedbackDuePosts.length}</strong><span>${feedbackDuePosts.length === 1 ? 'performance update due' : 'performance updates due'}</span></div>
+            ${enableFilming ? `<div class="dashboard-summary-item"><strong>${filmingToday}</strong><span>${filmingToday === 1 ? 'post to film today' : 'posts to film today'}</span></div>` : ''}
           </div>
         </div>
     `;
@@ -288,9 +325,7 @@ export const DashboardView = {
     container.innerHTML = html;
 
     // Attach Event Listeners
-    document.getElementById('dash-hero-record-insight')?.addEventListener('click', () => openModal('insightCreate'));
     document.getElementById('dash-zen-record-insight')?.addEventListener('click', () => openModal('insightCreate'));
-    document.getElementById('dash-hero-quick-note')?.addEventListener('click', () => openModal('quickNote'));
     document.getElementById('dash-btn-start-review')?.addEventListener('click', () => navigateTo('review'));
     document.getElementById('dash-btn-view-schedule')?.addEventListener('click', () => navigateTo('schedule'));
     document.getElementById('dash-btn-view-notes')?.addEventListener('click', () => navigateTo('notes'));

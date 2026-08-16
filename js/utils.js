@@ -188,5 +188,22 @@ export function getTimeShiftDays() {
 export function setTimeShiftDays(days) {
   systemTimeOffsetDays = days;
   localStorage.setItem('doctor_os_time_offset_days', String(days));
+  window.dispatchEvent(new Event('doctor-os-system-date-change'));
 }
 
+// Developer tools are intentionally session-only. They provide a light gate for
+// demo/testing controls, not a security boundary for sensitive data.
+const DEV_TOOLS_STORAGE_KEY = 'doctor_os_dev_tools_enabled';
+
+export function getDevToolsEnabled() {
+  return sessionStorage.getItem(DEV_TOOLS_STORAGE_KEY) === 'true';
+}
+
+export function setDevToolsEnabled(enabled) {
+  if (enabled) {
+    sessionStorage.setItem(DEV_TOOLS_STORAGE_KEY, 'true');
+  } else {
+    sessionStorage.removeItem(DEV_TOOLS_STORAGE_KEY);
+  }
+  window.dispatchEvent(new CustomEvent('doctor-os-dev-tools-change', { detail: { enabled } }));
+}

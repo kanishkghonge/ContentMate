@@ -4,7 +4,7 @@
  */
 
 import { db } from '../db.js';
-import { getSystemDate, formatDate, escapeHtml, getTimeShiftDays, setTimeShiftDays, showToast } from '../utils.js';
+import { getSystemDate, formatDate, escapeHtml, getDevToolsEnabled } from '../utils.js';
 import { getFormatById } from '../formats.js';
 
 export const FeedbackView = {
@@ -13,6 +13,7 @@ export const FeedbackView = {
   async render(container, navigateTo, openModal) {
     const allReels = await db.getScheduledReels();
     const systemDate = getSystemDate();
+    const devToolsEnabled = getDevToolsEnabled();
 
     // Categorize reels
     const feedbackDue = [];
@@ -47,11 +48,6 @@ export const FeedbackView = {
             <p style="font-size: 13.5px; color: var(--text-secondary); margin-top: 4px;">
               Trial reels are evaluated 3 days after posting to select the single highest-performing format as a <strong>Main Reel</strong> winner.
             </p>
-          </div>
-          <div class="flex gap-2 items-center">
-            <button class="btn btn-secondary btn-sm" id="btn-feedback-timetravel" style="color: var(--accent-purple); font-weight: 600; background: var(--accent-purple-subtle);">
-              ⏩ +3 Days Time Travel
-            </button>
           </div>
         </div>
 
@@ -103,9 +99,9 @@ export const FeedbackView = {
               You're all caught up! When scheduled trial reels reach 3 days after posting, they will automatically land here for performance scoring and winner selection.
             </p>
             ${awaitingCheck.length > 0 ? `
-              <p style="font-size: 12.5px; color: var(--accent-purple); font-weight: 600;">
-                💡 You have ${awaitingCheck.length} post(s) currently in their 3-day window. Use "+3 Days Time Travel" above to fast-forward system date for testing.
-              </p>
+              ${devToolsEnabled ? `<p style="font-size: 12.5px; color: var(--accent-purple); font-weight: 600;">
+                💡 You have ${awaitingCheck.length} post(s) currently in their 3-day window. Use Developer options in Settings to fast-forward time for testing.
+              </p>` : ''}
             ` : `
               <button class="btn btn-primary btn-sm" id="btn-feedback-goto-schedule">Go to Publishing Calendar →</button>
             `}
@@ -252,13 +248,6 @@ export const FeedbackView = {
     container.innerHTML = html;
 
     // Attach Event Listeners
-    document.getElementById('btn-feedback-timetravel')?.addEventListener('click', () => {
-      const current = getTimeShiftDays();
-      setTimeShiftDays(current + 3);
-      showToast('Fast-forwarded +3 days in system date!', 'success');
-      this.render(container, navigateTo, openModal);
-    });
-
     document.getElementById('tab-btn-due')?.addEventListener('click', () => {
       this.activeTab = 'due';
       this.render(container, navigateTo, openModal);
