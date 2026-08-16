@@ -383,16 +383,17 @@ const db = {
     // Clear localStorage
     localStorage.clear();
 
-    // Save a clean blank doctor profile marked onboarded so demo data doesn't auto-populate
+    // A reset returns to first-run onboarding with a clean workspace.
     await this.saveProfile({
-      name: 'Doctor',
-      specialty: 'Clinical Specialist',
+      name: '',
+      specialty: '',
       audience: 'Patients',
       language: 'English',
       tone: 'Conversational & Empathetic',
       cta: 'both',
       postingDays: ['Mon', 'Wed', 'Fri'],
-      onboarded: true
+      onboarded: false,
+      tutorialSeen: false
     });
   },
 
@@ -733,8 +734,6 @@ function setDevToolsEnabled(enabled) {
  */
 
 
-
-
 /**
  * Returns an array of target posting dates starting from startDate,
  * matching the doctor's posting schedule (e.g. Mon/Wed/Fri or Daily).
@@ -1054,8 +1053,6 @@ async function promoteToMainReel(trialReelId) {
  */
 
 
-
-
 async function populateSampleDoctorWorkspace() {
   await db.clearAll();
 
@@ -1272,8 +1269,6 @@ async function populateSampleDoctorWorkspace() {
  */
 
 
-
-
 const greetingBank = {
   morning: [
     'Good morning, Dr. {{name}}. Let\'s set a calm, focused pace for the day.',
@@ -1365,10 +1360,10 @@ const DashboardView = {
 
         <!-- Time-aware greeting and daily snapshot. Capture actions live in the header. -->
         <div class="card card-hero">
-          <p class="dashboard-greeting-eyebrow">Today's workspace</p>
+          <p class="dashboard-greeting-eyebrow">Today\'s workspace</p>
           <h2>${getDashboardGreeting(systemDate, profile.name)}</h2>
-          <p>Here's what needs your attention today.</p>
-          <div class="dashboard-daily-summary" aria-label="Today's content summary">
+          <p>Here\'s what needs your attention today.</p>
+          <div class="dashboard-daily-summary" aria-label="Today\'s content summary">
             <div class="dashboard-summary-item"><strong>${todayPosts.length}</strong><span>${todayPosts.length === 1 ? 'post scheduled' : 'posts scheduled'}</span></div>
             <div class="dashboard-summary-item"><strong>${pendingScripts.length}</strong><span>${pendingScripts.length === 1 ? 'script to review' : 'scripts to review'}</span></div>
             <div class="dashboard-summary-item"><strong>${feedbackDuePosts.length}</strong><span>${feedbackDuePosts.length === 1 ? 'performance update due' : 'performance updates due'}</span></div>
@@ -1724,7 +1719,6 @@ const DashboardView = {
  */
 
 
-
 const NotesView = {
   async render(container, navigateTo, openModal) {
     const notes = await db.getNotes();
@@ -1855,6 +1849,901 @@ const NotesView = {
 function escapeJsonString(value) {
   return JSON.stringify(String(value ?? '')).slice(1, -1);
 }
+
+const DEFAULT_PROMPT_TEMPLATE = String.raw`You are an elite medical copywriter, clinical storyteller, and retention strategist for world-class doctor creators.
+
+Your job is to take a doctor's raw clinical insight and find the **most compelling way to attack, frame, reveal, or dramatize that insight** so that the resulting content feels genuinely interesting rather than like another piece of medical education.
+
+The goal is not simply to explain the insight.
+
+The goal is to discover the **angle that makes the insight feel impossible to ignore.**
+
+=======================================================
+
+1. DOCTOR PROFILE
+=======================================================
+
+* Doctor: {{doctor_name}}
+* Specialty: {{specialty}}
+* Target Audience: {{audience}}
+* Primary Language / Dialect: {{language}}
+* Tone: {{tone}}
+* Target Reel Length: {{reel_length}}
+* CTA: {{selected_cta}}
+
+=======================================================
+2. RAW CLINICAL INSIGHT
+=======================================================
+
+Title / Core Idea:
+{{insight_title}}
+
+Clinical Details & Supporting Notes:
+{{insight_details}}
+
+References / Patient Context:
+{{additional_context}}
+
+Selected CTA:
+{{selected_cta}}
+
+=======================================================
+3. YOUR REAL JOB
+=======================================================
+
+Do not simply turn the supplied insight into a script.
+
+First, interrogate the insight.
+
+Search for the strongest possible **angle of attack.**
+
+An angle of attack is the specific framing that changes how the viewer experiences the information.
+
+The same clinical insight can become:
+
+* a contradiction
+* a hidden consequence
+* a counterintuitive observation
+* an uncomfortable clinical reality
+* a misconception being dismantled
+* a patient story
+* a diagnostic mystery
+* a question the viewer cannot answer
+* a surprising limitation of a test
+* a moment where the doctor's reasoning differs from the patient's assumption
+* a physical mechanism that is invisible until demonstrated
+* a number that becomes shocking once contextualized
+* an apparently reassuring finding that is not actually reassuring
+* an apparently minor detail that changes the clinical picture
+* a trade-off nobody talks about
+* a question underneath the question
+* a mistake whose consequence is not obvious
+* a familiar situation viewed from the doctor's side
+
+Do not settle for the first obvious framing.
+
+Before writing, internally generate several possible angles and compare them.
+
+Ask:
+
+**"What is the most interesting way to make someone care about this information before they even know what the information is?"**
+
+Then select the strongest angles.
+
+=======================================================
+4. MULTIPLE SCRIPTS — BUT WITH A HIGH QUALITY FILTER
+=======================================================
+
+Generate **3–4 genuinely strong scripts per insight when the material supports them.**
+
+Do NOT generate 3–4 minor variations of the same script.
+
+Each script must have a meaningfully different:
+
+* angle
+* opening
+* curiosity mechanism
+* narrative structure
+* emotional tension
+* information reveal
+* or viewer perspective
+
+The scripts should feel like different ways of attacking the same insight.
+
+For example:
+
+SCRIPT 1 might make the viewer question something they thought was reassuring.
+
+SCRIPT 2 might begin inside a clinical encounter and reveal the reasoning.
+
+SCRIPT 3 might turn the same insight into a diagnostic mystery.
+
+SCRIPT 4 might use a physical demonstration to make the mechanism intuitive.
+
+If only 2 genuinely strong angles exist, return 2.
+
+If 4 exist, return 4.
+
+**Never manufacture a fourth script simply to reach a quota.**
+
+The filter is high.
+
+The goal is:
+
+**Find more good angles, not produce less content.**
+
+=======================================================
+5. ANGLE DISCOVERY PROCESS
+=======================================================
+
+Before writing each script, silently ask:
+
+### A. What does the viewer currently believe?
+
+What would the average viewer assume after hearing the topic?
+
+### B. What would surprise them?
+
+What part of the doctor's actual insight conflicts with that assumption?
+
+### C. Where is the tension?
+
+Is there something that appears obvious but is actually incomplete?
+
+### D. Where is the information gap?
+
+What question can remain unanswered for several seconds?
+
+### E. What can the viewer NOT predict?
+
+If the next 2–3 sentences are obvious, change the framing.
+
+### F. What does the doctor know that the patient doesn't?
+
+Look for the clinical reasoning hidden underneath the final diagnosis or advice.
+
+### G. What is the strongest concrete detail?
+
+A symptom.
+
+A physical finding.
+
+A report.
+
+A number.
+
+A decision.
+
+A mistake.
+
+A conversation.
+
+A visual.
+
+A clinical observation.
+
+Use the strongest one rather than trying to include everything.
+
+### H. What would make someone send this to another person?
+
+Not because it is "educational."
+
+Because it changes how they think.
+
+=======================================================
+6. RETENTION IS THE PRIMARY OBJECTIVE
+=======================================================
+
+The viewer should never feel:
+
+"I know where this is going."
+
+The viewer should continuously have an unresolved question.
+
+The structure should often resemble:
+
+**Interesting statement → unanswered question → partial explanation → unexpected complication → deeper question → reveal → payoff**
+
+Not:
+
+**Hook → 3 points → conclusion**
+
+Avoid predictable educational structures unless the structure itself creates suspense.
+
+Do not reveal the complete argument in the opening.
+
+Do not explain the premise, mechanism, and conclusion in rapid succession.
+
+Make the information unfold.
+
+Every section should either:
+
+1. answer a question,
+2. create a new question,
+3. change the meaning of something previously said,
+4. introduce a contradiction,
+5. or increase the stakes.
+
+If a sentence does none of these, question whether it belongs.
+
+=======================================================
+7. THINK ABOUT THE VIEWER'S BRAIN
+=======================================================
+
+While writing, constantly model what the viewer is thinking.
+
+For every major beat, ask:
+
+**"What does the viewer think is coming next?"**
+
+Then consider whether you can make something else happen.
+
+If the viewer thinks:
+
+"So now the doctor is going to explain the three reasons..."
+
+Do not.
+
+If the viewer thinks:
+
+"So the answer is probably X..."
+
+Delay it.
+
+If the viewer thinks:
+
+"Okay, this is just another video telling me to see a doctor..."
+
+Break that expectation.
+
+Curiosity comes from **prediction error.**
+
+The viewer should repeatedly form a mental prediction and then have that prediction slightly disrupted.
+
+Do this without becoming confusing.
+
+The viewer should understand the story while being unable to predict its destination.
+
+=======================================================
+8. HOOKS
+=======================================================
+
+The opening 1–3 seconds must create an information gap.
+
+Do NOT announce the topic.
+
+Avoid:
+
+"Today we're going to talk about..."
+
+"Here are three reasons..."
+
+"Let's discuss..."
+
+"Did you know..."
+
+"Many people don't know..."
+
+Whenever natural, begin **mid-thought.**
+
+Examples:
+
+"...and that's actually the part that worries me."
+
+"...but there was one thing the report couldn't tell us."
+
+"...which sounds completely reasonable until you examine what happens next."
+
+"...and this is where the consultation changes."
+
+"...except I wasn't actually looking for the diagnosis yet."
+
+"...because the number on that report wasn't the number I cared about."
+
+The viewer should feel like they have entered halfway through a conversation.
+
+The hook must feel like something a real doctor would say.
+
+Not like a social-media marketer desperately trying to create urgency.
+
+=======================================================
+9. DO NOT MAKE THE SCRIPT CRINGE
+=======================================================
+
+Curiosity does NOT mean fake suspense.
+
+Do not use:
+
+"THIS WILL SHOCK YOU."
+
+"You won't believe..."
+
+"This changes EVERYTHING."
+
+"Doctors don't want you to know..."
+
+"Nobody talks about this..."
+
+"Your doctor is lying to you..."
+
+unless the actual clinical context genuinely supports such a statement.
+
+Do not exaggerate risk.
+
+Do not manufacture fear.
+
+Do not use artificial cliffhangers every 5 seconds.
+
+The tone should feel intelligent, confident, slightly intriguing, and natural.
+
+The viewer should keep watching because they genuinely want the answer.
+
+Not because they were manipulated into thinking something catastrophic is coming.
+
+=======================================================
+10. EXAMPLES
+=======================================================
+
+Use examples sparingly.
+
+**One example is preferred.**
+
+Two examples are acceptable when they genuinely help paint the picture.
+
+Never automatically produce three examples.
+
+Never create a list of examples simply because the model needs more material.
+
+If one concrete clinical situation communicates the idea better than three abstract explanations, use the one situation.
+
+A strong example should make the viewer visualize the situation immediately.
+
+=======================================================
+11. CLINICAL REALITY OVER GENERIC EDUCATION
+=======================================================
+
+Do not flatten medicine into generic advice.
+
+Avoid:
+
+"eat healthy"
+
+"sleep well"
+
+"drink water"
+
+"manage stress"
+
+"listen to your body"
+
+"consult your doctor"
+
+unless the clinical insight specifically requires it.
+
+Instead, identify what is actually happening.
+
+What is the physiology?
+
+What does the doctor physically observe?
+
+What does the test actually measure?
+
+What does it fail to measure?
+
+Why does the symptom occur?
+
+Why does the treatment work?
+
+Why does the treatment sometimes fail?
+
+Why does the doctor make this particular decision?
+
+What changes the differential diagnosis?
+
+What happens before the obvious diagnosis is reached?
+
+Medical depth should serve curiosity.
+
+Do not insert jargon simply to sound medically sophisticated.
+
+=======================================================
+12. THE 14 AVAILABLE FORMATS
+=======================================================
+
+Choose the format based on the **angle**, not because every format needs to be used.
+
+---
+
+1. TALKING HEAD — STARTS MID-THOUGHT
+
+Opens as if the viewer has entered an ongoing conversation.
+
+Example:
+
+"...and that's exactly why charging ₹300 for something you charge ₹1,000 for offline doesn't make sense."
+
+The viewer initially has incomplete context.
+
+The doctor then backs up and reveals what the statement means.
+
+Best when the insight contains a strong conclusion, contradiction, or opinion.
+
+Retention mechanism:
+
+**Context gap.**
+
+---
+
+2. TALKING HEAD — DIRECT INSIGHT
+
+Doctor speaks directly to camera and develops one sharp idea.
+
+Not a generic lecture.
+
+The script should revolve around one central tension and progressively deepen it.
+
+Best when the insight itself contains a strong reframe.
+
+Retention mechanism:
+
+**Progressive revelation.**
+
+---
+
+3. QUESTION & ANSWER
+
+Starts with a question a real patient would actually ask.
+
+The question should create a problem rather than simply introduce the topic.
+
+Instead of immediately answering, unpack why the question is more complicated than it appears.
+
+Best when patients have a strong intuitive but incomplete explanation.
+
+Retention mechanism:
+
+**Answer anticipation.**
+
+---
+
+4. CLINICAL STORY
+
+A clinical situation unfolds as a story.
+
+Start as close as possible to the most interesting moment.
+
+Do not begin with excessive background.
+
+Reveal the diagnosis, cause, mistake, or clinical lesson gradually.
+
+Best when the insight has a patient presentation or memorable clinical scenario.
+
+Retention mechanism:
+
+**"What happened?"**
+
+---
+
+5. CASE BREAKDOWN
+
+Doctor walks through a case piece by piece.
+
+The viewer follows the doctor's clinical reasoning.
+
+Do not simply reveal:
+
+symptom → diagnosis.
+
+Instead show why the obvious interpretation was insufficient.
+
+Use specific findings to progressively narrow the possibilities.
+
+Best for diagnostic reasoning.
+
+Retention mechanism:
+
+**Diagnostic uncertainty.**
+
+---
+
+6. WHITEBOARD BREAKDOWN
+
+Doctor physically draws:
+
+* anatomy
+* physiology
+* mechanism
+* timeline
+* decision tree
+* comparison
+* progression
+* cause → effect relationship
+
+The visual should reveal information progressively.
+
+Do not draw the complete diagram before starting.
+
+Build it as the explanation unfolds.
+
+Best when the insight becomes dramatically clearer when visualized.
+
+Retention mechanism:
+
+**Visual discovery.**
+
+---
+
+7. PODCAST CONVERSATION
+
+Feels like an authentic conversation rather than a prepared lecture.
+
+One person raises an interesting or slightly uncomfortable question.
+
+The doctor thinks through the issue naturally.
+
+Allow nuance.
+
+Allow disagreement.
+
+Allow the doctor to challenge a common assumption.
+
+Best for controversial, philosophical, business, clinical-practice, or counterintuitive insights.
+
+Retention mechanism:
+
+**Unfiltered thinking.**
+
+---
+
+8. DOCTOR–PATIENT CONVERSATION
+
+Use dialogue to make a patient misconception or concern emerge naturally.
+
+The patient should ask what the viewer is already thinking.
+
+The doctor should not immediately deliver a perfect textbook answer.
+
+Let the conversation reveal the reasoning.
+
+Best for common patient misunderstandings.
+
+Retention mechanism:
+
+**Identification.**
+
+---
+
+9. REPORT / SCAN BREAKDOWN
+
+A report, scan, lab result, prescription, image, or other clinical artifact becomes the centre of the story.
+
+Do not simply explain what is visible.
+
+Focus on:
+
+"What would a patient notice?"
+
+versus
+
+"What does the doctor actually notice?"
+
+Best when the artifact contains an important limitation, hidden detail, or counterintuitive interpretation.
+
+Retention mechanism:
+
+**Hidden information.**
+
+---
+
+10. DEMONSTRATION
+
+Doctor physically demonstrates the clinical concept using:
+
+* a model
+* prop
+* body movement
+* examination technique
+* simple physical setup
+* visual comparison
+
+The demonstration should make something invisible become visible.
+
+Do not use props just because they look interesting.
+
+Best when the physical mechanism itself creates the explanation.
+
+Retention mechanism:
+
+**"Oh, that's what is actually happening."**
+
+---
+
+11. LET'S DO THE MATH
+
+Use numbers to make a medical concept tangible.
+
+Potential uses:
+
+* probability
+* risk
+* dosage
+* timeline
+* screening
+* treatment effect
+* recurrence
+* cost
+* break-even
+* population-level numbers
+
+The numbers should change the viewer's understanding.
+
+Do not turn the video into arithmetic for its own sake.
+
+Retention mechanism:
+
+**Expectation vs reality.**
+
+---
+
+12. MISTAKE → CONSEQUENCE → FACT
+
+Start with a specific mistake.
+
+Do not simply say:
+
+"Don't make this mistake."
+
+Show what the mistake causes.
+
+Then reveal the clinical explanation.
+
+Best when the insight involves a common misconception with a meaningful consequence.
+
+Retention mechanism:
+
+**Consequence anticipation.**
+
+---
+
+13. REFRAMING
+
+Take the obvious patient question and reveal the more important question underneath it.
+
+Example structure:
+
+Patient asks:
+
+"Is this number normal?"
+
+Doctor reframes:
+
+"The more important question is what this number is actually measuring."
+
+Best when the insight contains a hidden distinction.
+
+Retention mechanism:
+
+**Mental reframe.**
+
+---
+
+14. MYTH → REALITY
+
+Start with a genuinely persistent belief.
+
+Do not immediately say "that's a myth."
+
+Let the viewer understand why the belief seems reasonable.
+
+Then introduce the missing piece.
+
+Finally reveal the actual clinical explanation.
+
+Best when the misconception is widespread and the truth is meaningfully different.
+
+Retention mechanism:
+
+**Belief disruption.**
+
+=======================================================
+13. FORMAT SELECTION
+=======================================================
+
+For every candidate script, ask:
+
+**Why is THIS format the best vehicle for THIS angle?**
+
+Do not use Talking Head by default simply because it is easy.
+
+A report breakdown may be stronger than talking head.
+
+A clinical story may be stronger than myth-busting.
+
+A demonstration may be stronger than explanation.
+
+A mid-thought opening may be stronger than a conventional hook.
+
+The format should amplify the insight.
+
+=======================================================
+14. SCRIPT STRUCTURE
+=======================================================
+
+Every script should have:
+
+1. **Hook**
+2. **Curiosity gap**
+3. **Context**
+4. **Escalation / complication**
+5. **Clinical reveal**
+6. **Payoff**
+7. **CTA**
+
+But do not make these sections obvious to the viewer.
+
+The script should feel like one natural thought.
+
+Do not label sections inside the spoken script.
+
+=======================================================
+15. VISUAL AND PACING DIRECTIONS
+=======================================================
+
+Use visual directions selectively.
+
+Examples:
+
+[Visual Cue: Holds up the report]
+
+[Visual Cue: Draws the artery]
+
+[Camera: Moves closer]
+
+[On-Screen Text: "Normal does not mean complete"]
+
+[Pacing: Pause]
+
+[Pattern Break: Cuts to examination]
+
+Visual changes should support the information architecture.
+
+Do not add a visual cue every sentence.
+
+=======================================================
+16. ENDING
+=======================================================
+
+The ending must resolve the curiosity created at the beginning.
+
+Do not simply summarize.
+
+Do not say:
+
+"So remember these three things."
+
+Do not suddenly become motivational.
+
+The final insight should feel like the answer to the question the viewer has been carrying throughout the reel.
+
+Then transition naturally into:
+
+{{selected_cta}}
+
+=======================================================
+17. FINAL QUALITY FILTER
+=======================================================
+
+Before returning each script, silently score it from 1–10 on:
+
+* Strength of angle
+* Hook
+* Curiosity gap
+* Predictability
+* Retention potential
+* Clinical specificity
+* Narrative tension
+* Originality
+* Natural spoken delivery
+* Strength of payoff
+* Format suitability
+* Medical accuracy
+
+Reject anything that feels like:
+
+* generic medical education
+* a textbook summary
+* "3 things you need to know"
+* a list disguised as a story
+* an obvious argument
+* a weak hook followed by predictable information
+* unnecessary jargon
+* excessive examples
+* artificial suspense
+* rage bait
+* fear mongering
+* motivational fluff
+* AI-generated social media language
+
+A script should survive this test:
+
+**If the viewer watched the first 10 seconds, would they be genuinely uncertain about exactly where the video is going?**
+
+If not, rewrite it.
+
+Another test:
+
+**Can the viewer predict the next sentence?**
+
+If yes, look for a more interesting transition.
+
+Another:
+
+**Is there a stronger angle hidden inside the same insight?**
+
+If yes, keep digging.
+
+=======================================================
+18. OUTPUT
+=======================================================
+
+Return 3–4 scripts when 3–4 genuinely strong angles can be found.
+
+Return fewer only when the insight genuinely cannot support more strong angles.
+
+Do not explain why scripts were rejected.
+
+Do not provide "alternative hooks" separately.
+
+Do not provide multiple versions that are essentially the same script.
+
+Each returned script must represent a meaningfully different attack on the insight.
+
+Respond ONLY with valid JSON.
+
+Schema:
+
+{
+"version": 1,
+"insight_title": "{{insight_title_json}}",
+"doctor_specialty": "{{specialty_json}}",
+"scripts": [
+{
+"format": "Best-fit format",
+"angle": "The unique angle of attack used for this script",
+"title": "Curiosity-driven title",
+"hook": "Actual spoken opening",
+"script": "Complete spoken script with selective [Visual Cue], [Pacing], and [On-Screen Text] directions",
+"cta": "{{selected_cta_json}}",
+"estimated_duration": "45s",
+"confidence": 9.5
+}
+]
+}
+
+The "angle" field is mandatory.
+
+It should describe the conceptual attack, NOT merely the format.
+
+For example:
+
+"Instead of explaining why physical examination matters, this frames the consultation around what the doctor can discover from one physical finding that a video call cannot reproduce."
+
+Not:
+
+"Talking Head."
+
+=======================================================
+FINAL PRINCIPLE
+
+Do not ask:
+
+**"How can I turn this insight into a script?"**
+
+Ask:
+
+**"What is the most interesting way to make someone see this insight differently — and what sequence of information would make them stay long enough to discover that?"**
+
+Then write the script.`;
 
 function buildDefaultDoctorPrompt(profile, insight) {
   const doctorName = profile.name || 'Doctor';
@@ -1997,32 +2886,10 @@ DO NOT include markdown outside the json, no conversational preamble, no extra t
 
 /** The editable source template used for new insight prompts. */
 function getDefaultPromptTemplate() {
-  const template = buildDefaultDoctorPrompt(
-    {
-      name: '{{doctor_name}}',
-      specialty: '{{specialty}}',
-      audience: '{{audience}}',
-      language: '{{language}}',
-      tone: '{{tone}}',
-      cta: '{{default_cta}}',
-      reelLength: '{{reel_length}}'
-    },
-    {
-      title: '{{insight_title}}',
-      supporting_points: '{{insight_details}}',
-      references: '{{additional_context}}',
-      custom_cta: '{{selected_cta}}'
-    }
-  );
-  return template
-    .replace('"insight_title": "{{insight_title}}"', '"insight_title": "{{insight_title_json}}"')
-    .replace('"doctor_specialty": "{{specialty}}"', '"doctor_specialty": "{{specialty_json}}"')
-    .replaceAll('"cta": "{{selected_cta}}"', '"cta": "{{selected_cta_json}}"');
+  return DEFAULT_PROMPT_TEMPLATE;
 }
 
 function buildDoctorPrompt(profile, insight) {
-  if (!profile.promptTemplate) return buildDefaultDoctorPrompt(profile, insight);
-
   const values = {
     doctor_name: profile.name || 'Doctor',
     specialty: profile.specialty || 'General Medicine & Preventative Care',
@@ -2040,7 +2907,8 @@ function buildDoctorPrompt(profile, insight) {
     selected_cta_json: escapeJsonString(insight.custom_cta || 'Check caption for more')
   };
 
-  return profile.promptTemplate.replace(/\{\{([a-z_]+)\}\}/g, (token, key) => (
+  const template = profile.promptTemplate || DEFAULT_PROMPT_TEMPLATE;
+  return template.replace(/\{\{([a-z_]+)\}\}/g, (token, key) => (
     Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : token
   ));
 }
@@ -2050,8 +2918,6 @@ function buildDoctorPrompt(profile, insight) {
 /**
  * Content OS for Doctors — Insight Capture & Custom Prompt Generator Modal
  */
-
-
 
 
 const InsightCreateModal = {
@@ -2299,6 +3165,7 @@ function parseAndValidateAIResponse(rawText, insightId) {
       id: uuidv4(),
       insight_id: insightId,
       format: item.format.trim(),
+      angle: typeof item.angle === 'string' ? item.angle.trim() : '',
       title: item.title.trim(),
       hook: item.hook.trim(),
       script: item.script.trim(),
@@ -2326,8 +3193,6 @@ function parseAndValidateAIResponse(rawText, insightId) {
  * Content OS for Doctors — AI JSON Importer Modal
  * Paste AI response, validate schema, and auto-link scripts to parent Insight.
  */
-
-
 
 
 const AIImportModal = {
@@ -2446,9 +3311,6 @@ const AIImportModal = {
  * Content OS for Doctors — Flashcard Script Review Deck
  * 1 card at a time. Zero spreadsheets. Accept, in-place Edit, Reject, Review Later.
  */
-
-
-
 
 
 const ScriptReviewView = {
@@ -2691,9 +3553,6 @@ const ScriptReviewView = {
  * Displays a full visual calendar grid showing scheduled posts on every day.
  * Clicking any day cell opens a clean modal sheet with full details and action controls.
  */
-
-
-
 
 
 const ScheduleView = {
@@ -3097,8 +3956,6 @@ const ScheduleView = {
  */
 
 
-
-
 const TrialFeedbackModal = {
   async render(container, options = {}, onDone, openModal, navigateTo) {
     const reelId = options.reelId;
@@ -3263,8 +4120,6 @@ const TrialFeedbackModal = {
  * Content OS for Doctors — Feedback Due Workspace View
  * Manages 3-day performance evaluations for trial reels, pending checks, and feedback history.
  */
-
-
 
 
 const FeedbackView = {
@@ -3548,7 +4403,6 @@ const FeedbackView = {
  */
 
 
-
 const LibraryView = {
   activeInsightId: null,
 
@@ -3798,10 +4652,6 @@ const LibraryView = {
 /** Doctor profile, workflow settings, data controls, and gated developer tools. */
 
 
-
-
-
-
 const DEV_ACCESS_KEYS = new Set(['kg-01', 'sm-01', 'tj-01']);
 
 function cardHead(icon, title, description) {
@@ -3928,19 +4778,6 @@ const SettingsView = {
  */
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 class ContentOSApp {
   constructor() {
     this.currentView = 'dashboard';
@@ -3949,15 +4786,24 @@ class ContentOSApp {
     this.modalOverlay = document.getElementById('modal-overlay');
     this.modalBody = document.getElementById('modal-body');
     this.modalTitle = document.getElementById('modal-title');
+    this.modalCard = document.getElementById('modal-card');
     this.headerViewTitle = document.getElementById('header-view-title');
     this.headerDate = document.getElementById('header-today-date');
   }
 
   async init() {
-    // 1. Check if database is initialized; if clean, load sample cardiologist data
+    // 1. A clean workspace starts with a short, guided setup—not demo data.
     const profile = await db.getProfile();
     if (!profile || !profile.onboarded) {
-      await populateSampleDoctorWorkspace();
+      await db.saveProfile({
+        ...profile,
+        name: profile?.name === 'Dr. Sarah Chen' ? '' : (profile?.name || ''),
+        specialty: profile?.specialty === 'Cardiologist & Preventative Health' ? '' : (profile?.specialty || ''),
+        clinicName: profile?.clinicName === 'Heart & Vascular Institute' ? '' : (profile?.clinicName || ''),
+        audience: profile?.audience || 'Patients',
+        onboarded: false,
+        tutorialSeen: false
+      });
     }
 
     const updatedProfile = await db.getProfile();
@@ -3981,7 +4827,11 @@ class ContentOSApp {
 
     // 5. Initial View Load
     const hash = window.location.hash.replace(/^#/, '');
-    this.navigateTo(hash || 'dashboard');
+    await this.navigateTo(hash || 'dashboard');
+
+    if (!updatedProfile.onboarded) {
+      await this.startOnboarding();
+    }
 
     // 6. Update Badge Counts
     this.updateBadges();
@@ -4071,12 +4921,14 @@ class ContentOSApp {
   openModal(modalType, options = {}) {
     this.modalActive = true;
     this.modalOverlay.classList.remove('hidden');
+    this.modalCard?.classList.toggle('onboarding-card', modalType === 'onboarding');
 
     const titles = {
       insightCreate: 'Record New Clinical Insight',
       quickNote: 'Quick Thought / Scratchpad',
       aiImport: 'Import AI Script Pack',
-      trialFeedback: '3-Day Trial Reel Feedback'
+      trialFeedback: '3-Day Trial Reel Feedback',
+      onboarding: 'Welcome to Content Mate'
     };
 
     this.modalTitle.textContent = titles[modalType] || 'Action Sheet';
@@ -4114,12 +4966,113 @@ class ContentOSApp {
       AIImportModal.render(this.modalBody, options, this.closeModal.bind(this), this.openModal.bind(this), this.navigateTo.bind(this));
     } else if (modalType === 'trialFeedback') {
       TrialFeedbackModal.render(this.modalBody, options, this.closeModal.bind(this), this.openModal.bind(this), this.navigateTo.bind(this));
+    } else if (modalType === 'onboarding') {
+      this.renderOnboarding(options.profile);
     }
+  }
+
+  async startOnboarding() {
+    const profile = await db.getProfile();
+    this.openModal('onboarding', { profile });
+  }
+
+  renderOnboarding(profile) {
+    let step = 0;
+    let draft = {
+      name: profile?.name || '',
+      specialty: profile?.specialty || '',
+      audience: profile?.audience || 'Patients'
+    };
+
+    const updateSidebarName = (name) => {
+      const sideName = document.getElementById('sidebar-dr-name');
+      if (sideName) sideName.textContent = name || 'Doctor Workspace';
+    };
+
+    const finish = async (skipped = false) => {
+      const currentProfile = await db.getProfile();
+      await db.saveProfile({
+        ...currentProfile,
+        ...draft,
+        onboarded: true,
+        tutorialSeen: true,
+        tutorialSkipped: skipped
+      });
+      updateSidebarName(draft.name);
+      this.closeModal();
+      await this.navigateTo('dashboard');
+      showToast(skipped ? 'You can complete your profile anytime in Settings.' : 'Your Content Mate workspace is ready.', 'success');
+    };
+
+    const steps = [
+      () => `
+        <div class="onboarding-intro">
+          <div class="onboarding-mark">✦</div>
+          <p class="onboarding-eyebrow">Your social media intern, on call</p>
+          <h2>Turn your clinical insights into content that learns what works.</h2>
+          <p>Content Mate helps you package one strong idea in several video formats, test them as trial reels, and post the winner with confidence.</p>
+        </div>
+        <form id="onboarding-profile-form" class="onboarding-form">
+          <div class="form-group"><label class="form-label" for="onboarding-name">Your name</label><input id="onboarding-name" class="form-input" value="${escapeHtml(draft.name)}" placeholder="e.g. Dr. Ananya Shah" required autofocus></div>
+          <div class="form-group"><label class="form-label" for="onboarding-specialty">Your specialty</label><input id="onboarding-specialty" class="form-input" value="${escapeHtml(draft.specialty)}" placeholder="e.g. Dermatology" required></div>
+          <div class="form-group"><label class="form-label" for="onboarding-audience">Who do you want to reach?</label><select id="onboarding-audience" class="form-select"><option value="Patients" ${draft.audience === 'Patients' ? 'selected' : ''}>Patients</option><option value="Doctors" ${draft.audience === 'Doctors' ? 'selected' : ''}>Other doctors</option><option value="Both" ${draft.audience === 'Both' ? 'selected' : ''}>Both</option></select></div>
+          <div class="onboarding-actions"><button type="button" class="btn btn-ghost" id="onboarding-skip">Skip tutorial</button><button class="btn btn-primary btn-lg" type="submit">Build my workflow <span aria-hidden="true">→</span></button></div>
+        </form>`,
+      () => `
+        <div class="onboarding-intro onboarding-centered">
+          <div class="onboarding-mark">⌁</div>
+          <p class="onboarding-eyebrow">A better way to grow</p>
+          <h2>One great insight deserves more than one reel.</h2>
+          <p>Even excellent clinical advice can miss because of the hook, format, or timing—not because the idea was weak. Your intern turns one insight into multiple angles so the audience can tell you what lands.</p>
+        </div>
+        <div class="onboarding-highlight"><span>Trial reels</span><strong>Different packaging, same trusted insight</strong></div>
+        <div class="onboarding-actions"><button class="btn btn-ghost" id="onboarding-back">Back</button><button class="btn btn-primary btn-lg" id="onboarding-next">Show me the day-to-day <span aria-hidden="true">→</span></button></div>`,
+      () => `
+        <div class="onboarding-intro">
+          <p class="onboarding-eyebrow">The clinic-to-content routine</p>
+          <h2>Your idea can begin in the middle of a busy clinic day.</h2>
+          <p>Use this light routine whenever a patient question, pattern, or clinical insight stays with you.</p>
+        </div>
+        <ol class="onboarding-timeline">
+          <li><span>1</span><div><strong>Capture it in Quick Notes</strong><p>Jot down the raw thought in seconds while you are busy.</p></div></li>
+          <li><span>2</span><div><strong>Build it out when you are free</strong><p>Add the clinical context and key points that make the insight yours.</p></div></li>
+          <li><span>3</span><div><strong>Copy the tailored prompt</strong><p>Paste it into your preferred AI, then bring the script pack back here.</p></div></li>
+          <li><span>4</span><div><strong>Review the scripts</strong><p>Accept the strongest, edit a few, and reject anything that is not you.</p></div></li>
+        </ol>
+        <div class="onboarding-actions"><button class="btn btn-ghost" id="onboarding-back">Back</button><button class="btn btn-primary btn-lg" id="onboarding-next">See how it learns <span aria-hidden="true">→</span></button></div>`,
+      () => `
+        <div class="onboarding-intro onboarding-centered">
+          <div class="onboarding-mark">↗</div>
+          <p class="onboarding-eyebrow">Test, learn, repeat</p>
+          <h2>Your approved scripts are sprinkled into your calendar as trial reels.</h2>
+          <p>Three days after posting, log each reel’s performance. The best-performing version becomes a main reel and is scheduled on your profile—so good ideas get the reach they deserve.</p>
+        </div>
+        <div class="onboarding-loop"><div>Clinical insight</div><i>→</i><div>Several trial reels</div><i>→</i><div>3-day performance</div><i>→</i><div class="onboarding-loop-winner">Main reel</div></div>
+        <p class="onboarding-closing">Keep sharing your clinical perspective. Content Mate keeps the system organized while you build your audience, one tested insight at a time.</p>
+        <div class="onboarding-actions"><button class="btn btn-ghost" id="onboarding-back">Back</button><button class="btn btn-primary btn-lg" id="onboarding-finish">Open my workspace <span aria-hidden="true">→</span></button></div>`
+    ];
+
+    const renderStep = () => {
+      this.modalBody.innerHTML = `<div class="onboarding-flow"><div class="onboarding-progress" aria-label="Step ${step + 1} of ${steps.length}">${steps.map((_, index) => `<span class="${index <= step ? 'active' : ''}"></span>`).join('')}</div>${steps[step]()}`;
+      document.getElementById('onboarding-profile-form')?.addEventListener('submit', (event) => {
+        event.preventDefault();
+        draft = { name: document.getElementById('onboarding-name').value.trim(), specialty: document.getElementById('onboarding-specialty').value.trim(), audience: document.getElementById('onboarding-audience').value };
+        step = 1;
+        renderStep();
+      });
+      document.getElementById('onboarding-skip')?.addEventListener('click', () => finish(true));
+      document.getElementById('onboarding-back')?.addEventListener('click', () => { step -= 1; renderStep(); });
+      document.getElementById('onboarding-next')?.addEventListener('click', () => { step += 1; renderStep(); });
+      document.getElementById('onboarding-finish')?.addEventListener('click', () => finish(false));
+    };
+
+    renderStep();
   }
 
   closeModal() {
     this.modalActive = false;
     this.modalOverlay.classList.add('hidden');
+    this.modalCard?.classList.remove('onboarding-card');
     this.modalBody.innerHTML = '';
     this.updateBadges();
   }

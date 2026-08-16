@@ -374,16 +374,17 @@ export const db = {
     // Clear localStorage
     localStorage.clear();
 
-    // Save a clean blank doctor profile marked onboarded so demo data doesn't auto-populate
+    // A reset returns to first-run onboarding with a clean workspace.
     await this.saveProfile({
-      name: 'Doctor',
-      specialty: 'Clinical Specialist',
+      name: '',
+      specialty: '',
       audience: 'Patients',
       language: 'English',
       tone: 'Conversational & Empathetic',
       cta: 'both',
       postingDays: ['Mon', 'Wed', 'Fri'],
-      onboarded: true
+      onboarded: false,
+      tutorialSeen: false
     });
   },
 
