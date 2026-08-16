@@ -11,6 +11,7 @@ import { AIImportModal } from './components/aiImport.js';
 import { ScriptReviewView } from './components/scriptReview.js';
 import { ScheduleView } from './components/scheduleView.js';
 import { TrialFeedbackModal } from './components/trialFeedback.js';
+import { ManualScriptModal } from './components/manualScript.js';
 import { FeedbackView } from './components/feedbackView.js';
 import { LibraryView } from './components/library.js';
 import { SettingsView } from './components/settings.js';
@@ -166,6 +167,7 @@ class ContentOSApp {
       insightCreate: 'Record New Clinical Insight',
       quickNote: 'Quick Thought / Scratchpad',
       aiImport: 'Import AI Script Pack',
+      manualScript: 'Add Your Own Script',
       trialFeedback: '3-Day Trial Reel Feedback',
       onboarding: 'Welcome to Content Mate'
     };
@@ -205,6 +207,8 @@ class ContentOSApp {
       AIImportModal.render(this.modalBody, options, this.closeModal.bind(this), this.openModal.bind(this), this.navigateTo.bind(this));
     } else if (modalType === 'trialFeedback') {
       TrialFeedbackModal.render(this.modalBody, options, this.closeModal.bind(this), this.openModal.bind(this), this.navigateTo.bind(this));
+    } else if (modalType === 'manualScript') {
+      ManualScriptModal.render(this.modalBody, options, this.closeModal.bind(this), this.navigateTo.bind(this));
     } else if (modalType === 'onboarding') {
       this.renderOnboarding(options.profile);
     }

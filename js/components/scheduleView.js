@@ -50,6 +50,9 @@ export const ScheduleView = {
           </div>
 
           <div class="flex gap-2">
+            <button class="btn btn-primary btn-sm" id="btn-add-manual-script">
+              + Add Your Own Script
+            </button>
             <button class="btn btn-secondary btn-sm" id="btn-recalculate-schedule">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
               <span>Re-Sprinkle Schedule</span>
@@ -152,6 +155,10 @@ export const ScheduleView = {
       ScheduleView.render(container, navigateTo, openModal);
     });
 
+    document.getElementById('btn-add-manual-script')?.addEventListener('click', () => {
+      openModal('manualScript');
+    });
+
     // Auto Reshuffle Future
     document.getElementById('btn-recalculate-schedule')?.addEventListener('click', async () => {
       const res = await recalculateFutureSchedule();
@@ -221,6 +228,9 @@ export const ScheduleView = {
           <button class="btn btn-primary btn-sm" id="btn-modal-capture-for-day">
             + Record New Insight for this Date
           </button>
+          <button class="btn btn-secondary btn-sm" id="btn-modal-add-script-for-day">
+            + Add Your Own Script
+          </button>
         </div>
       `;
       modalOverlay.classList.remove('hidden');
@@ -228,6 +238,10 @@ export const ScheduleView = {
       document.getElementById('btn-modal-capture-for-day')?.addEventListener('click', () => {
         modalOverlay.classList.add('hidden');
         openModal('insightCreate');
+      });
+      document.getElementById('btn-modal-add-script-for-day')?.addEventListener('click', () => {
+        modalOverlay.classList.add('hidden');
+        openModal('manualScript', { scheduledDate: dateStr });
       });
       return;
     }
@@ -277,9 +291,13 @@ export const ScheduleView = {
                   : ''
               }
 
-              <div style="font-size: 12.5px; font-weight: 600; color: var(--accent-blue); margin-bottom: 12px;">
-                CTA: ${escapeHtml(reel.cta)}
-              </div>
+              ${
+                reel.cta
+                  ? `<div style="font-size: 12.5px; font-weight: 600; color: var(--accent-blue); margin-bottom: 12px;">
+                      CTA: ${escapeHtml(reel.cta)}
+                    </div>`
+                  : ''
+              }
 
               ${
                 !isPosted

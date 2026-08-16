@@ -1003,6 +1003,34 @@ async function scheduleAcceptedScript(script) {
 }
 
 /**
+ * Adds a hand-written script straight to the publishing calendar. Manual
+ * entries are pinned so a future Re-Sprinkle never changes the chosen date.
+ */
+async function scheduleManualScript({ title, script, scheduledDate, cta = '' }) {
+  const newReel = {
+    id: uuidv4(),
+    script_id: null,
+    insight_id: null,
+    source: 'manual',
+    title,
+    format: 'Custom Script',
+    hook: title,
+    script,
+    cta,
+    estimated_duration: '',
+    scheduled_date: scheduledDate,
+    status: 'scheduled',
+    is_locked: true,
+    is_main_reel: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  await db.saveScheduledReel(newReel);
+  return newReel;
+}
+
+/**
  * Promotes a tested Trial Reel to a permanent Main Reel.
  */
 async function promoteToMainReel(trialReelId) {
@@ -3596,6 +3624,9 @@ const ScheduleView = {
           </div>
 
           <div class="flex gap-2">
+            <button class="btn btn-primary btn-sm" id="btn-add-manual-script">
+              + Add Your Own Script
+            </button>
             <button class="btn btn-secondary btn-sm" id="btn-recalculate-schedule">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
               <span>Re-Sprinkle Schedule</span>
@@ -3698,6 +3729,10 @@ const ScheduleView = {
       ScheduleView.render(container, navigateTo, openModal);
     });
 
+    document.getElementById('btn-add-manual-script')?.addEventListener('click', () => {
+      openModal('manualScript');
+    });
+
     // Auto Reshuffle Future
     document.getElementById('btn-recalculate-schedule')?.addEventListener('click', async () => {
       const res = await recalculateFutureSchedule();
@@ -3767,6 +3802,9 @@ const ScheduleView = {
           <button class="btn btn-primary btn-sm" id="btn-modal-capture-for-day">
             + Record New Insight for this Date
           </button>
+          <button class="btn btn-secondary btn-sm" id="btn-modal-add-script-for-day">
+            + Add Your Own Script
+          </button>
         </div>
       `;
       modalOverlay.classList.remove('hidden');
@@ -3774,6 +3812,10 @@ const ScheduleView = {
       document.getElementById('btn-modal-capture-for-day')?.addEventListener('click', () => {
         modalOverlay.classList.add('hidden');
         openModal('insightCreate');
+      });
+      document.getElementById('btn-modal-add-script-for-day')?.addEventListener('click', () => {
+        modalOverlay.classList.add('hidden');
+        openModal('manualScript', { scheduledDate: dateStr });
       });
       return;
     }
@@ -3823,9 +3865,13 @@ const ScheduleView = {
                   : ''
               }
 
-              <div style="font-size: 12.5px; font-weight: 600; color: var(--accent-blue); margin-bottom: 12px;">
-                CTA: ${escapeHtml(reel.cta)}
-              </div>
+              ${
+                reel.cta
+                  ? `<div style="font-size: 12.5px; font-weight: 600; color: var(--accent-blue); margin-bottom: 12px;">
+                      CTA: ${escapeHtml(reel.cta)}
+                    </div>`
+                  : ''
+              }
 
               ${
                 !isPosted
@@ -3943,6 +3989,64 @@ const ScheduleView = {
         modalOverlay.classList.add('hidden');
         ScheduleView.render(document.getElementById('view-container'), navigateTo, openModal);
       });
+    });
+  }
+};
+
+
+/* js/components/manualScript.js */
+/**
+ * Hand-written script modal — saves directly to the selected calendar date.
+ */
+
+const ManualScriptModal = {
+  async render(container, options, closeModal, navigateTo) {
+    const today = formatDateForInput(getSystemDate());
+    const scheduledDate = options.scheduledDate && options.scheduledDate >= today
+      ? options.scheduledDate
+      : today;
+
+    container.innerHTML = `
+      <form id="manual-script-form" class="flex flex-col gap-3">
+        <p style="font-size: 13px; color: var(--text-secondary);">
+          Write a script yourself and place it directly on your publishing calendar.
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="manual-script-topic">Topic</label>
+          <input id="manual-script-topic" class="form-input" type="text" placeholder="e.g. Why high blood pressure is silent" required autofocus />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="manual-script-body">Script</label>
+          <textarea id="manual-script-body" class="form-textarea" rows="8" placeholder="Write your complete script here..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="manual-script-date">Schedule date</label>
+          <input id="manual-script-date" class="form-input" type="date" min="${today}" value="${scheduledDate}" required />
+        </div>
+        <div class="flex justify-between items-center" style="margin-top: 6px;">
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-cancel-manual-script">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Add to Calendar</button>
+        </div>
+      </form>
+    `;
+
+    container.querySelector('#btn-cancel-manual-script')?.addEventListener('click', closeModal);
+    container.querySelector('#manual-script-form')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const title = container.querySelector('#manual-script-topic').value.trim();
+      const script = container.querySelector('#manual-script-body').value.trim();
+      const date = container.querySelector('#manual-script-date').value;
+
+      if (!title || !script || !date) return;
+      if (date < today) {
+        showToast('Choose today or a future date.', 'error');
+        return;
+      }
+
+      await scheduleManualScript({ title, script, scheduledDate: date });
+      showToast(`Added to ${date}.`, 'success');
+      closeModal();
+      navigateTo('schedule');
     });
   }
 };
@@ -4927,6 +5031,7 @@ class ContentOSApp {
       insightCreate: 'Record New Clinical Insight',
       quickNote: 'Quick Thought / Scratchpad',
       aiImport: 'Import AI Script Pack',
+      manualScript: 'Add Your Own Script',
       trialFeedback: '3-Day Trial Reel Feedback',
       onboarding: 'Welcome to Content Mate'
     };
@@ -4966,6 +5071,8 @@ class ContentOSApp {
       AIImportModal.render(this.modalBody, options, this.closeModal.bind(this), this.openModal.bind(this), this.navigateTo.bind(this));
     } else if (modalType === 'trialFeedback') {
       TrialFeedbackModal.render(this.modalBody, options, this.closeModal.bind(this), this.openModal.bind(this), this.navigateTo.bind(this));
+    } else if (modalType === 'manualScript') {
+      ManualScriptModal.render(this.modalBody, options, this.closeModal.bind(this), this.navigateTo.bind(this));
     } else if (modalType === 'onboarding') {
       this.renderOnboarding(options.profile);
     }

@@ -277,6 +277,34 @@ export async function scheduleAcceptedScript(script) {
 }
 
 /**
+ * Adds a hand-written script straight to the publishing calendar. Manual
+ * entries are pinned so a future Re-Sprinkle never changes the chosen date.
+ */
+export async function scheduleManualScript({ title, script, scheduledDate, cta = '' }) {
+  const newReel = {
+    id: uuidv4(),
+    script_id: null,
+    insight_id: null,
+    source: 'manual',
+    title,
+    format: 'Custom Script',
+    hook: title,
+    script,
+    cta,
+    estimated_duration: '',
+    scheduled_date: scheduledDate,
+    status: 'scheduled',
+    is_locked: true,
+    is_main_reel: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  await db.saveScheduledReel(newReel);
+  return newReel;
+}
+
+/**
  * Promotes a tested Trial Reel to a permanent Main Reel.
  */
 export async function promoteToMainReel(trialReelId) {
