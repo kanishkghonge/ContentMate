@@ -344,7 +344,7 @@ const db = {
     }
 
     if (data.profile) await this.saveProfile(data.profile);
-
+    
     // Clear and restore notes
     if (Array.isArray(data.notes)) {
       for (const n of data.notes) await this.addNote(n);
@@ -401,7 +401,6 @@ const db = {
     return this.resetAllData();
   }
 };
-
 
 /* js/formats.js */
 /**
@@ -512,7 +511,6 @@ function getFormatById(id) {
     description: 'Clinical health content.'
   };
 }
-
 
 /* js/utils.js */
 /**
@@ -725,13 +723,15 @@ function setDevToolsEnabled(enabled) {
   window.dispatchEvent(new CustomEvent('doctor-os-dev-tools-change', { detail: { enabled } }));
 }
 
-
 /* js/scheduler.js */
 /**
  * Content OS for Doctors — Intelligent Auto-Scheduler
  * Balances content formats and medical topics across calendar days.
  * Uniformly sprinkles unposted scripts over 14 days (or doctor's configured window).
  */
+
+
+
 
 
 /**
@@ -1073,12 +1073,14 @@ async function promoteToMainReel(trialReelId) {
   return mainReel;
 }
 
-
 /* js/sampleData.js */
 /**
  * Content OS for Doctors — Realistic Clinical Sample Dataset
  * Enables instant 1-click testing of all workflows without manual typing.
  */
+
+
+
 
 
 async function populateSampleDoctorWorkspace() {
@@ -1289,12 +1291,14 @@ async function populateSampleDoctorWorkspace() {
   await recalculateFutureSchedule();
 }
 
-
 /* js/components/dashboard.js */
 /**
  * Content OS for Doctors — Home Dashboard (The Doctor's Daily Action Center)
  * Zero analytics clutter. Shows only what requires immediate action today.
  */
+
+
+
 
 
 const greetingBank = {
@@ -1389,7 +1393,7 @@ const DashboardView = {
 
     let html = `
       <div class="action-deck">
-
+        
         <!-- Time-aware greeting and daily snapshot. Capture actions live in the header. -->
         <div class="card card-hero">
           <p class="dashboard-greeting-eyebrow">Today\'s workspace</p>
@@ -1732,12 +1736,13 @@ const DashboardView = {
   }
 };
 
-
 /* js/components/notes.js */
 /**
  * Content OS for Doctors — Quick Notes System
  * Instant, lightweight thoughts with 1-tap conversion to full clinical Insights.
  */
+
+
 
 
 const NotesView = {
@@ -1756,9 +1761,9 @@ const NotesView = {
           </p>
 
           <form id="form-quick-note" class="flex flex-col gap-2">
-            <textarea
-              id="input-note-text"
-              class="form-textarea"
+            <textarea 
+              id="input-note-text" 
+              class="form-textarea" 
               placeholder="e.g. I should explain Vitamin D deficiency vs active calcitriol... or Had a patient with thyroid brain fog today."
               rows="3"
               required
@@ -1856,7 +1861,6 @@ const NotesView = {
     });
   }
 };
-
 
 /* js/prompt.js */
 /**
@@ -1976,11 +1980,13 @@ function buildDoctorPrompt(profile = {}, insight = {}) {
   ));
 }
 
-
 /* js/components/insightCreate.js */
 /**
  * Content OS for Doctors — Insight Capture & Custom Prompt Generator Modal
  */
+
+
+
 
 
 const InsightCreateModal = {
@@ -2006,22 +2012,22 @@ const InsightCreateModal = {
         <form id="form-create-insight">
           <div class="form-group">
             <label class="form-label" for="insight-title">Topic / Core Idea *</label>
-            <input
-              type="text"
-              id="insight-title"
-              class="form-input"
-              placeholder="e.g. Why normal blood pressure doesn't guarantee clean arteries..."
+            <input 
+              type="text" 
+              id="insight-title" 
+              class="form-input" 
+              placeholder="e.g. Why normal blood pressure doesn't guarantee clean arteries..." 
               value="${escapeHtml(prefillTitle)}"
-              required
+              required 
             />
           </div>
 
           <div class="form-group">
             <label class="form-label" for="insight-details">Clinical Explanation & Key Points *</label>
-            <textarea
-              id="insight-details"
-              class="form-textarea"
-              rows="4"
+            <textarea 
+              id="insight-details" 
+              class="form-textarea" 
+              rows="4" 
               placeholder="1. Endothelial micro-damage happens decades before hypertension.&#10;2. High ApoB and Lp(a) drive plaque formation.&#10;3. Early screening recommendation..."
               required
             ></textarea>
@@ -2046,11 +2052,11 @@ const InsightCreateModal = {
 
           <div class="form-group">
             <label class="form-label" for="insight-cta">What CTA do you want to have in the video?</label>
-            <input
-              type="text"
-              id="insight-cta"
-              class="form-input"
-              placeholder="Leave empty for default: Check caption for more"
+            <input 
+              type="text" 
+              id="insight-cta" 
+              class="form-input" 
+              placeholder="Leave empty for default: Check caption for more" 
             />
             <p style="font-size: 11.5px; color: var(--text-tertiary); margin-top: 3px;">
               If left blank, automatically defaults to "Check caption for more"
@@ -2059,10 +2065,10 @@ const InsightCreateModal = {
 
           <div class="form-group">
             <label class="form-label" for="insight-references">Extra context for the AI <span class="form-sublabel">optional</span></label>
-            <input
-              type="text"
-              id="insight-references"
-              class="form-input"
+            <input 
+              type="text" 
+              id="insight-references" 
+              class="form-input" 
               placeholder="e.g. Keep the tone calm and reassuring; speak to worried first-time patients"
             />
             <p style="font-size: 11.5px; color: var(--text-tertiary); margin-top: 3px;">Add any non-script direction, such as tone, audience context, or details the AI should keep in mind.</p>
@@ -2093,11 +2099,11 @@ const InsightCreateModal = {
 
         <!-- Prompt Text Box -->
         <div class="form-group">
-          <textarea
-            id="generated-prompt-box"
-            class="form-textarea"
-            rows="7"
-            readonly
+          <textarea 
+            id="generated-prompt-box" 
+            class="form-textarea" 
+            rows="7" 
+            readonly 
             style="font-family: var(--font-mono); font-size: 12px; background: var(--bg-subtle); color: var(--text-primary); border-color: var(--border-subtle);"
           ></textarea>
         </div>
@@ -2192,7 +2198,6 @@ const InsightCreateModal = {
   }
 };
 
-
 /* js/importer.js */
 /**
  * Content OS for Doctors — AI Response Importer & Schema Validator
@@ -2200,52 +2205,261 @@ const InsightCreateModal = {
  */
 
 
-function extractJSONObject(text) {
-  try {
-    const parsed = JSON.parse(text);
-    if (Array.isArray(parsed?.scripts)) return parsed;
-  } catch {
-    // AI tools sometimes add a preamble or code fence. Scan complete JSON
-    // objects instead of blindly taking the first "{" and the last "}".
+
+/**
+ * Strips JavaScript-style single-line (//) and block (/* *​/) comments from a
+ * string while preserving all content that is inside quoted strings.
+ *
+ * This makes AI-generated JSON with trailing comments or explanatory notes
+ * parseable by the strict JSON.parse built-in.
+ */
+function stripComments(src) {
+  let result = '';
+  let i = 0;
+  const len = src.length;
+
+  while (i < len) {
+    const ch = src[i];
+
+    // Inside a double-quoted string — copy verbatim, respecting escape sequences.
+    if (ch === '"') {
+      result += ch;
+      i++;
+      while (i < len) {
+        const sc = src[i];
+        result += sc;
+        i++;
+        if (sc === '\\') {
+          // Consume the escaped character so it is never misread.
+          if (i < len) { result += src[i]; i++; }
+        } else if (sc === '"') {
+          break; // End of string literal.
+        }
+      }
+      continue;
+    }
+
+    // Block comment: /* ... */
+    if (ch === '/' && src[i + 1] === '*') {
+      i += 2;
+      while (i < len) {
+        if (src[i] === '*' && src[i + 1] === '/') { i += 2; break; }
+        i++;
+      }
+      result += ' '; // Preserve whitespace so token positions stay valid.
+      continue;
+    }
+
+    // Line comment: // ...
+    if (ch === '/' && src[i + 1] === '/') {
+      i += 2;
+      while (i < len && src[i] !== '\n') i++;
+      // Leave the newline so line numbers are not disturbed.
+      continue;
+    }
+
+    result += ch;
+    i++;
   }
 
-  let fallbackObject = null;
+  return result;
+}
 
-  for (let start = text.indexOf('{'); start !== -1; start = text.indexOf('{', start + 1)) {
-    let depth = 0;
-    let inString = false;
-    let escaped = false;
+/**
+ * Scan `src` for the character-index of the closing `}` that matches the
+ * opening `{` at `startIndex`, correctly tracking:
+ *   - Nested braces and brackets
+ *   - Double-quoted strings (with all escape sequences)
+ *   - Single-line and block comments (already stripped, but belt-and-suspenders)
+ *
+ * Returns the index of the matching `}`, or -1 if not found.
+ */
+function findMatchingBrace(src, startIndex) {
+  let depth = 0;
+  let i = startIndex;
+  const len = src.length;
 
-    for (let index = start; index < text.length; index += 1) {
-      const character = text[index];
-      if (inString) {
-        if (escaped) escaped = false;
-        else if (character === '\\') escaped = true;
-        else if (character === '"') inString = false;
-        continue;
-      }
+  while (i < len) {
+    const ch = src[i];
 
-      if (character === '"') inString = true;
-      else if (character === '{') depth += 1;
-      else if (character === '}') {
-        depth -= 1;
-        if (depth === 0) {
-          try {
-            const parsed = JSON.parse(text.slice(start, index + 1));
-            if (Array.isArray(parsed?.scripts)) return parsed;
-            fallbackObject ??= parsed;
-          } catch {
-            // This opening brace did not start JSON. Keep scanning for the
-            // actual response object later in the pasted text.
-          }
+    if (ch === '"') {
+      // Skip over the entire string literal.
+      i++;
+      while (i < len) {
+        const sc = src[i];
+        i++;
+        if (sc === '\\') {
+          i++; // Skip one escaped character (handles \", \\, \uXXXX, etc.)
+        } else if (sc === '"') {
           break;
         }
       }
+      continue;
     }
+
+    if (ch === '{') { depth++; i++; continue; }
+    if (ch === '}') {
+      depth--;
+      if (depth === 0) return i;
+      i++;
+      continue;
+    }
+
+    i++;
+  }
+
+  return -1;
+}
+
+/**
+ * Attempt to recover valid JSON when the AI wrapped content string values in
+ * literal (unescaped) newlines.  JSON.parse forbids real newlines inside
+ * string literals; this replaces them with the two-character escape sequence.
+ *
+ * The replacement is done only inside string literals so structural newlines
+ * (between keys/values) are untouched.
+ */
+function fixRawNewlinesInStrings(src) {
+  let result = '';
+  let i = 0;
+  const len = src.length;
+
+  while (i < len) {
+    const ch = src[i];
+
+    if (ch === '"') {
+      result += ch;
+      i++;
+      while (i < len) {
+        const sc = src[i];
+        if (sc === '\\') {
+          // Pass through the escape sequence intact.
+          result += sc;
+          i++;
+          if (i < len) { result += src[i]; i++; }
+        } else if (sc === '"') {
+          result += sc;
+          i++;
+          break;
+        } else if (sc === '\n') {
+          result += '\\n'; // Replace literal newline with JSON escape.
+          i++;
+        } else if (sc === '\r') {
+          result += '\\r';
+          i++;
+        } else if (sc === '\t') {
+          result += '\\t';
+          i++;
+        } else {
+          result += sc;
+          i++;
+        }
+      }
+      continue;
+    }
+
+    result += ch;
+    i++;
+  }
+
+  return result;
+}
+
+/**
+ * Normalizes typographic ("smart") punctuation to their ASCII equivalents.
+ *
+ * AI responses pasted from Google Docs, Microsoft Word, or email clients often
+ * have straight quotes and apostrophes auto-converted to curly/typographic
+ * variants, and plain hyphens replaced with en/em dashes.  All of these break
+ * JSON.parse, so we normalize them first before any other repair is attempted.
+ *
+ *   "…"  →  "   (U+201C / U+201D  →  U+0022)
+ *   '…'  →  '   (U+2018 / U+2019  →  U+0027)
+ *   –    →  -   (U+2013 en dash  →  U+002D)
+ *   —    →  -   (U+2014 em dash  →  U+002D)
+ */
+function normalizeSmartQuotes(src) {
+  return src
+    .replace(/[\u201C\u201D\u201E\u201F\u2033\uFF02]/g, '"')  // curly double quotes / double primes → straight "
+    .replace(/[\u2018\u2019\u201A\u201B\u2032\uFF07]/g, "'")  // curly single quotes / apostrophes / single primes → straight '
+    .replace(/[\u2013\u2014]/g, '-'); // en dash / em dash → hyphen
+}
+
+/**
+ * Tries to parse `candidate` as JSON, applying progressive repair steps:
+ *   1. Raw attempt (smart quotes already normalized by extractJSONObject)
+ *   2. Strip comments, then retry
+ *   3. Strip comments + fix raw newlines inside strings, then retry
+ *
+ * NOTE: Smart quote normalization is intentionally done upstream in
+ * extractJSONObject so that stripComments and findMatchingBrace also receive
+ * clean ASCII text.  Do not re-add it here.
+ *
+ * Returns the parsed object on success, or null on failure.
+ */
+function tryParseJSON(candidate) {
+  // Step 1: Direct parse (fast path for well-formed JSON).
+  try { return JSON.parse(candidate); } catch { /* continue */ }
+
+  // Step 2: Strip JS comments (handles ChatGPT/Claude annotations).
+  const noComments = stripComments(candidate);
+  try { return JSON.parse(noComments); } catch { /* continue */ }
+
+  // Step 3: Also fix unescaped newlines inside string values.
+  const fixed = fixRawNewlinesInStrings(noComments);
+  try { return JSON.parse(fixed); } catch { /* continue */ }
+
+  return null;
+}
+
+/**
+ * Extracts the first valid JSON object from `text` that contains a `scripts`
+ * array.  Falls back to the first parseable JSON object if none has `scripts`.
+ *
+ * This replaces the old fragile character scanner with a correct implementation
+ * that handles escaped quotes, Unicode escapes, multi-line strings, and JS
+ * comments in AI responses.
+ */
+function extractJSONObject(text) {
+  // Normalize smart/typographic punctuation FIRST so that every downstream
+  // helper — stripComments, findMatchingBrace, and tryParseJSON — always
+  // operates on ASCII-clean text.  Both stripComments and findMatchingBrace
+  // track string boundaries by looking for the literal `"` character; curly
+  // quotes would fool them into misreading the JSON structure.
+  text = normalizeSmartQuotes(text);
+
+  // Fast path: the entire text (after comment/newline repair) is valid JSON.
+  const direct = tryParseJSON(text);
+  if (direct !== null && typeof direct === 'object') {
+    if (Array.isArray(direct?.scripts)) return direct;
+  }
+
+  // Slow path: scan for every `{` and attempt to extract a complete object.
+  let fallbackObject = null;
+
+  // Work on the comment-stripped version to avoid comment text confusing the
+  // brace scanner (e.g., `// }` should not decrement depth).
+  const cleaned = stripComments(text);
+
+  for (let start = cleaned.indexOf('{'); start !== -1; start = cleaned.indexOf('{', start + 1)) {
+    const end = findMatchingBrace(cleaned, start);
+    if (end === -1) continue;
+
+    const candidate = cleaned.slice(start, end + 1);
+    const parsed = tryParseJSON(candidate);
+    if (parsed !== null && typeof parsed === 'object') {
+      if (Array.isArray(parsed?.scripts)) return parsed;
+      fallbackObject ??= parsed;
+    }
+    // Move past this `{` to continue scanning for a better candidate.
+    start = end;
   }
 
   if (fallbackObject) return fallbackObject;
-  throw new Error('Invalid JSON syntax. Ask the AI to return only the JSON object, with double quotes escaped inside script text.');
+  throw new Error(
+    'No valid JSON object found. Ask the AI to return only the JSON object.' +
+    ' If the script text contains double-quotes, they must be escaped as \\".'
+  );
 }
 
 function parseAndValidateAIResponse(rawText, insightId) {
@@ -2318,12 +2532,14 @@ function parseAndValidateAIResponse(rawText, insightId) {
   };
 }
 
-
 /* js/components/aiImport.js */
 /**
  * Content OS for Doctors — AI JSON Importer Modal
  * Paste AI response, validate schema, and auto-link scripts to parent Insight.
  */
+
+
+
 
 
 const AIImportModal = {
@@ -2338,11 +2554,11 @@ const AIImportModal = {
 
         <form id="form-ai-import">
           <div class="form-group">
-            <textarea
-              id="ai-pasted-text"
-              class="form-textarea"
-              rows="8"
-              placeholder="Paste raw response or JSON object here..."
+            <textarea 
+              id="ai-pasted-text" 
+              class="form-textarea" 
+              rows="8" 
+              placeholder="Paste raw response or JSON object here..." 
               required
               style="font-family: var(--font-mono); font-size: 12.5px;"
             ></textarea>
@@ -2436,12 +2652,15 @@ const AIImportModal = {
   }
 };
 
-
 /* js/components/scriptReview.js */
 /**
  * Content OS for Doctors — Flashcard Script Review Deck
  * 1 card at a time. Zero spreadsheets. Accept, in-place Edit, Reject, Review Later.
  */
+
+
+
+
 
 
 const ScriptReviewView = {
@@ -2473,7 +2692,7 @@ const ScriptReviewView = {
 
     let html = `
       <div class="flashcard-wrapper">
-
+        
         <!-- Progress & Deck Counter -->
         <div>
           <div class="flashcard-progress-bar">
@@ -2487,7 +2706,7 @@ const ScriptReviewView = {
 
         <!-- The Single Flashcard -->
         <div class="flashcard" id="active-flashcard">
-
+          
           <!-- Card Top Format Header -->
           <div class="flashcard-header">
             <div class="flex items-center gap-2">
@@ -2504,7 +2723,7 @@ const ScriptReviewView = {
 
           <!-- Card Content Body (Readable or In-place Editable) -->
           <div class="flashcard-body ${this.isEditing ? 'flashcard-editable' : ''}">
-
+            
             <!-- Title -->
             <div class="flashcard-section">
               <span class="section-label">Script Title</span>
@@ -2651,7 +2870,7 @@ const ScriptReviewView = {
           <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--accent-green-subtle); color: var(--accent-green); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-
+          
           <h2 style="font-family: var(--font-heading); font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
             All Scripts Reviewed!
           </h2>
@@ -2677,13 +2896,16 @@ const ScriptReviewView = {
   }
 };
 
-
 /* js/components/scheduleView.js */
 /**
  * Content OS for Doctors — Visual Interactive Calendar View
  * Displays a full visual calendar grid showing scheduled posts on every day.
  * Clicking any day cell opens a clean modal sheet with full details and action controls.
  */
+
+
+
+
 
 
 const ScheduleView = {
@@ -2714,7 +2936,7 @@ const ScheduleView = {
 
     let html = `
       <div class="calendar-lane" style="max-width: 900px;">
-
+        
         <!-- Header & View Mode Switcher -->
         <div class="schedule-header">
           <div>
@@ -2742,7 +2964,7 @@ const ScheduleView = {
           <button class="btn btn-ghost btn-sm" id="btn-prev-month">
             ← Previous
           </button>
-
+          
           <h3 style="font-family: var(--font-heading); font-size: 17px; font-weight: 700; color: var(--text-primary);">
             ${monthName}
           </h3>
@@ -2944,7 +3166,7 @@ const ScheduleView = {
                     ${escapeHtml(reel.format)}
                   </span>
                 </div>
-
+                
                 <span class="action-card-badge ${isPosted ? 'badge-green' : isFilmed ? 'badge-blue' : 'badge-amber'}">
                   ${isPosted ? '✓ Posted' : isFilmed ? '✓ Filmed' : 'Ready to post'}
                 </span>
@@ -3096,11 +3318,12 @@ const ScheduleView = {
   }
 };
 
-
 /* js/components/manualScript.js */
 /**
  * Hand-written script modal — saves directly to the selected calendar date.
  */
+
+
 
 
 const ManualScriptModal = {
@@ -3155,13 +3378,15 @@ const ManualScriptModal = {
   }
 };
 
-
 /* js/components/trialFeedback.js */
 /**
  * Content OS for Doctors — 3-Day Trial Reel Feedback & Best Format Selection Sheet
- * 3 days after posting, evaluates performance across formats for an Insight,
+ * 3 days after posting, evaluates performance across formats for an Insight, 
  * identifies the single best-performing format, and automatically schedules it as a Main Reel.
  */
+
+
+
 
 
 const TrialFeedbackModal = {
@@ -3322,12 +3547,14 @@ const TrialFeedbackModal = {
   }
 };
 
-
 /* js/components/feedbackView.js */
 /**
  * Content OS for Doctors — Feedback Due Workspace View
  * Manages 3-day performance evaluations for trial reels, pending checks, and feedback history.
  */
+
+
+
 
 
 const FeedbackView = {
@@ -3603,12 +3830,13 @@ const FeedbackView = {
   }
 };
 
-
 /* js/components/library.js */
 /**
  * Content OS for Doctors — Content Library & Unified Insight Timelines
  * Every idea has its own chronological timeline from clinical spark to Main Reel.
  */
+
+
 
 
 const LibraryView = {
@@ -3745,7 +3973,7 @@ const LibraryView = {
 
         <!-- The Chronological Timeline -->
         <div class="insight-timeline">
-
+          
           <!-- Node 1: Clinical Spark Recorded -->
           <div class="timeline-node">
             <div class="timeline-dot done">✓</div>
@@ -3767,7 +3995,7 @@ const LibraryView = {
               <div class="flex justify-between items-center" style="margin-bottom: 4px;">
                 <strong style="font-size: 14px;">2. AI Scripts Review (${insScripts.length} Formats)</strong>
               </div>
-
+              
               ${
                 insScripts.length === 0
                   ? `<p style="font-size: 13px; color: var(--text-tertiary);">No scripts imported yet.</p>
@@ -3855,9 +4083,13 @@ const LibraryView = {
   }
 };
 
-
 /* js/components/settings.js */
 /** Doctor profile, workflow settings, data controls, and gated developer tools. */
+
+
+
+
+
 
 
 const DEV_ACCESS_KEYS = new Set(['kg-01', 'sm-01', 'tj-01']);
@@ -3918,7 +4150,7 @@ const SettingsView = {
           <section class="card settings-card">${cardHead('↥', 'Backup & restore', 'Your workspace stays in this browser. Save a JSON backup before changing devices or resetting data.')}<div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-export-json">Export backup</button><button class="btn btn-secondary btn-sm" id="btn-import-json-trigger">Restore backup</button><input type="file" id="input-file-backup" accept=".json,application/json" class="hidden"></div></section>
 
           <section class="card settings-card settings-support-card">
-            ${cardHead('💬', 'Support & feedback', "We're here to help — reach out any time.")}
+            ${cardHead('💬', 'Support & feedback', 'We\'re here to help — reach out any time.')}
             <div class="support-beta-banner">
               <span class="support-beta-badge">Beta</span>
               <p class="support-beta-text">Thank you for trying out the beta version of ContentMate! Your feedback helps us build something truly great for doctors.</p>
@@ -3926,7 +4158,9 @@ const SettingsView = {
             <p class="settings-helper" style="margin-top:12px;">For support, feedback, or bug reports, WhatsApp us directly:</p>
             <a href="https://wa.me/852183292" target="_blank" rel="noopener noreferrer" class="support-contact-btn" id="btn-support-whatsapp" aria-label="WhatsApp support at 852183292">
               <span class="support-contact-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.18-1.62A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.22-3.48-8.52zM12 21.94a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.67.96.98-3.57-.24-.37A9.9 9.9 0 0 1 2.06 12C2.06 6.49 6.49 2.06 12 2.06c2.67 0 5.18 1.04 7.07 2.93A9.94 9.94 0 0 1 21.94 12c0 5.51-4.43 9.94-9.94 9.94zm5.44-7.44c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07a8.17 8.17 0 0 1-2.4-1.48 9.01 9.01 0 0 1-1.66-2.07c-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.91-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47s1.07 2.87 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.27.49 1.7.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.69.25-1.28.17-1.41-.07-.12-.27-.19-.57-.34z" fill="currentColor"/></svg>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.18-1.62A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.22-3.48-8.52zM12 21.94a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.67.96.98-3.57-.24-.37A9.9 9.9 0 0 1 2.06 12C2.06 6.49 6.49 2.06 12 2.06c2.67 0 5.18 1.04 7.07 2.93A9.94 9.94 0 0 1 21.94 12c0 5.51-4.43 9.94-9.94 9.94zm5.44-7.44c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07a8.17 8.17 0 0 1-2.4-1.48 9.01 9.01 0 0 1-1.66-2.07c-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.91-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47s1.07 2.87 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.27.49 1.7.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.69.25-1.28.17-1.41-.07-.12-.27-.19-.57-.34z" fill="currentColor"/>
+                </svg>
               </span>
               <div class="support-contact-info">
                 <span class="support-contact-number">852 183 292</span>
@@ -3991,12 +4225,25 @@ const SettingsView = {
   }
 };
 
-
 /* js/app.js */
 /**
  * Content OS for Doctors — Main Application Coordinator & Router
  * Orchestrates local-first database, mobile bottom-nav, modal sheets, and views.
  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class ContentOSApp {
@@ -4380,6 +4627,5 @@ document.addEventListener('DOMContentLoaded', () => {
   const app = new ContentOSApp();
   app.init();
 });
-
 
 })();
