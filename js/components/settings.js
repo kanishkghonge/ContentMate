@@ -3,8 +3,8 @@
 import { db } from '../db.js';
 import { recalculateFutureSchedule } from '../scheduler.js';
 import { populateSampleDoctorWorkspace } from '../sampleData.js';
-import { showToast, escapeHtml, copyToClipboard, getTimeShiftDays, setTimeShiftDays, getDevToolsEnabled, setDevToolsEnabled } from '../utils.js';
-import { getDefaultPromptTemplate } from '../prompt.js';
+import { showToast, escapeHtml, getTimeShiftDays, setTimeShiftDays, getDevToolsEnabled, setDevToolsEnabled } from '../utils.js';
+import { getDefaultWritingInstructions } from '../prompt.js';
 
 const DEV_ACCESS_KEYS = new Set(['kg-01', 'sm-01', 'tj-01']);
 
@@ -17,7 +17,7 @@ export const SettingsView = {
     const profile = await db.getProfile();
     const timeShift = getTimeShiftDays();
     const devToolsEnabled = getDevToolsEnabled();
-    const activePrompt = profile.promptTemplate || getDefaultPromptTemplate();
+    const writingInstructions = profile.writingInstructions || getDefaultWritingInstructions();
 
     container.innerHTML = `
       <div class="settings-shell">
@@ -34,18 +34,18 @@ export const SettingsView = {
               <div class="form-group"><label class="form-label" for="prof-name">Doctor name *</label><input type="text" id="prof-name" class="form-input" value="${escapeHtml(profile.name || '')}" required></div>
               <div class="form-group"><label class="form-label" for="prof-specialty">Medical specialty *</label><input type="text" id="prof-specialty" class="form-input" value="${escapeHtml(profile.specialty || '')}" required></div>
               <div class="form-group"><label class="form-label" for="prof-audience">Target audience</label><select id="prof-audience" class="form-select"><option value="Patients" ${profile.audience === 'Patients' ? 'selected' : ''}>Patients</option><option value="Doctors" ${profile.audience === 'Doctors' ? 'selected' : ''}>Doctors</option><option value="Both" ${profile.audience === 'Both' ? 'selected' : ''}>Both</option></select></div>
-              <div class="form-group"><label class="form-label" for="prof-lang">Primary language / dialect</label><select id="prof-lang" class="form-select"><option value="English" ${profile.language === 'English' ? 'selected' : ''}>English</option><option value="Hinglish" ${profile.language === 'Hinglish' ? 'selected' : ''}>Hinglish</option><option value="Hindi" ${profile.language === 'Hindi' ? 'selected' : ''}>Hindi</option><option value="Spanish" ${profile.language === 'Spanish' ? 'selected' : ''}>Spanish</option></select></div>
+              <div class="form-group"><label class="form-label" for="prof-lang">Primary language / dialect</label><select id="prof-lang" class="form-select"><option value="English" ${profile.language === 'English' ? 'selected' : ''}>English</option><option value="Hinglish" ${profile.language === 'Hinglish' ? 'selected' : ''}>Hinglish</option><option value="Hindi" ${profile.language === 'Hindi' ? 'selected' : ''}>Hindi</option><option value="Marathi" ${profile.language === 'Marathi' ? 'selected' : ''}>Marathi</option><option value="Telugu" ${profile.language === 'Telugu' ? 'selected' : ''}>Telugu</option><option value="Kannada" ${profile.language === 'Kannada' ? 'selected' : ''}>Kannada</option><option value="Punjabi" ${profile.language === 'Punjabi' ? 'selected' : ''}>Punjabi</option></select></div>
               <div class="form-group"><label class="form-label" for="prof-tone">Preferred tone</label><select id="prof-tone" class="form-select"><option value="Conversational & Empathetic" ${profile.tone === 'Conversational & Empathetic' ? 'selected' : ''}>Conversational & empathetic</option><option value="Authoritative & Evidence-Based" ${profile.tone === 'Authoritative & Evidence-Based' ? 'selected' : ''}>Authoritative & evidence-based</option><option value="Friendly & Approachable" ${profile.tone === 'Friendly & Approachable' ? 'selected' : ''}>Friendly & approachable</option></select></div>
               <div class="form-group full-width"><label class="form-label" for="prof-clinic">Clinic / hospital name <span class="form-sublabel">optional</span></label><input type="text" id="prof-clinic" class="form-input" value="${escapeHtml(profile.clinicName || '')}" placeholder="e.g. Heart & Vascular Institute"></div>
             </div><div class="settings-card-actions"><button type="submit" class="btn btn-primary">Save profile</button></div>
           </form>
 
           <section class="card settings-card settings-card-wide">
-            ${cardHead('✦', 'AI script prompt', 'Edit the complete prompt used to generate every new insight.')}
-            <div class="prompt-safe-guide"><strong>Please keep the format the same—do not break it, otherwise scripts will not work well.</strong><p>It is better to give this prompt to an AI to make edits, so it does not accidentally change the structure or the JSON output format.</p></div>
-            <label class="form-label" for="setting-active-prompt">Working prompt</label><p class="settings-helper" style="margin-bottom:8px;">Text inside {{double braces}} is automatically filled with the doctor and insight details when you generate a prompt.</p>
-            <textarea id="setting-active-prompt" class="form-textarea prompt-preview" rows="22">${escapeHtml(activePrompt)}</textarea>
-            <div class="settings-card-actions"><button class="btn btn-primary btn-sm" id="btn-save-active-prompt">Save prompt</button><button class="btn btn-secondary btn-sm" id="btn-copy-active-prompt">Copy whole prompt</button><button class="btn btn-secondary btn-sm" id="btn-restore-original-prompt">Restore original prompt</button></div>
+            ${cardHead('✦', 'AI writing instructions', 'Shape the creative direction without risking the JSON output.')}
+            <div class="prompt-safe-guide"><strong>Only these writing instructions are editable.</strong><p>Your doctor details, selected language and length, CTA, and JSON output contract stay protected so imported scripts remain reliable.</p></div>
+            <label class="form-label" for="setting-writing-instructions">Writing instructions</label><p class="settings-helper" style="margin-bottom:8px;">Adjust the creative brief, hook style, storytelling, and clinical-depth guidance. The output structure is locked.</p>
+            <textarea id="setting-writing-instructions" class="form-textarea prompt-preview" rows="22">${escapeHtml(writingInstructions)}</textarea>
+            <div class="settings-card-actions"><button class="btn btn-primary btn-sm" id="btn-save-writing-instructions">Save writing instructions</button><button class="btn btn-secondary btn-sm" id="btn-restore-writing-instructions">Restore default instructions</button></div>
           </section>
 
           <section class="card settings-card">
@@ -80,22 +80,17 @@ export const SettingsView = {
       await saveProfile({ name: document.getElementById('prof-name').value.trim(), specialty: document.getElementById('prof-specialty').value.trim(), audience: document.getElementById('prof-audience').value, language: document.getElementById('prof-lang').value, tone: document.getElementById('prof-tone').value, clinicName: document.getElementById('prof-clinic').value.trim(), onboarded: true }, 'Doctor profile saved.');
       const sideName = document.getElementById('sidebar-dr-name'); if (sideName) sideName.textContent = profile.name || 'Doctor Workspace';
     });
-    document.getElementById('btn-save-active-prompt')?.addEventListener('click', async () => {
-      const promptTemplate = document.getElementById('setting-active-prompt').value.trim();
-      if (!promptTemplate) { showToast('Prompt cannot be empty.', 'error'); return; }
-      await saveProfile({ promptTemplate }, 'Working prompt saved.');
+    document.getElementById('btn-save-writing-instructions')?.addEventListener('click', async () => {
+      const updatedInstructions = document.getElementById('setting-writing-instructions').value.trim();
+      if (!updatedInstructions) { showToast('Writing instructions cannot be empty.', 'error'); return; }
+      await saveProfile({ writingInstructions: updatedInstructions }, 'Writing instructions saved.');
     });
-    document.getElementById('btn-copy-active-prompt')?.addEventListener('click', async () => {
-      const promptTemplate = document.getElementById('setting-active-prompt').value;
-      if (!promptTemplate.trim()) { showToast('Prompt cannot be empty.', 'error'); return; }
-      await copyToClipboard(promptTemplate);
-    });
-    document.getElementById('btn-restore-original-prompt')?.addEventListener('click', async () => {
-      if (!confirm('Restore the original working prompt? Your saved edits will be replaced.')) return;
-      delete profile.promptTemplate;
+    document.getElementById('btn-restore-writing-instructions')?.addEventListener('click', async () => {
+      if (!confirm('Restore the default writing instructions? Your saved edits will be replaced.')) return;
+      delete profile.writingInstructions;
       await db.saveProfile(profile);
-      document.getElementById('setting-active-prompt').value = getDefaultPromptTemplate();
-      showToast('Original prompt restored.', 'success');
+      document.getElementById('setting-writing-instructions').value = getDefaultWritingInstructions();
+      showToast('Default writing instructions restored.', 'success');
     });
 
     const saveSchedule = async (andRespace = false) => { await saveProfile({ sprinkleWindowDays: Number(document.getElementById('setting-sprinkle-window').value), maxPostsPerDay: Number(document.getElementById('setting-max-posts').value), sprinkleStrategy: document.getElementById('setting-sprinkle-strategy').value }); const result = await recalculateFutureSchedule(); showToast(andRespace ? `Re-spaced ${result.updatedCount} future reels.` : 'Schedule settings saved and re-spaced.', 'success'); };

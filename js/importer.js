@@ -5,6 +5,54 @@
 
 import { uuidv4 } from './utils.js';
 
+function extractJSONObject(text) {
+  try {
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed?.scripts)) return parsed;
+  } catch {
+    // AI tools sometimes add a preamble or code fence. Scan complete JSON
+    // objects instead of blindly taking the first "{" and the last "}".
+  }
+
+  let fallbackObject = null;
+
+  for (let start = text.indexOf('{'); start !== -1; start = text.indexOf('{', start + 1)) {
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+
+    for (let index = start; index < text.length; index += 1) {
+      const character = text[index];
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (character === '\\') escaped = true;
+        else if (character === '"') inString = false;
+        continue;
+      }
+
+      if (character === '"') inString = true;
+      else if (character === '{') depth += 1;
+      else if (character === '}') {
+        depth -= 1;
+        if (depth === 0) {
+          try {
+            const parsed = JSON.parse(text.slice(start, index + 1));
+            if (Array.isArray(parsed?.scripts)) return parsed;
+            fallbackObject ??= parsed;
+          } catch {
+            // This opening brace did not start JSON. Keep scanning for the
+            // actual response object later in the pasted text.
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  if (fallbackObject) return fallbackObject;
+  throw new Error('Invalid JSON syntax. Ask the AI to return only the JSON object, with double quotes escaped inside script text.');
+}
+
 export function parseAndValidateAIResponse(rawText, insightId) {
   if (!rawText || typeof rawText !== 'string') {
     throw new Error('Pasted content is empty. Please paste the JSON returned by your AI.');
@@ -25,21 +73,11 @@ export function parseAndValidateAIResponse(rawText, insightId) {
 
   cleaned = cleaned.trim();
 
-  // 2. Locate outermost JSON object boundaries { ... }
-  const startIdx = cleaned.indexOf('{');
-  const endIdx = cleaned.lastIndexOf('}');
-
-  if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) {
-    throw new Error('Could not find a valid JSON object. Please verify you copied the entire AI response.');
-  }
-
-  const jsonSnippet = cleaned.substring(startIdx, endIdx + 1);
-
   let data;
   try {
-    data = JSON.parse(jsonSnippet);
+    data = extractJSONObject(cleaned);
   } catch (err) {
-    throw new Error(`Invalid JSON syntax: ${err.message}. Check if the AI cut off mid-response.`);
+    throw new Error(`${err.message} Check that the response was not cut off.`);
   }
 
   // 3. Schema Validation

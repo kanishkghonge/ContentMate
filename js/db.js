@@ -89,7 +89,7 @@ export const defaultDoctorProfile = {
   name: 'Dr. Sarah Chen',
   specialty: 'Cardiologist & Preventative Health',
   audience: 'Patients', // 'Patients' | 'Doctors' | 'Both'
-  language: 'English', // 'English' | 'Hindi' | 'Hinglish' | 'Spanish'
+  language: 'English', // English | Hinglish | Hindi | Marathi | Telugu | Kannada | Punjabi
   tone: 'Conversational & Empathetic', // 'Conversational' | 'Authoritative' | 'Friendly'
   cta: 'both', // 'caption' | 'comment' | 'both'
   reelLength: '45-60s',

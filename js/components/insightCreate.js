@@ -7,9 +7,18 @@ import { buildDoctorPrompt } from '../prompt.js';
 import { uuidv4, copyToClipboard, showToast, escapeHtml } from '../utils.js';
 
 export const InsightCreateModal = {
-  render(container, options = {}, onDone, openModal) {
+  async render(container, options = {}, onDone, openModal) {
     const prefillTitle = options.prefillTitle || '';
     const noteId = options.noteId || null;
+    const profile = await db.getProfile();
+    const languageOptions = ['English', 'Hinglish', 'Hindi', 'Marathi', 'Telugu', 'Kannada', 'Punjabi'];
+    const selectedLanguage = languageOptions.includes(profile.language)
+      ? profile.language
+      : 'English';
+    const durationOptions = ['20s', '30s', '40s', '50s'];
+    const selectedDuration = durationOptions.includes(profile.reelLength)
+      ? profile.reelLength
+      : '40s';
 
     container.innerHTML = `
       <div class="modal-view-step" id="step-insight-form">
@@ -39,6 +48,23 @@ export const InsightCreateModal = {
               placeholder="1. Endothelial micro-damage happens decades before hypertension.&#10;2. High ApoB and Lp(a) drive plaque formation.&#10;3. Early screening recommendation..."
               required
             ></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="insight-language">Video language</label>
+              <select id="insight-language" class="form-select">
+                ${languageOptions.map((language) => `<option value="${language}" ${language === selectedLanguage ? 'selected' : ''}>${language}</option>`).join('')}
+              </select>
+              <p style="font-size: 11.5px; color: var(--text-tertiary); margin-top: 3px;">Defaults to your Settings choice.</p>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="insight-duration">Video length</label>
+              <select id="insight-duration" class="form-select">
+                ${durationOptions.map((duration) => `<option value="${duration}" ${duration === selectedDuration ? 'selected' : ''}>${duration.replace('s', ' sec')}</option>`).join('')}
+              </select>
+            </div>
           </div>
 
           <div class="form-group">
@@ -129,6 +155,8 @@ export const InsightCreateModal = {
       e.preventDefault();
       const title = document.getElementById('insight-title').value.trim();
       const details = document.getElementById('insight-details').value.trim();
+      const language = document.getElementById('insight-language').value;
+      const reel_length = document.getElementById('insight-duration').value;
       const ctaVal = document.getElementById('insight-cta').value.trim();
       const references = document.getElementById('insight-references').value.trim();
 
@@ -142,6 +170,8 @@ export const InsightCreateModal = {
         title,
         description: details.substring(0, 140) + '...',
         supporting_points: details,
+        language,
+        reel_length,
         custom_cta,
         references,
         status: 'active',
@@ -161,8 +191,8 @@ export const InsightCreateModal = {
       }
 
       // Generate bespoke prompt
-      const profile = await db.getProfile();
-      const promptText = buildDoctorPrompt(profile, newInsight);
+      const latestProfile = await db.getProfile();
+      const promptText = buildDoctorPrompt(latestProfile, newInsight);
 
       document.getElementById('generated-prompt-box').value = promptText;
       document.getElementById('step-insight-form').classList.add('hidden');

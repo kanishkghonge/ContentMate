@@ -46,6 +46,10 @@ function getDashboardGreeting(date, name) {
   return greeting.replace('{{name}}', name || 'Doctor');
 }
 
+function scriptViewerButton(reelId) {
+  return `<button class="btn btn-sm btn-secondary btn-view-script" data-id="${reelId}">View Script</button>`;
+}
+
 export const DashboardView = {
   async render(container, navigateTo, openModal) {
     const profile = await db.getProfile();
@@ -133,6 +137,7 @@ export const DashboardView = {
                   </div>
                 </div>
                 <div class="flex gap-2">
+                  ${scriptViewerButton(post.id)}
                   ${
                     enableFilming
                       ? `<button class="btn btn-sm btn-secondary btn-mark-filmed" data-id="${post.id}">
@@ -193,9 +198,10 @@ export const DashboardView = {
                     <span>${post.format}</span>
                   </div>
                 </div>
-                <button class="btn btn-sm btn-primary btn-log-feedback" data-id="${post.id}">
-                  Log Feedback & Decide
-                </button>
+                <div class="flex gap-2">
+                  ${scriptViewerButton(post.id)}
+                  <button class="btn btn-sm btn-primary btn-log-feedback" data-id="${post.id}">Log Feedback & Decide</button>
+                </div>
               </div>
             `).join('')}
           </div>
@@ -221,6 +227,7 @@ export const DashboardView = {
                   <div class="today-item-meta">Was due ${formatDate(post.scheduled_date)}</div>
                 </div>
                 <div class="flex gap-2" style="flex-wrap: wrap; justify-content: flex-end;">
+                  ${scriptViewerButton(post.id)}
                   <input class="form-input missed-date-input" data-id="${post.id}" type="date" min="${todayStr}" value="${todayStr}" aria-label="New post date" style="width: 142px; padding: 6px 8px; font-size: 12px;" />
                   <button class="btn btn-sm btn-primary btn-reschedule-missed-date" data-id="${post.id}">Reschedule</button>
                   <button class="btn btn-sm btn-secondary btn-skip-missed" data-id="${post.id}">Skip</button>
@@ -264,9 +271,7 @@ export const DashboardView = {
                 <button class="btn btn-sm btn-secondary btn-mark-filmed" data-id="${post.id}">
                   Mark Shot
                 </button>
-                <button class="btn btn-sm btn-ghost btn-copy-script" data-id="${post.id}">
-                  Copy Script
-                </button>
+                ${scriptViewerButton(post.id)}
               </div>
             `).join('')}
           </div>
@@ -374,26 +379,14 @@ export const DashboardView = {
       });
     });
 
-    container.querySelectorAll('.btn-copy-script').forEach((btn) => {
+    container.querySelectorAll('.btn-view-script').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         const reel = await db.getScheduledReel(e.currentTarget.dataset.id);
         if (!reel?.script) {
-          showToast('There is no script to copy for this post.', 'info');
+          showToast('There is no script available for this reel.', 'info');
           return;
         }
-        try {
-          await navigator.clipboard.writeText(reel.script);
-        } catch {
-          const textarea = document.createElement('textarea');
-          textarea.value = reel.script;
-          textarea.style.position = 'fixed';
-          textarea.style.opacity = '0';
-          document.body.appendChild(textarea);
-          textarea.select();
-          document.execCommand('copy');
-          textarea.remove();
-        }
-        showToast('Script copied to clipboard.', 'success');
+        openModal('scriptDetail', { reel });
       });
     });
 

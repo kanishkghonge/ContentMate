@@ -16,7 +16,7 @@ import { FeedbackView } from './components/feedbackView.js';
 import { LibraryView } from './components/library.js';
 import { SettingsView } from './components/settings.js';
 import { rescheduleMissedPosts } from './scheduler.js';
-import { formatDate, getSystemDate, escapeHtml, showToast } from './utils.js';
+import { formatDate, getSystemDate, escapeHtml, showToast, copyToClipboard } from './utils.js';
 
 class ContentOSApp {
   constructor() {
@@ -169,6 +169,7 @@ class ContentOSApp {
       aiImport: 'Import AI Script Pack',
       manualScript: 'Add Your Own Script',
       trialFeedback: '3-Day Trial Reel Feedback',
+      scriptDetail: 'Reel Script',
       onboarding: 'Welcome to Content Mate'
     };
 
@@ -209,6 +210,33 @@ class ContentOSApp {
       TrialFeedbackModal.render(this.modalBody, options, this.closeModal.bind(this), this.openModal.bind(this), this.navigateTo.bind(this));
     } else if (modalType === 'manualScript') {
       ManualScriptModal.render(this.modalBody, options, this.closeModal.bind(this), this.navigateTo.bind(this));
+    } else if (modalType === 'scriptDetail') {
+      const reel = options.reel || {};
+      const fullScript = [
+        reel.title && `TITLE: ${reel.title}`,
+        reel.format && `FORMAT: ${reel.format}`,
+        reel.hook && `HOOK: ${reel.hook}`,
+        reel.script && `SCRIPT:\n${reel.script}`,
+        reel.cta && `CTA: ${reel.cta}`
+      ].filter(Boolean).join('\n\n');
+
+      this.modalBody.innerHTML = `
+        <div class="reel-script-detail">
+          <div class="reel-script-detail-meta">
+            <span>${escapeHtml(reel.format || 'Reel')}</span>
+            ${reel.estimated_duration ? `<span>• ${escapeHtml(reel.estimated_duration)}</span>` : ''}
+          </div>
+          <h4 class="reel-script-detail-title">${escapeHtml(reel.title || 'Untitled script')}</h4>
+          <div class="reel-script-detail-box">${escapeHtml(fullScript)}</div>
+          <div class="flex justify-between items-center" style="margin-top: 16px;">
+            <button type="button" class="btn btn-ghost" id="btn-close-script-detail">Close</button>
+            <button type="button" class="btn btn-primary" id="btn-copy-full-script">Copy Whole Script</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('btn-close-script-detail')?.addEventListener('click', () => this.closeModal());
+      document.getElementById('btn-copy-full-script')?.addEventListener('click', () => copyToClipboard(fullScript));
     } else if (modalType === 'onboarding') {
       this.renderOnboarding(options.profile);
     }

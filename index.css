@@ -803,6 +803,53 @@ body {
   gap: 6px;
 }
 
+.reel-script-detail-meta {
+  display: flex;
+  gap: 6px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.reel-script-detail-title {
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-size: 18px;
+  line-height: 1.35;
+  margin-bottom: 14px;
+}
+
+.reel-script-detail-box {
+  max-height: min(52vh, 520px);
+  overflow-y: auto;
+  white-space: pre-wrap;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 16px;
+}
+
+@media (max-width: 640px) {
+  .today-item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .today-item-info {
+    flex: 1 1 100%;
+  }
+
+  .today-item > .flex {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
 /* ==========================================================================
    FLASHCARD SCRIPT REVIEW DECK
    ========================================================================== */
