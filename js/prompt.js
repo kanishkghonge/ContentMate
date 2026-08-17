@@ -19,6 +19,10 @@ The goal is not simply to explain the insight.
 
 The goal is to discover the **angle that makes the insight feel impossible to ignore.**
 
+STRICT JSON VALIDATION: The final response MUST be valid JSON that successfully parses with JavaScript JSON.parse(). Before outputting, mentally validate the complete JSON structure. Every string must have properly escaped internal double quotes (\") and backslashes (\\). Do not output literal unescaped double quotes inside string values. Do not use trailing commas, comments, markdown fences, or extra text outside the JSON object. If any character would make JSON.parse() fail, fix it before responding.
+
+dont ever in script write any thing "__" format that breaks json so instead of " use *
+
 =======================================================
 
 1. DOCTOR PROFILE
@@ -861,29 +865,39 @@ Each returned script must represent a meaningfully different attack on the insig
 
 Respond ONLY with valid JSON.
 
-Schema:
+Do not wrap the JSON in markdown fences.
+
+Do not include any text before or after the JSON.
+
+Use double quotes for all JSON keys and string values.
+
+Do not add comments or trailing commas.
+
+The JSON must match this exact schema:
 
 {
-"version": 1,
-"insight_title": "{{insight_title_json}}",
-"doctor_specialty": "{{specialty_json}}",
-"scripts": [
-{
-"format": "Best-fit format",
-"angle": "The unique angle of attack used for this script",
-"title": "Curiosity-driven title",
-"hook": "Actual spoken opening",
-"script": "Complete spoken script with selective [Visual Cue], [Pacing], and [On-Screen Text] directions",
-"cta": "{{selected_cta_json}}",
-"estimated_duration": "45s",
-"confidence": 9.5
-}
-]
+  "version": 1,
+  "insight_title": "{{insight_title_json}}",
+  "doctor_specialty": "{{specialty_json}}",
+  "scripts": [
+    {
+      "format": "Best-fit format",
+      "angle": "The unique conceptual angle of attack used for this script",
+      "title": "Curiosity-driven title",
+      "hook": "Actual spoken opening",
+      "script": "Complete spoken script with selective [Visual Cue], [Pacing], and [On-Screen Text] directions",
+      "cta": "{{selected_cta_json}}",
+      "estimated_duration": "45s",
+      "confidence": 9.5
+    }
+  ]
 }
 
-The "angle" field is mandatory.
+The "doctor_specialty" field is mandatory.
 
-It should describe the conceptual attack, NOT merely the format.
+The "angle" field is mandatory for every script.
+
+The "angle" must describe the conceptual attack, NOT merely the format.
 
 For example:
 
@@ -892,6 +906,12 @@ For example:
 Not:
 
 "Talking Head."
+
+Every returned script must use a meaningfully different angle.
+
+Do not add any fields beyond the schema above.
+
+The result must be directly parseable by JSON.parse().
 
 =======================================================
 FINAL PRINCIPLE
@@ -906,19 +926,23 @@ Ask:
 
 Then write the script.`;
 
-function buildDefaultDoctorPrompt(profile, insight) {
+function buildDefaultDoctorPrompt(profile = {}, insight = {}) {
+  profile = profile || {};
+  insight = insight || {};
+
   const doctorName = profile.name || 'Doctor';
   const specialty = profile.specialty || 'General Medicine & Preventative Care';
   const audience = profile.audience || 'Patients';
   const language = profile.language || 'English';
   const tone = profile.tone || 'Conversational & Empathetic';
-  
+
   // Custom CTA from insight or fallback to doctor profile preference or default
   const defaultCtaText = insight.custom_cta || profile.cta || 'Check caption for more';
+
   const ctaInstruction = profile.cta === 'both' && !insight.custom_cta
     ? 'Generate BOTH versions (1. "Read caption for full clinical details" and 2. "Comment keyword for DM guide")'
     : defaultCtaText;
-    
+
   const reelLength = profile.reelLength || '45-60s';
 
   // Format list instructions
@@ -927,11 +951,15 @@ function buildDefaultDoctorPrompt(profile, insight) {
   }).join('\n');
 
   return `You are an elite medical copywriter and clinical retention strategist for world-class doctor creators.
-Your mission is to transform a doctor's raw clinical insight into a high-retention social media content pack that STOP SKIPPING, TRIGGERS IMMENSE CURIOSITY, and GOES DEEP into medical reality.
+
+Your mission is to transform a doctor's raw clinical insight into a high-retention social media content pack that STOP SKIPPING, TRIGGERS IMMENSE CURIOSITY, and GOES DEEP into medical reality. STRICT JSON VALIDATION: The final response MUST be valid JSON that successfully parses with JavaScript JSON.parse(). Before outputting, mentally validate the complete JSON structure. Every string must have properly escaped internal double quotes (\") and backslashes (\\). Do not output literal unescaped double quotes inside string values. Do not use trailing commas, comments, markdown fences, or extra text outside the JSON object. If any character would make JSON.parse() fail, fix it before responding.
+
+dont ever in script write any thing "__" format that breaks json so instead of " use *
 
 =======================================================
 1. DOCTOR PROFILE & COMMUNICATION PREFERENCES
 =======================================================
+
 - Doctor: ${doctorName}
 - Specialty: ${specialty}
 - Target Audience: ${audience} (Speak directly to their unstated anxieties, body signals, and clinical realities)
@@ -943,44 +971,96 @@ Your mission is to transform a doctor's raw clinical insight into a high-retenti
 =======================================================
 2. CORE CLINICAL INSIGHT
 =======================================================
+
 - Title / Core Idea: ${insight.title}
+
 - Clinical Details & Supporting Notes:
 ${insight.supporting_points || insight.description || 'Explain the underlying mechanism with clinical clarity.'}
+
 ${insight.references ? `- References / Patient Context: ${insight.references}` : ''}
+
 - Selected Video CTA: ${insight.custom_cta || 'Check caption for more'}
 
 =======================================================
-3. REQUESTED SCRIPT FORMATS
+3. AVAILABLE SCRIPT FORMATS
 =======================================================
-Generate one high-retention script for each of the following formats:
+
+Choose the 3–4 formats that best amplify the strongest angles for this insight.
+
+Do NOT generate one script for every format.
+
+Each selected script must use a meaningfully different conceptual angle.
+
+Available formats:
+
 ${formatsList}
 
 =======================================================
 4. HIGH-RETENTION CURIOSITY ARCHITECTURE (STRICT RULES)
 =======================================================
+
 Rule 1: ZERO SURFACE-LEVEL FLUFF OR GENERIC ADVICE
+
 - BANNED: "eat healthy", "sleep 8 hours", "drink water", "listen to your body", "consult your doctor".
 - REQUIRED: Explain the DEEP physiological mechanism (e.g. endothelial shear stress, ApoB lipid oxidation, calcium channel excitability, receptor down-regulation) using vivid, physical metaphors (plumbing pressure, electrical wiring, rust in pipes).
 
 Rule 2: SCROLL-STOPPING CURIOSITY HOOKS (0-3s)
+
 - Hooks MUST create a powerful curiosity gap or challenge a deeply held myth.
-- Examples: "The 1 symptom of heart disease most 35-year-olds ignore because their blood pressure cuff reads 120/80...", "Why taking standard magnesium for night palpitations backfires unless you check this 1 chelate...", "What actually happens to your arteries 10 years before your labs turn red..."
+- Do NOT reveal the complete takeaway in the first sentence.
+- The opening should make the viewer want the answer before they know the full explanation.
+- Examples:
+  "The 1 symptom of heart disease most 35-year-olds ignore because their blood pressure cuff reads 120/80..."
+  "Why taking standard magnesium for night palpitations backfires unless you check this 1 chelate..."
+  "What actually happens to your arteries 10 years before your labs turn red..."
 
 Rule 3: CONTINUOUS CURIOSITY LOOPS & SUSPENSE
-- Do NOT reveal the core takeaway in sentence 1. Build tension line-by-line.
-- Use pattern-break transitions: "Here is why that happens...", "And this is where 90% of patients make a critical mistake...", "Notice what your body is actually doing here..."
+
+- Do NOT reveal the core takeaway in sentence 1.
+- Build tension line-by-line.
+- Use pattern-break transitions naturally.
+- Avoid repetitive fake cliffhangers.
 
 Rule 4: VISUAL & PACING STAGE DIRECTIONS
-- Include explicit visual cues in brackets throughout every script: "[Visual Cue: Points to neck / holds up model]", "[Pacing: Pause 1 sec for gravity]", "[On-Screen Text: Key Mechanism Blueprint]".
+
+- Include explicit visual cues in brackets where useful:
+  "[Visual Cue: Points to neck / holds up model]"
+  "[Pacing: Pause 1 sec for gravity]"
+  "[On-Screen Text: Key Mechanism Blueprint]"
+- Visual cues should support the explanation, not appear mechanically in every sentence.
 
 Rule 5: ACTIONABLE PAYOFF & CLEAN CTA
-- End with a precise, empowering takeaway followed by the requested CTA: "${insight.custom_cta || 'Check caption for more'}".
+
+- End with a precise, empowering clinical takeaway followed naturally by the requested CTA:
+"${insight.custom_cta || 'Check caption for more'}"
 
 =======================================================
 5. OUTPUT INSTRUCTIONS (CRITICAL: JSON ONLY)
 =======================================================
+
 Respond ONLY with a valid JSON object matching the exact schema below.
-DO NOT include markdown outside the json, no conversational preamble, no extra text.
+
+Do not wrap the JSON in markdown fences.
+
+Do not include a conversational preamble.
+
+Do not include any text before or after the JSON.
+
+The result must be directly parseable by JSON.parse().
+
+Generate 3–4 scripts when 3–4 genuinely strong angles exist.
+
+Generate fewer only when the insight cannot support more strong scripts.
+
+Do not generate minor variations of the same script.
+
+The "format" value must be the exact name of a selected format from the available format list above.
+
+The "angle" must describe the conceptual attack used by the script.
+
+Different scripts must have meaningfully different angles, not merely different wording.
+
+Return this exact structure:
 
 {
   "version": 1,
@@ -988,61 +1068,48 @@ DO NOT include markdown outside the json, no conversational preamble, no extra t
   "doctor_specialty": "${escapeJsonString(specialty)}",
   "scripts": [
     {
-      "format": "Talking Head",
+      "format": "Exact selected format name",
+      "angle": "The unique conceptual angle of attack used for this script",
       "title": "Clear curiosity-driven title",
       "hook": "Scroll-stopping curiosity hook sentence...",
-      "script": "Complete spoken script with [Visual Cues], [Pacing Notes], deep physiological explanations, and tension loops...",
-      "cta": "${escapeJsonString(insight.custom_cta || 'Check caption for more')}",
-      "estimated_duration": "45s",
-      "confidence": 9.6
-    },
-    {
-      "format": "Patient Story",
-      "title": "...",
-      "hook": "...",
-      "script": "...",
-      "cta": "${escapeJsonString(insight.custom_cta || 'Check caption for more')}",
-      "estimated_duration": "60s",
-      "confidence": 9.4
-    },
-    {
-      "format": "Myth vs Fact",
-      "title": "...",
-      "hook": "...",
-      "script": "...",
+      "script": "Complete spoken script with [Visual Cue], [Pacing], and [On-Screen Text] directions...",
       "cta": "${escapeJsonString(insight.custom_cta || 'Check caption for more')}",
       "estimated_duration": "45s",
       "confidence": 9.5
-    },
-    {
-      "format": "Q&A Consultation",
-      "title": "...",
-      "hook": "...",
-      "script": "...",
-      "cta": "${escapeJsonString(insight.custom_cta || 'Check caption for more')}",
-      "estimated_duration": "40s",
-      "confidence": 9.2
-    },
-    {
-      "format": "Whiteboard / Concept Breakdown",
-      "title": "...",
-      "hook": "...",
-      "script": "...",
-      "cta": "${escapeJsonString(insight.custom_cta || 'Check caption for more')}",
-      "estimated_duration": "60s",
-      "confidence": 9.3
-    },
-    {
-      "format": "Step-by-Step Carousel",
-      "title": "...",
-      "hook": "...",
-      "script": "Slide 1 (Hook): ...\\nSlide 2 (Deep Mechanism): ...\\nSlide 3 (Clinical Reality): ...\\nSlide 4 (Action Step): ...\\nSlide 5 (Summary & CTA): ...",
-      "cta": "${escapeJsonString(insight.custom_cta || 'Check caption for more')}",
-      "estimated_duration": "Slide-deck",
-      "confidence": 9.0
     }
   ]
-}`;
+}
+
+STRICT JSON CONTRACT:
+
+- Top-level fields must be exactly:
+  "version",
+  "insight_title",
+  "doctor_specialty",
+  "scripts".
+
+- Each script object must contain exactly:
+  "format",
+  "angle",
+  "title",
+  "hook",
+  "script",
+  "cta",
+  "estimated_duration",
+  "confidence".
+
+- "angle" is mandatory.
+- "angle" must describe the conceptual attack, not the format name.
+- Every script must use a meaningfully different angle.
+- "confidence" must be a JSON number.
+- "estimated_duration" must be a string.
+- Do not add, remove, or rename fields.
+- Return fewer scripts only when fewer genuinely strong angles exist.
+- No markdown fences.
+- No explanatory text.
+- The result must be directly parseable using JSON.parse().
+
+`;
 }
 
 /** The editable source template used for new insight prompts. */
@@ -1050,7 +1117,10 @@ export function getDefaultPromptTemplate() {
   return DEFAULT_PROMPT_TEMPLATE;
 }
 
-export function buildDoctorPrompt(profile, insight) {
+export function buildDoctorPrompt(profile = {}, insight = {}) {
+  profile = profile || {};
+  insight = insight || {};
+
   const values = {
     doctor_name: profile.name || 'Doctor',
     specialty: profile.specialty || 'General Medicine & Preventative Care',
@@ -1061,15 +1131,25 @@ export function buildDoctorPrompt(profile, insight) {
     reel_length: profile.reelLength || '45-60s',
     insight_title: insight.title || '',
     insight_title_json: escapeJsonString(insight.title),
-    specialty_json: escapeJsonString(profile.specialty || 'General Medicine & Preventative Care'),
-    insight_details: insight.supporting_points || insight.description || 'Explain the underlying mechanism with clinical clarity.',
+    specialty_json: escapeJsonString(
+      profile.specialty || 'General Medicine & Preventative Care'
+    ),
+    insight_details:
+      insight.supporting_points ||
+      insight.description ||
+      'Explain the underlying mechanism with clinical clarity.',
     additional_context: insight.references || '',
     selected_cta: insight.custom_cta || 'Check caption for more',
-    selected_cta_json: escapeJsonString(insight.custom_cta || 'Check caption for more')
+    selected_cta_json: escapeJsonString(
+      insight.custom_cta || 'Check caption for more'
+    )
   };
 
   const template = profile.promptTemplate || DEFAULT_PROMPT_TEMPLATE;
+
   return template.replace(/\{\{([a-z_]+)\}\}/g, (token, key) => (
-    Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : token
+    Object.prototype.hasOwnProperty.call(values, key)
+      ? String(values[key])
+      : token
   ));
 }
