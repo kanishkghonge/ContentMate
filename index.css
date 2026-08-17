@@ -1719,10 +1719,108 @@ body {
 .dev-tools-panel h4 { font-size: 13px; font-weight: 750; margin-bottom: 4px; }
 .dev-tools-panel p { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
 
+.settings-support-card {
+  border-color: #bce4d8;
+  background: linear-gradient(135deg, #f0fdf9 0%, #e6f7f1 100%);
+}
+
+.settings-support-card .settings-card-icon {
+  background: #d1f5ea;
+  color: #0a8d62;
+}
+
+.support-beta-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(10, 141, 98, 0.08);
+  border: 1px solid #b6e8d5;
+  margin-bottom: 4px;
+}
+
+.support-beta-badge {
+  flex: 0 0 auto;
+  display: inline-block;
+  padding: 2px 8px;
+  background: #0a8d62;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  border-radius: var(--radius-full);
+  margin-top: 2px;
+}
+
+.support-beta-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #0a5c44;
+  margin: 0;
+}
+
+.support-contact-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-top: 14px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid #0a8d62;
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(10, 141, 98, 0.08);
+}
+
+.support-contact-btn:hover {
+  background: #0a8d62;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(10, 141, 98, 0.22);
+  transform: translateY(-1px);
+}
+
+.support-contact-btn:hover .support-contact-number,
+.support-contact-btn:hover .support-contact-hint {
+  color: #fff;
+}
+
+.support-contact-icon {
+  font-size: 26px;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+
+.support-contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.support-contact-number {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: #0a8d62;
+  letter-spacing: .02em;
+  transition: color var(--transition-fast);
+}
+
+.support-contact-hint {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  transition: color var(--transition-fast);
+}
+
 .settings-danger {
   border: 1.5px dashed var(--accent-red);
   background: var(--accent-red-subtle);
 }
+
 
 @media (max-width: 680px) {
   .settings-grid,

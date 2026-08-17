@@ -63,6 +63,26 @@ export const SettingsView = {
 
           <section class="card settings-card">${cardHead('↥', 'Backup & restore', 'Your workspace stays in this browser. Save a JSON backup before changing devices or resetting data.')}<div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-export-json">Export backup</button><button class="btn btn-secondary btn-sm" id="btn-import-json-trigger">Restore backup</button><input type="file" id="input-file-backup" accept=".json,application/json" class="hidden"></div></section>
 
+          <section class="card settings-card settings-support-card">
+            ${cardHead('💬', 'Support & feedback', 'We\'re here to help — reach out any time.')}
+            <div class="support-beta-banner">
+              <span class="support-beta-badge">Beta</span>
+              <p class="support-beta-text">Thank you for trying out the beta version of ContentMate! Your feedback helps us build something truly great for doctors.</p>
+            </div>
+            <p class="settings-helper" style="margin-top:12px;">For support, feedback, or bug reports, WhatsApp us directly:</p>
+            <a href="https://wa.me/852183292" target="_blank" rel="noopener noreferrer" class="support-contact-btn" id="btn-support-whatsapp" aria-label="WhatsApp support at 852183292">
+              <span class="support-contact-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.18-1.62A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.22-3.48-8.52zM12 21.94a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.67.96.98-3.57-.24-.37A9.9 9.9 0 0 1 2.06 12C2.06 6.49 6.49 2.06 12 2.06c2.67 0 5.18 1.04 7.07 2.93A9.94 9.94 0 0 1 21.94 12c0 5.51-4.43 9.94-9.94 9.94zm5.44-7.44c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07a8.17 8.17 0 0 1-2.4-1.48 9.01 9.01 0 0 1-1.66-2.07c-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.91-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47s1.07 2.87 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.27.49 1.7.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.69.25-1.28.17-1.41-.07-.12-.27-.19-.57-.34z" fill="currentColor"/>
+                </svg>
+              </span>
+              <div class="support-contact-info">
+                <span class="support-contact-number">852 183 292</span>
+                <span class="support-contact-hint">Open in WhatsApp</span>
+              </div>
+            </a>
+          </section>
+
           <section class="card settings-card developer-card">
             ${cardHead('⌘', 'Developer options', 'Testing tools are hidden by default so the regular workspace stays clean.')}
             <div class="settings-choice"><input type="checkbox" id="setting-dev-tools" ${devToolsEnabled ? 'checked' : ''}><div><label for="setting-dev-tools">Enable developer options for this session</label><p>Includes 3-day time travel and the Cardiology demo workspace.</p></div></div>
