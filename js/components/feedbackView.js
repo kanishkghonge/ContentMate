@@ -11,6 +11,12 @@ export const FeedbackView = {
   activeTab: 'due', // 'due', 'awaiting', 'history'
 
   async render(container, navigateTo, openModal) {
+    const profile = await db.getProfile();
+    if (profile.enableTrialReelWorkflow === false) {
+      container.innerHTML = `<div class="feedback-lane" style="max-width: 720px; margin: 0 auto;"><div class="card text-center" style="padding: 44px 24px;"><div style="font-size: 36px; margin-bottom: 12px;">✓</div><h2 style="font-family: var(--font-heading); font-size: 21px;">Simple publishing workflow is on</h2><p style="margin: 10px auto 18px; max-width: 500px; color: var(--text-secondary);">Trial reel scheduling and 3-day performance evaluation are disabled. Your accepted scripts still appear on the publishing calendar.</p><button class="btn btn-primary btn-sm" id="btn-feedback-open-settings">Change workflow settings</button></div></div>`;
+      document.getElementById('btn-feedback-open-settings')?.addEventListener('click', () => navigateTo('settings'));
+      return;
+    }
     const allReels = await db.getScheduledReels();
     const systemDate = getSystemDate();
     const devToolsEnabled = getDevToolsEnabled();

@@ -21,6 +21,8 @@ export const ScriptReviewView = {
     this.currentIndex = 0;
     this.isEditing = false;
     this.acceptedCount = 0;
+    const profile = await db.getProfile();
+    this.enableTrialReelWorkflow = profile.enableTrialReelWorkflow !== false;
 
     this.renderCurrentCard(container, navigateTo, openModal);
   },
@@ -127,8 +129,8 @@ export const ScriptReviewView = {
               <span>${this.isEditing ? '✓ Done Editing' : '✎ Edit'}</span>
             </button>
 
-            <button class="btn btn-accept btn-lg" id="btn-card-accept" title="Good enough to become a Trial Reel">
-              <span>Accept (Trial Reel) →</span>
+            <button class="btn btn-accept btn-lg" id="btn-card-accept" title="${this.enableTrialReelWorkflow ? 'Good enough to become a Trial Reel' : 'Add this script to your publishing calendar'}">
+              <span>${this.enableTrialReelWorkflow ? 'Accept (Trial Reel) →' : 'Accept & Schedule →'}</span>
             </button>
           </div>
         </div>
@@ -152,7 +154,7 @@ export const ScriptReviewView = {
       await scheduleAcceptedScript(script);
       this.acceptedCount++;
 
-      showToast('Accepted! Added to Trial Reel schedule.', 'success');
+      showToast(this.enableTrialReelWorkflow ? 'Accepted! Added to Trial Reel schedule.' : 'Accepted! Added to your publishing calendar.', 'success');
       this.isEditing = false;
       this.currentIndex++;
       this.renderCurrentCard(container, navigateTo, openModal);
@@ -185,12 +187,14 @@ export const ScriptReviewView = {
       this.renderCurrentCard(container, navigateTo, openModal);
     });
 
-    // 4. REVIEW LATER ACTION (Skips to end of queue)
-    document.getElementById('btn-card-later')?.addEventListener('click', () => {
-      const [skipped] = this.queue.splice(this.currentIndex, 1);
-      this.queue.push(skipped);
+    // 4. REVIEW LATER ACTION (persists outside of today's review queue)
+    document.getElementById('btn-card-later')?.addEventListener('click', async () => {
+      script.status = 'review_later';
+      script.updated_at = new Date().toISOString();
+      await db.updateScript(script);
+      this.queue.splice(this.currentIndex, 1);
 
-      showToast('Skipped. Card moved to end of review.', 'info');
+      showToast('Saved for later. You can return to it from your Content Library.', 'info');
       this.isEditing = false;
       this.renderCurrentCard(container, navigateTo, openModal);
     });

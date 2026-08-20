@@ -56,6 +56,7 @@ export const DashboardView = {
     const systemDate = getSystemDate();
     const todayStr = formatDateForInput(systemDate);
     const enableFilming = profile.enableFilmingWorkflow === true;
+    const enableTrialReels = profile.enableTrialReelWorkflow !== false;
 
     // 1. Gather actionable items
     const allReels = await db.getScheduledReels();
@@ -84,7 +85,7 @@ export const DashboardView = {
 
     // D. Feedback Due (posted >= 3 days ago and no metrics logged yet)
     const feedbackDuePosts = allReels.filter((r) => {
-      if (r.status !== 'posted' || r.is_main_reel_winner || r.feedback_logged) return false;
+      if (!enableTrialReels || r.status !== 'posted' || r.is_main_reel_winner || r.feedback_logged) return false;
       const postDate = new Date(r.posted_date || r.scheduled_date);
       const diffDays = Math.floor((systemDate - postDate) / (1000 * 60 * 60 * 24));
       return diffDays >= 3;

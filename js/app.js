@@ -15,6 +15,7 @@ import { ManualScriptModal } from './components/manualScript.js';
 import { FeedbackView } from './components/feedbackView.js';
 import { LibraryView } from './components/library.js';
 import { SettingsView } from './components/settings.js';
+import { WorkflowTutorial } from './tutorial.js';
 import { rescheduleMissedPosts } from './scheduler.js';
 import { formatDate, getSystemDate, escapeHtml, showToast, copyToClipboard } from './utils.js';
 
@@ -29,6 +30,7 @@ class ContentOSApp {
     this.modalCard = document.getElementById('modal-card');
     this.headerViewTitle = document.getElementById('header-view-title');
     this.headerDate = document.getElementById('header-today-date');
+    this.tutorial = new WorkflowTutorial(this);
   }
 
   async init() {
@@ -57,6 +59,7 @@ class ContentOSApp {
 
     // 3. Setup Navigation & Routing
     this.setupNavigation();
+    window.addEventListener('contentmate-replay-tutorial', () => this.tutorial.start());
     window.addEventListener('doctor-os-system-date-change', () => {
       if (this.headerDate) this.headerDate.textContent = formatDate(getSystemDate());
       this.updateBadges();
@@ -71,6 +74,9 @@ class ContentOSApp {
 
     if (!updatedProfile.onboarded) {
       await this.startOnboarding();
+    } else if (updatedProfile.tutorialSeen === false && !updatedProfile.tutorialSkipped) {
+      // Resume an interrupted first-use tour after a refresh or navigation.
+      this.tutorial.start();
     }
 
     // 6. Update Badge Counts
@@ -266,13 +272,14 @@ class ContentOSApp {
         ...currentProfile,
         ...draft,
         onboarded: true,
-        tutorialSeen: true,
+        tutorialSeen: skipped,
         tutorialSkipped: skipped
       });
       updateSidebarName(draft.name);
       this.closeModal();
       await this.navigateTo('dashboard');
-      showToast(skipped ? 'You can complete your profile anytime in Settings.' : 'Your Content Mate workspace is ready.', 'success');
+      if (skipped) showToast('You can complete your profile anytime in Settings.', 'success');
+      else this.tutorial.start();
     };
 
     const steps = [
@@ -328,8 +335,7 @@ class ContentOSApp {
       document.getElementById('onboarding-profile-form')?.addEventListener('submit', (event) => {
         event.preventDefault();
         draft = { name: document.getElementById('onboarding-name').value.trim(), specialty: document.getElementById('onboarding-specialty').value.trim(), audience: document.getElementById('onboarding-audience').value };
-        step = 1;
-        renderStep();
+        finish(false);
       });
       document.getElementById('onboarding-skip')?.addEventListener('click', () => finish(true));
       document.getElementById('onboarding-back')?.addEventListener('click', () => { step -= 1; renderStep(); });
@@ -350,6 +356,7 @@ class ContentOSApp {
 
   async updateBadges() {
     const pendingScripts = await db.getPendingReviewScripts();
+    const profile = await db.getProfile();
     const allReels = await db.getScheduledReels();
     const allNotes = await db.getNotes();
 
@@ -367,7 +374,7 @@ class ContentOSApp {
     // Feedback badge (posted >= 3 days ago)
     const systemDate = getSystemDate();
     const feedbackDueCount = allReels.filter((r) => {
-      if (r.status !== 'posted' || r.feedback_logged) return false;
+      if (profile.enableTrialReelWorkflow === false || r.status !== 'posted' || r.feedback_logged) return false;
       const diff = Math.floor((systemDate - new Date(r.posted_date || r.scheduled_date)) / (1000 * 60 * 60 * 24));
       return diff >= 3;
     }).length;

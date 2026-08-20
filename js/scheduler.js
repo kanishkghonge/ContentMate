@@ -243,6 +243,7 @@ export async function rescheduleMissedPosts() {
  * Creates a Trial Reel from an accepted script and triggers uniform sprinkle auto-scheduling.
  */
 export async function scheduleAcceptedScript(script) {
+  const profile = await db.getProfile();
   const existingReels = await db.getScheduledReels();
   const duplicate = existingReels.find((r) => r.script_id === script.id);
 
@@ -266,6 +267,7 @@ export async function scheduleAcceptedScript(script) {
     status: 'scheduled',
     is_locked: false,
     is_main_reel: false,
+    is_trial_reel: profile.enableTrialReelWorkflow !== false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };

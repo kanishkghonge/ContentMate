@@ -15,6 +15,7 @@ export const ScheduleView = {
   async render(container, navigateTo, openModal) {
     const profile = await db.getProfile();
     const enableFilming = profile.enableFilmingWorkflow === true;
+    const enableTrialReels = profile.enableTrialReelWorkflow !== false;
     const allReels = await db.getScheduledReels();
     const todayStr = formatDateForInput(getSystemDate());
 
@@ -171,7 +172,7 @@ export const ScheduleView = {
       cell.addEventListener('click', async (e) => {
         const dateStr = e.currentTarget.dataset.date;
         const reelsOnDate = reelsByDate[dateStr] || [];
-        this.openDayDetailModal(dateStr, reelsOnDate, navigateTo, openModal, enableFilming);
+        this.openDayDetailModal(dateStr, reelsOnDate, navigateTo, openModal, enableFilming, enableTrialReels);
       });
     });
 
@@ -212,7 +213,7 @@ export const ScheduleView = {
     });
   },
 
-  openDayDetailModal(dateStr, reels, navigateTo, openModal, enableFilming = false) {
+  openDayDetailModal(dateStr, reels, navigateTo, openModal, enableFilming = false, enableTrialReels = true) {
     const modalOverlay = document.getElementById('modal-overlay');
     const modalBody = document.getElementById('modal-body');
     const modalTitle = document.getElementById('modal-title');
@@ -261,7 +262,7 @@ export const ScheduleView = {
                 <div class="flex items-center gap-2">
                   <span style="font-size: 18px;">${formatMeta.icon || '💡'}</span>
                   <span class="action-card-badge ${isMain ? 'badge-purple' : 'badge-gray'}">
-                    ${isMain ? '⭐ Main Reel' : 'Trial Reel'}
+                    ${isMain ? '⭐ Main Reel' : enableTrialReels ? 'Trial Reel' : 'Scheduled Post'}
                   </span>
                   <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">
                     ${escapeHtml(reel.format)}
@@ -325,7 +326,7 @@ export const ScheduleView = {
                   ${
                     !isPosted
                       ? `<button class="btn btn-primary btn-sm btn-detail-post" data-id="${reel.id}">Mark Posted</button>`
-                      : `<button class="btn btn-secondary btn-sm btn-detail-feedback" data-id="${reel.id}">Log 3-Day Feedback</button>`
+                      : enableTrialReels ? `<button class="btn btn-secondary btn-sm btn-detail-feedback" data-id="${reel.id}">Log 3-Day Feedback</button>` : ''
                   }
                 </div>
               </div>

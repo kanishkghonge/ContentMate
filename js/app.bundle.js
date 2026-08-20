@@ -1,10 +1,9 @@
 /**
- * Content Mate — generated standalone bundle.
- * Generated from the ES module sources; supports direct file:// use.
+ * Content Mate - generated standalone bundle.
  */
 
 (function () {
-  "use strict";
+  'use strict';
 
 /* js/db.js */
 /**
@@ -106,7 +105,8 @@ const defaultDoctorProfile = {
   sprinkleWindowDays: 14, // Uniform 2-week scheduling window by default
   maxPostsPerDay: 1, // Max posts per day limit
   sprinkleStrategy: 'uniform', // 'uniform' | 'front_loaded' | 'preferred_days'
-  enableFilmingWorkflow: false, // Optional filming status workflow toggle
+  enableFilmingWorkflow: true, // Keep filming tasks visible for new workspaces
+  enableTrialReelWorkflow: true, // Test-and-evaluate workflow stays on by default
   missedPostRescheduleMode: 'manual', // 'manual' | 'auto'
   clinicName: 'Heart & Vascular Institute',
   website: 'drsarahchen.com',
@@ -121,7 +121,8 @@ const db = {
     return performTx('profile', 'readonly', (store) => {
       return new Promise((resolve) => {
         const req = store.get('doctor_profile');
-        req.onsuccess = () => resolve(req.result || { ...defaultDoctorProfile, onboarded: false });
+        // Merge defaults so older workspaces receive newly introduced defaults.
+        req.onsuccess = () => resolve(req.result ? { ...defaultDoctorProfile, ...req.result } : { ...defaultDoctorProfile, onboarded: false });
       });
     });
   },
@@ -969,6 +970,7 @@ async function rescheduleMissedPosts() {
  * Creates a Trial Reel from an accepted script and triggers uniform sprinkle auto-scheduling.
  */
 async function scheduleAcceptedScript(script) {
+  const profile = await db.getProfile();
   const existingReels = await db.getScheduledReels();
   const duplicate = existingReels.find((r) => r.script_id === script.id);
 
@@ -992,6 +994,7 @@ async function scheduleAcceptedScript(script) {
     status: 'scheduled',
     is_locked: false,
     is_main_reel: false,
+    is_trial_reel: profile.enableTrialReelWorkflow !== false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
@@ -1350,6 +1353,7 @@ const DashboardView = {
     const systemDate = getSystemDate();
     const todayStr = formatDateForInput(systemDate);
     const enableFilming = profile.enableFilmingWorkflow === true;
+    const enableTrialReels = profile.enableTrialReelWorkflow !== false;
 
     // 1. Gather actionable items
     const allReels = await db.getScheduledReels();
@@ -1378,7 +1382,7 @@ const DashboardView = {
 
     // D. Feedback Due (posted >= 3 days ago and no metrics logged yet)
     const feedbackDuePosts = allReels.filter((r) => {
-      if (r.status !== 'posted' || r.is_main_reel_winner || r.feedback_logged) return false;
+      if (!enableTrialReels || r.status !== 'posted' || r.is_main_reel_winner || r.feedback_logged) return false;
       const postDate = new Date(r.posted_date || r.scheduled_date);
       const diffDays = Math.floor((systemDate - postDate) / (1000 * 60 * 60 * 24));
       return diffDays >= 3;
@@ -2676,6 +2680,8 @@ const ScriptReviewView = {
     this.currentIndex = 0;
     this.isEditing = false;
     this.acceptedCount = 0;
+    const profile = await db.getProfile();
+    this.enableTrialReelWorkflow = profile.enableTrialReelWorkflow !== false;
 
     this.renderCurrentCard(container, navigateTo, openModal);
   },
@@ -2792,6 +2798,12 @@ const ScriptReviewView = {
 
     container.innerHTML = html;
 
+    if (!this.enableTrialReelWorkflow) {
+      const acceptButton = document.getElementById('btn-card-accept');
+      acceptButton.title = 'Add this script to your publishing calendar';
+      acceptButton.querySelector('span').textContent = 'Accept & Schedule →';
+    }
+
     // 1. ACCEPT ACTION (Converts to Trial Reel & auto-schedules)
     document.getElementById('btn-card-accept')?.addEventListener('click', async () => {
       // If was editing, capture latest changes first
@@ -2807,7 +2819,7 @@ const ScriptReviewView = {
       await scheduleAcceptedScript(script);
       this.acceptedCount++;
 
-      showToast('Accepted! Added to Trial Reel schedule.', 'success');
+      showToast(this.enableTrialReelWorkflow ? 'Accepted! Added to Trial Reel schedule.' : 'Accepted! Added to your publishing calendar.', 'success');
       this.isEditing = false;
       this.currentIndex++;
       this.renderCurrentCard(container, navigateTo, openModal);
@@ -2840,12 +2852,14 @@ const ScriptReviewView = {
       this.renderCurrentCard(container, navigateTo, openModal);
     });
 
-    // 4. REVIEW LATER ACTION (Skips to end of queue)
-    document.getElementById('btn-card-later')?.addEventListener('click', () => {
-      const [skipped] = this.queue.splice(this.currentIndex, 1);
-      this.queue.push(skipped);
+    // 4. REVIEW LATER ACTION (persists outside of today's review queue)
+    document.getElementById('btn-card-later')?.addEventListener('click', async () => {
+      script.status = 'review_later';
+      script.updated_at = new Date().toISOString();
+      await db.updateScript(script);
+      this.queue.splice(this.currentIndex, 1);
 
-      showToast('Skipped. Card moved to end of review.', 'info');
+      showToast('Saved for later. You can return to it from your Content Library.', 'info');
       this.isEditing = false;
       this.renderCurrentCard(container, navigateTo, openModal);
     });
@@ -2914,6 +2928,7 @@ const ScheduleView = {
   async render(container, navigateTo, openModal) {
     const profile = await db.getProfile();
     const enableFilming = profile.enableFilmingWorkflow === true;
+    const enableTrialReels = profile.enableTrialReelWorkflow !== false;
     const allReels = await db.getScheduledReels();
     const todayStr = formatDateForInput(getSystemDate());
 
@@ -3070,7 +3085,7 @@ const ScheduleView = {
       cell.addEventListener('click', async (e) => {
         const dateStr = e.currentTarget.dataset.date;
         const reelsOnDate = reelsByDate[dateStr] || [];
-        this.openDayDetailModal(dateStr, reelsOnDate, navigateTo, openModal, enableFilming);
+        this.openDayDetailModal(dateStr, reelsOnDate, navigateTo, openModal, enableFilming, enableTrialReels);
       });
     });
 
@@ -3111,7 +3126,7 @@ const ScheduleView = {
     });
   },
 
-  openDayDetailModal(dateStr, reels, navigateTo, openModal, enableFilming = false) {
+  openDayDetailModal(dateStr, reels, navigateTo, openModal, enableFilming = false, enableTrialReels = true) {
     const modalOverlay = document.getElementById('modal-overlay');
     const modalBody = document.getElementById('modal-body');
     const modalTitle = document.getElementById('modal-title');
@@ -3160,7 +3175,7 @@ const ScheduleView = {
                 <div class="flex items-center gap-2">
                   <span style="font-size: 18px;">${formatMeta.icon || '💡'}</span>
                   <span class="action-card-badge ${isMain ? 'badge-purple' : 'badge-gray'}">
-                    ${isMain ? '⭐ Main Reel' : 'Trial Reel'}
+                    ${isMain ? '⭐ Main Reel' : enableTrialReels ? 'Trial Reel' : 'Scheduled Post'}
                   </span>
                   <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">
                     ${escapeHtml(reel.format)}
@@ -3224,7 +3239,7 @@ const ScheduleView = {
                   ${
                     !isPosted
                       ? `<button class="btn btn-primary btn-sm btn-detail-post" data-id="${reel.id}">Mark Posted</button>`
-                      : `<button class="btn btn-secondary btn-sm btn-detail-feedback" data-id="${reel.id}">Log 3-Day Feedback</button>`
+                      : enableTrialReels ? `<button class="btn btn-secondary btn-sm btn-detail-feedback" data-id="${reel.id}">Log 3-Day Feedback</button>` : ''
                   }
                 </div>
               </div>
@@ -3561,6 +3576,12 @@ const FeedbackView = {
   activeTab: 'due', // 'due', 'awaiting', 'history'
 
   async render(container, navigateTo, openModal) {
+    const profile = await db.getProfile();
+    if (profile.enableTrialReelWorkflow === false) {
+      container.innerHTML = `<div class="feedback-lane" style="max-width: 720px; margin: 0 auto;"><div class="card text-center" style="padding: 44px 24px;"><div style="font-size: 36px; margin-bottom: 12px;">✓</div><h2 style="font-family: var(--font-heading); font-size: 21px;">Simple publishing workflow is on</h2><p style="margin: 10px auto 18px; max-width: 500px; color: var(--text-secondary);">Trial reel scheduling and 3-day performance evaluation are disabled. Your accepted scripts still appear on the publishing calendar.</p><button class="btn btn-primary btn-sm" id="btn-feedback-open-settings">Change workflow settings</button></div></div>`;
+      document.getElementById('btn-feedback-open-settings')?.addEventListener('click', () => navigateTo('settings'));
+      return;
+    }
     const allReels = await db.getScheduledReels();
     const systemDate = getSystemDate();
     const devToolsEnabled = getDevToolsEnabled();
@@ -4144,7 +4165,8 @@ const SettingsView = {
           <section class="card settings-card">
             ${cardHead('🎬', 'Workflow', 'Keep only the steps that match how you work.')}
             <div class="settings-choice"><input type="checkbox" id="setting-enable-filming" ${profile.enableFilmingWorkflow ? 'checked' : ''}><div><label for="setting-enable-filming">Enable filming status workflow</label><p>Show filming queues and “Mark filmed” actions before posting.</p></div></div>
-            <div class="form-group" style="margin-top:16px; margin-bottom:0;"><label class="form-label" for="setting-missed-post-mode">When a post is missed</label><select id="setting-missed-post-mode" class="form-select"><option value="manual" ${(profile.missedPostRescheduleMode || 'manual') === 'manual' ? 'selected' : ''}>Ask me first</option><option value="auto" ${profile.missedPostRescheduleMode === 'auto' ? 'selected' : ''}>Automatically reschedule</option></select><p class="settings-helper">Automatic mode moves only missed posts and leaves filmed reels in place.</p></div>
+            <div class="settings-choice" style="margin-top:16px;"><input type="checkbox" id="setting-enable-trial-reels" ${profile.enableTrialReelWorkflow !== false ? 'checked' : ''}><div><label for="setting-enable-trial-reels">Enable trial reels and performance evaluation</label><p>Test accepted scripts as trial reels, then request a 3-day performance check and main-reel decision. Turn this off for a simpler publishing workflow.</p></div></div>
+            <div class="form-group" style="margin-top:16px; margin-bottom:0;"><label class="form-label" for="setting-missed-post-mode">When a post is missed</label><select id="setting-missed-post-mode" class="form-select"><option value="manual" ${(profile.missedPostRescheduleMode || 'manual') === 'manual' ? 'selected' : ''}>Ask me first</option><option value="auto" ${profile.missedPostRescheduleMode === 'auto' ? 'selected' : ''}>Automatically reschedule</option></select><p class="settings-helper">Automatic mode moves only missed posts and leaves filmed reels in place.</p></div><div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-replay-tutorial">Replay guided tutorial</button></div>
           </section>
 
           <section class="card settings-card">${cardHead('↥', 'Backup & restore', 'Your workspace stays in this browser. Save a JSON backup before changing devices or resetting data.')}<div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-export-json">Export backup</button><button class="btn btn-secondary btn-sm" id="btn-import-json-trigger">Restore backup</button><input type="file" id="input-file-backup" accept=".json,application/json" class="hidden"></div></section>
@@ -4203,7 +4225,9 @@ const SettingsView = {
     document.getElementById('btn-save-sprinkle-settings')?.addEventListener('click', () => saveSchedule(false));
     document.getElementById('btn-resprinkle-now')?.addEventListener('click', () => saveSchedule(true));
     document.getElementById('setting-enable-filming')?.addEventListener('change', (event) => saveProfile({ enableFilmingWorkflow: event.target.checked }, event.target.checked ? 'Filming workflow enabled.' : 'Filming workflow disabled.'));
+    document.getElementById('setting-enable-trial-reels')?.addEventListener('change', (event) => saveProfile({ enableTrialReelWorkflow: event.target.checked }, event.target.checked ? 'Trial reels and performance evaluation enabled.' : 'Simple publishing workflow enabled.'));
     document.getElementById('setting-missed-post-mode')?.addEventListener('change', (event) => saveProfile({ missedPostRescheduleMode: event.target.value }, 'Missed-post preference saved.'));
+    document.getElementById('btn-replay-tutorial')?.addEventListener('click', () => window.dispatchEvent(new Event('contentmate-replay-tutorial')));
 
     document.getElementById('setting-dev-tools')?.addEventListener('change', (event) => {
       if (event.target.checked && !getDevToolsEnabled()) { event.target.checked = false; document.getElementById('dev-access-form')?.classList.remove('hidden'); document.getElementById('dev-access-key')?.focus(); }
@@ -4225,11 +4249,233 @@ const SettingsView = {
   }
 };
 
+/* js/tutorial.js */
+/** Guided first-use tour. It points at, and waits for, the real application controls. */
+
+
+
+
+const FATIGUE_TITLE = 'Many people complain of fatigue but keep ignoring it. When should you actually see a doctor for fatigue?';
+const FATIGUE_DETAILS = "Not every fatigue needs a doctor, but persistent or unexplained fatigue can sometimes point to problems like anemia, thyroid disease, poor sleep, or nutritional deficiencies. Explain when fatigue becomes concerning, what warning signs people should look out for, and when they should get evaluated. Mention simple things they can notice themselves, like pallor, while making it clear that self-checks don't replace a medical evaluation.";
+const FATIGUE_RESPONSE = {
+  version: 1,
+  insight_title: FATIGUE_TITLE,
+  scripts: [
+    { format: 'Talking Head', title: 'When tiredness needs a doctor', hook: 'Feeling tired all the time is not always something to push through.', script: 'A busy week can make anyone tired. But fatigue that lasts, feels unexplained, or comes with breathlessness, weight change, fever, or looking unusually pale deserves a medical review. Conditions such as anemia, thyroid problems, poor sleep, and nutritional deficiencies can all play a part. Notice the pattern, but do not rely on self-checks alone.', cta: 'Save this for the next time fatigue feels different.', estimated_duration: '40s', confidence: 9.2 },
+    { format: 'Myth vs Fact', title: 'Myth: fatigue is always normal', hook: 'Myth: if you can get through the day, fatigue is nothing to worry about.', script: 'Fact: ongoing fatigue can be your body asking for attention. Look for changes that persist despite rest, or fatigue alongside paleness, shortness of breath, dizziness, or changes in weight. A doctor can help work out what is behind it.', cta: 'Share this with someone who keeps saying they are just tired.', estimated_duration: '30s', confidence: 8.9 },
+    { format: 'Patient Question', title: 'When should I see a doctor for fatigue?', hook: 'A question I hear often: when is tiredness more than just tiredness?', script: 'Start with how long it has been going on and whether it is changing your normal routine. If it is persistent, unexplained, or comes with warning signs, please get evaluated. The answer may be simple, but it is worth checking.', cta: 'Comment with a health question you want explained simply.', estimated_duration: '30s', confidence: 8.7 }
+  ]
+};
+
+class WorkflowTutorial {
+  constructor(app) {
+    this.app = app;
+    this.step = 0;
+    this.completed = false;
+    this.handlers = [];
+  }
+
+  start() {
+    this.cleanup();
+    this.step = 0;
+    this.completed = false;
+    this.root = document.createElement('div');
+    this.root.className = 'workflow-tutorial';
+    this.root.innerHTML = '<div class="workflow-tutorial-shade"></div><div class="workflow-tutorial-ring"></div><section class="workflow-tutorial-card" role="dialog" aria-live="polite"></section>';
+    document.body.appendChild(this.root);
+    this.card = this.root.querySelector('.workflow-tutorial-card');
+    this.makeCardMovable();
+    this.next();
+  }
+
+  cleanup() {
+    this.handlers.forEach(([target, type, fn, options]) => target.removeEventListener(type, fn, options));
+    this.handlers = [];
+    document.querySelectorAll('.workflow-tutorial-target').forEach((node) => node.classList.remove('workflow-tutorial-target'));
+    this.root?.remove();
+    this.root = null;
+  }
+
+  listen(target, type, fn, options) {
+    target.addEventListener(type, fn, options);
+    this.handlers.push([target, type, fn, options]);
+  }
+
+  makeCardMovable() {
+    let drag = null;
+    this.card.addEventListener('pointerdown', (event) => {
+      if (!event.target.closest('.workflow-tutorial-grab')) return;
+      const rect = this.card.getBoundingClientRect();
+      drag = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      this.card.setPointerCapture(event.pointerId);
+      this.card.classList.add('is-dragging');
+      event.preventDefault();
+    });
+    this.card.addEventListener('pointermove', (event) => {
+      if (!drag) return;
+      const maxX = window.innerWidth - this.card.offsetWidth - 8;
+      const maxY = window.innerHeight - this.card.offsetHeight - 8;
+      this.card.style.left = `${Math.max(8, Math.min(maxX, event.clientX - drag.x))}px`;
+      this.card.style.top = `${Math.max(8, Math.min(maxY, event.clientY - drag.y))}px`;
+      this.card.style.right = 'auto';
+      this.card.style.bottom = 'auto';
+    });
+    const stopDragging = () => { drag = null; this.card.classList.remove('is-dragging'); };
+    this.card.addEventListener('pointerup', stopDragging);
+    this.card.addEventListener('pointercancel', stopDragging);
+  }
+
+  async finish(skipped = false) {
+    const profile = await db.getProfile();
+    await db.saveProfile({ ...profile, tutorialSeen: true, tutorialSkipped: skipped, onboarded: true });
+    this.completed = true;
+    this.cleanup();
+    showToast(skipped ? 'Tutorial closed. You can replay it from Doctor Profile.' : 'You are ready to use Content Mate.', 'success');
+  }
+
+  show({ eyebrow = 'Your first workflow', title, body, target, primary, onPrimary, back = true, diagram = '' }) {
+    this.handlers.forEach(([node, type, fn, options]) => node.removeEventListener(type, fn, options));
+    this.handlers = [];
+    document.querySelectorAll('.workflow-tutorial-target').forEach((node) => node.classList.remove('workflow-tutorial-target'));
+    const targetNode = target ? document.querySelector(target) : null;
+    this.root.classList.toggle('has-target', !!targetNode);
+    if (targetNode) {
+      targetNode.classList.add('workflow-tutorial-target');
+      targetNode.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center', inline: 'center' });
+      requestAnimationFrame(() => this.positionTarget(targetNode));
+    }
+    this.card.innerHTML = `
+      <div class="workflow-tutorial-top workflow-tutorial-grab"><span>${eyebrow}</span><span>${Math.min(this.step + 1, 15)} / 15</span><button class="btn btn-ghost btn-sm" data-tutorial-exit>Exit tutorial</button></div>
+      <h2>${title}</h2><p>${body}</p>${diagram}
+      <div class="workflow-tutorial-actions">${back && this.step > 0 ? '<button class="btn btn-ghost btn-sm" data-tutorial-back>Back</button>' : '<span></span>'}<div>${primary ? `<button class="btn btn-primary btn-sm" data-tutorial-next>${primary}</button>` : ''}</div></div>`;
+    this.card.querySelector('[data-tutorial-exit]').addEventListener('click', () => this.finish(true));
+    this.card.querySelector('[data-tutorial-back]')?.addEventListener('click', () => { this.step = Math.max(0, this.step - 1); this.next(); });
+    this.card.querySelector('[data-tutorial-next]')?.addEventListener('click', onPrimary || (() => { this.step++; this.next(); }));
+  }
+
+  positionTarget(node) {
+    if (!this.root || !node.isConnected) return;
+    const rect = node.getBoundingClientRect();
+    const ring = this.root.querySelector('.workflow-tutorial-ring');
+    ring.style.cssText = `left:${Math.max(6, rect.left - 7)}px;top:${Math.max(6, rect.top - 7)}px;width:${rect.width + 14}px;height:${rect.height + 14}px;`;
+  }
+
+  waitForElement(selector, timeout = 8000) {
+    return new Promise((resolve) => {
+      const existing = document.querySelector(selector);
+      if (existing) { resolve(existing); return; }
+      const observer = new MutationObserver(() => {
+        const found = document.querySelector(selector);
+        if (found) { observer.disconnect(); clearTimeout(timer); resolve(found); }
+      });
+      const timer = setTimeout(() => { observer.disconnect(); resolve(null); }, timeout);
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
+  }
+
+  waitForClick(selector, advance, nextStateSelector = null) {
+    const handler = (event) => {
+      if (!event.target.closest(selector)) return;
+      if (nextStateSelector) {
+        this.waitForElement(nextStateSelector).then((found) => { if (found) advance(); });
+      } else {
+        setTimeout(() => advance(), 0);
+      }
+    };
+    this.listen(document, 'click', handler, true);
+  }
+
+  next() {
+    switch (this.step) {
+      case 0:
+        this.show({ title: 'You have a few minutes before your OPD starts.', body: 'An idea comes to you. You could write it down and forget it — or turn it into a useful video. Let’s follow one idea all the way through. This guide can be moved anytime: drag its top bar if it is covering something.', primary: 'Start the story', onPrimary: () => { this.step++; this.next(); }, back: false });
+        break;
+      case 1:
+        this.show({ title: 'Here is the path we will follow.', body: 'One idea becomes a boundary, clear requirements, scripts, trial reels, a performance check, and eventually a winning reel.', primary: 'Show me', diagram: '<div class="tutorial-flow">Idea <b>→</b> Scripts <b>→</b> Trial reels <b>→</b> Performance <b>→</b> Winning reel</div>' });
+        break;
+      case 2:
+        this.show({ title: 'Start here when you have an idea.', body: 'Record Insight is for an idea you want to develop into content. Tap the real button now.', target: '#header-btn-insight', back: true });
+        this.waitForClick('#header-btn-insight', () => { this.step++; this.next(); }, '#insight-title');
+        break;
+      case 3: {
+        const fill = () => {
+          document.getElementById('insight-title').value = FATIGUE_TITLE;
+          document.getElementById('insight-title').dispatchEvent(new Event('input', { bubbles: true }));
+          this.step++; this.next();
+        };
+        this.show({ title: 'First, capture the core idea.', body: 'It does not need to be a perfect script. It is simply what you want to talk about. Use this example to fill the real field.', target: '#insight-title', primary: 'Use this example', onPrimary: fill });
+        break;
+      }
+      case 4: {
+        const fill = () => {
+          document.getElementById('insight-details').value = FATIGUE_DETAILS;
+          document.getElementById('insight-details').dispatchEvent(new Event('input', { bubbles: true }));
+          this.step++; this.next();
+        };
+        this.show({ title: 'Now set the boundary.', body: 'Say what the video should and should not cover. This keeps the advice focused and safe. Use the example boundary for this fatigue topic.', target: '#insight-details', primary: 'Use example boundary', onPrimary: fill });
+        break;
+      }
+      case 5:
+        this.show({ title: 'Choose your video preferences.', body: 'Pick the language your audience understands and the length you want. You can also add a call to action or a direction such as “start with a strong hook and keep the tone reassuring.”', target: '#insight-language', primary: 'Continue' });
+        break;
+      case 6:
+        this.show({ title: 'Ready to turn the idea into instructions?', body: 'Content Mate will prepare instructions that help an AI write engaging scripts. Tap the real button when you are ready.', target: '#btn-generate-prompt' });
+        this.waitForClick('#btn-generate-prompt', () => { this.step++; this.next(); }, '#generated-prompt-box');
+        break;
+      case 7:
+        this.show({ title: 'Content Mate has written the instructions for you.', body: 'Just tap Copy. You do not need to understand what is inside this box.', target: '#btn-copy-prompt-hero', primary: 'I copied it' });
+        break;
+      case 8:
+        this.show({ title: 'Now give those instructions to an AI.', body: 'Open ChatGPT (or your preferred AI), paste the instructions, and copy its whole response. It may look like mumbo jumbo — no need to read it. Come back and paste it here.', target: 'a[href="https://chatgpt.com"]', primary: 'I have the AI response' });
+        break;
+      case 9:
+        this.show({ title: 'Bring the AI response back into Content Mate.', body: 'Tap this real button. In this guided practice, we will use a ready-made fatigue response so you can continue through the actual review workflow.', target: '#btn-proceed-to-import' });
+        this.waitForClick('#btn-proceed-to-import', () => { this.step++; this.next(); }, '#ai-pasted-text');
+        break;
+      case 10: {
+        const fill = () => { const box = document.getElementById('ai-pasted-text'); box.value = JSON.stringify(FATIGUE_RESPONSE, null, 2); box.dispatchEvent(new Event('input', { bubbles: true })); this.step++; this.next(); };
+        this.show({ title: 'Paste the AI response here.', body: 'The AI has organised the idea into scripts. If Content Mate says something is missing, copy that message back to the AI and ask it to fix the response, then paste it again.', target: '#ai-pasted-text', primary: 'Use practice response', onPrimary: fill });
+        break;
+      }
+      case 11:
+        this.show({ title: 'Turn the response into your script options.', body: 'Tap the real button. Content Mate will read the response and create individual scripts for review.', target: '#btn-submit-import' });
+        this.waitForClick('#btn-submit-import', () => { this.step++; this.next(); }, '#btn-card-accept');
+        break;
+      case 12:
+        this.show({ title: 'Choose what moves forward.', body: 'These are different possible videos from the same fatigue idea. Keep one by accepting it. Then reject one you do not want, and save one for later.', target: '#btn-card-accept' });
+        this.waitForClick('#btn-card-accept', () => this.waitRejectLater(), '#btn-card-reject');
+        break;
+      case 13:
+        this.show({ title: 'Test before you commit.', body: 'An accepted script is scheduled as a trial reel. After you post it, Content Mate asks you to enter its performance after three days. Compare trial reels from the same idea, choose the best one, and schedule it as your main reel.', target: '#nav-d-schedule', primary: 'Open my schedule', diagram: '<div class="tutorial-flow">Trial reel <b>→</b> 3-day check <b>→</b> Compare <b>→</b> Main reel</div>' , onPrimary: async () => { await this.app.navigateTo('schedule'); this.step++; this.next(); }});
+        break;
+      case 14:
+        this.show({ title: 'This is where your trial reel is planned.', body: 'All accepted scripts are trials first. When it is posted, enter the performance information yourself after three days — Content Mate does not automatically read Instagram results.', target: '.schedule-header', primary: 'See my daily checklist', onPrimary: () => this.showDashboardAndNotes() });
+        break;
+      default: this.showDashboardAndNotes();
+    }
+  }
+
+  waitRejectLater() {
+    // The acceptance has rendered the next card. Let the doctor make both remaining decisions.
+    this.show({ title: 'Now reject one option.', body: 'Not every script will feel right. Tap Reject on this real card.', target: '#btn-card-reject' });
+    this.waitForClick('#btn-card-reject', () => {
+      this.show({ title: 'Keep the last one for another day.', body: 'Tap Later. It stays in your Content Library, but leaves today’s review queue.', target: '#btn-card-later' });
+      this.waitForClick('#btn-card-later', () => { this.step = 13; this.next(); });
+    }, '#btn-card-later');
+  }
+
+  async showDashboardAndNotes() {
+    await this.app.navigateTo('dashboard');
+    this.show({ title: 'That’s Content Mate.', body: 'Your Dashboard is your daily checklist for filming, posting, and feedback. When you only have a quick thought, use Quick Note — the fast lane. Record Insight is for ideas you want to develop now. Capture an idea → shape it → generate scripts → review them → test them → learn what works → repeat.', target: '#header-btn-note', primary: 'Finish', onPrimary: () => this.finish(false), diagram: '<div class="tutorial-flow">Quick Note = save a thought <b>•</b> Record Insight = build content</div>' });
+  }
+}
+
 /* js/app.js */
 /**
  * Content OS for Doctors — Main Application Coordinator & Router
  * Orchestrates local-first database, mobile bottom-nav, modal sheets, and views.
  */
+
 
 
 
@@ -4257,6 +4503,7 @@ class ContentOSApp {
     this.modalCard = document.getElementById('modal-card');
     this.headerViewTitle = document.getElementById('header-view-title');
     this.headerDate = document.getElementById('header-today-date');
+    this.tutorial = new WorkflowTutorial(this);
   }
 
   async init() {
@@ -4285,6 +4532,7 @@ class ContentOSApp {
 
     // 3. Setup Navigation & Routing
     this.setupNavigation();
+    window.addEventListener('contentmate-replay-tutorial', () => this.tutorial.start());
     window.addEventListener('doctor-os-system-date-change', () => {
       if (this.headerDate) this.headerDate.textContent = formatDate(getSystemDate());
       this.updateBadges();
@@ -4299,6 +4547,9 @@ class ContentOSApp {
 
     if (!updatedProfile.onboarded) {
       await this.startOnboarding();
+    } else if (updatedProfile.tutorialSeen === false && !updatedProfile.tutorialSkipped) {
+      // Resume an interrupted first-use tour after a refresh or navigation.
+      this.tutorial.start();
     }
 
     // 6. Update Badge Counts
@@ -4494,13 +4745,14 @@ class ContentOSApp {
         ...currentProfile,
         ...draft,
         onboarded: true,
-        tutorialSeen: true,
+        tutorialSeen: skipped,
         tutorialSkipped: skipped
       });
       updateSidebarName(draft.name);
       this.closeModal();
       await this.navigateTo('dashboard');
-      showToast(skipped ? 'You can complete your profile anytime in Settings.' : 'Your Content Mate workspace is ready.', 'success');
+      if (skipped) showToast('You can complete your profile anytime in Settings.', 'success');
+      else this.tutorial.start();
     };
 
     const steps = [
@@ -4556,8 +4808,7 @@ class ContentOSApp {
       document.getElementById('onboarding-profile-form')?.addEventListener('submit', (event) => {
         event.preventDefault();
         draft = { name: document.getElementById('onboarding-name').value.trim(), specialty: document.getElementById('onboarding-specialty').value.trim(), audience: document.getElementById('onboarding-audience').value };
-        step = 1;
-        renderStep();
+        finish(false);
       });
       document.getElementById('onboarding-skip')?.addEventListener('click', () => finish(true));
       document.getElementById('onboarding-back')?.addEventListener('click', () => { step -= 1; renderStep(); });
@@ -4578,6 +4829,7 @@ class ContentOSApp {
 
   async updateBadges() {
     const pendingScripts = await db.getPendingReviewScripts();
+    const profile = await db.getProfile();
     const allReels = await db.getScheduledReels();
     const allNotes = await db.getNotes();
 
@@ -4595,7 +4847,7 @@ class ContentOSApp {
     // Feedback badge (posted >= 3 days ago)
     const systemDate = getSystemDate();
     const feedbackDueCount = allReels.filter((r) => {
-      if (r.status !== 'posted' || r.feedback_logged) return false;
+      if (profile.enableTrialReelWorkflow === false || r.status !== 'posted' || r.feedback_logged) return false;
       const diff = Math.floor((systemDate - new Date(r.posted_date || r.scheduled_date)) / (1000 * 60 * 60 * 24));
       return diff >= 3;
     }).length;

@@ -20,6 +20,7 @@ const FILES_TO_BUNDLE = [
   'js/components/feedbackView.js',
   'js/components/library.js',
   'js/components/settings.js',
+  'js/tutorial.js',
   'js/app.js'
 ];
 

@@ -97,7 +97,8 @@ export const defaultDoctorProfile = {
   sprinkleWindowDays: 14, // Uniform 2-week scheduling window by default
   maxPostsPerDay: 1, // Max posts per day limit
   sprinkleStrategy: 'uniform', // 'uniform' | 'front_loaded' | 'preferred_days'
-  enableFilmingWorkflow: false, // Optional filming status workflow toggle
+  enableFilmingWorkflow: true, // Keep filming tasks visible for new workspaces
+  enableTrialReelWorkflow: true, // Test-and-evaluate workflow stays on by default
   missedPostRescheduleMode: 'manual', // 'manual' | 'auto'
   clinicName: 'Heart & Vascular Institute',
   website: 'drsarahchen.com',
@@ -112,7 +113,8 @@ export const db = {
     return performTx('profile', 'readonly', (store) => {
       return new Promise((resolve) => {
         const req = store.get('doctor_profile');
-        req.onsuccess = () => resolve(req.result || { ...defaultDoctorProfile, onboarded: false });
+        // Merge defaults so older workspaces receive newly introduced defaults.
+        req.onsuccess = () => resolve(req.result ? { ...defaultDoctorProfile, ...req.result } : { ...defaultDoctorProfile, onboarded: false });
       });
     });
   },
