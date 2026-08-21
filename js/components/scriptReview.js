@@ -81,19 +81,9 @@ export const ScriptReviewView = {
               }
             </div>
 
-            <!-- Hook (Stopping the scroll) -->
-            <div class="flashcard-section">
-              <span class="section-label">Hook (First 2 Seconds)</span>
-              ${
-                this.isEditing
-                  ? `<textarea id="edit-hook" rows="2">${escapeHtml(script.hook)}</textarea>`
-                  : `<div class="flashcard-hook">"${escapeHtml(script.hook)}"</div>`
-              }
-            </div>
-
             <!-- Body Spoken Script -->
             <div class="flashcard-section">
-              <span class="section-label">Spoken Script Body</span>
+              <span class="section-label">Script</span>
               ${
                 this.isEditing
                   ? `<textarea id="edit-script" rows="6">${escapeHtml(script.script)}</textarea>`
@@ -117,11 +107,11 @@ export const ScriptReviewView = {
 
           <!-- 4 Clear Dedicated Actions: Accept | Edit | Reject | Review Later -->
           <div class="flashcard-actions">
-            <button class="btn btn-reject btn-lg" id="btn-card-reject" title="Archive and remove from workflow">
+            <button class="btn btn-reject btn-lg" id="btn-card-reject" title="Archive and remove from workflow" ${this.isEditing ? 'disabled aria-disabled="true"' : ''}>
               <span>✕ Reject</span>
             </button>
 
-            <button class="btn btn-later btn-lg" id="btn-card-later" title="Skip for now and return later">
+            <button class="btn btn-later btn-lg" id="btn-card-later" title="Skip for now and return later" ${this.isEditing ? 'disabled aria-disabled="true"' : ''}>
               <span>⏱ Later</span>
             </button>
 
@@ -129,7 +119,7 @@ export const ScriptReviewView = {
               <span>${this.isEditing ? '✓ Done Editing' : '✎ Edit'}</span>
             </button>
 
-            <button class="btn btn-accept btn-lg" id="btn-card-accept" title="${this.enableTrialReelWorkflow ? 'Good enough to become a Trial Reel' : 'Add this script to your publishing calendar'}">
+            <button class="btn btn-accept btn-lg" id="btn-card-accept" title="${this.enableTrialReelWorkflow ? 'Good enough to become a Trial Reel' : 'Add this script to your publishing calendar'}" ${this.isEditing ? 'disabled aria-disabled="true"' : ''}>
               <span>${this.enableTrialReelWorkflow ? 'Accept (Trial Reel) →' : 'Accept & Schedule →'}</span>
             </button>
           </div>
@@ -202,12 +192,10 @@ export const ScriptReviewView = {
 
   saveCurrentEdits(script) {
     const titleInput = document.getElementById('edit-title');
-    const hookInput = document.getElementById('edit-hook');
     const scriptInput = document.getElementById('edit-script');
     const ctaInput = document.getElementById('edit-cta');
 
     if (titleInput) script.title = titleInput.value.trim();
-    if (hookInput) script.hook = hookInput.value.trim();
     if (scriptInput) script.script = scriptInput.value.trim();
     if (ctaInput) script.cta = ctaInput.value.trim();
   },
