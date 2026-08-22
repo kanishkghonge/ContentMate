@@ -107,7 +107,7 @@ export async function copyToClipboard(text) {
 
   try {
     await navigator.clipboard.writeText(text);
-    showToast('Copied to clipboard! Ready to paste into ChatGPT/Claude', 'success');
+    showToast('Prompt copied. Paste it into any AI, then copy its complete response back here.', 'success');
     return true;
   } catch (err) {
     console.error('Clipboard error:', err);

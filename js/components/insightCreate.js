@@ -107,10 +107,10 @@ export const InsightCreateModal = {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <h3 style="font-family: var(--font-heading); font-size: 17px; font-weight: 700; color: var(--text-primary);">
-            Bespoke Doctor Prompt Ready
+            Your AI Prompt Is Ready
           </h3>
           <p style="font-size: 13px; color: var(--text-secondary); max-width: 420px; margin: 4px auto 0;">
-            Copy this prompt, paste it into ChatGPT, Claude or Gemini, then bring the JSON response back.
+            Step 1: copy this prompt. Step 2: paste it into any AI (ChatGPT, Claude, Gemini, etc.). Step 3: copy the AI's complete response and paste it back here—we will turn it into scripts.
           </p>
         </div>
 
@@ -128,7 +128,7 @@ export const InsightCreateModal = {
         <!-- Large Copy Prompt Primary Action -->
         <button class="btn btn-accent btn-lg w-full" id="btn-copy-prompt-hero" style="margin-bottom: 12px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          <span>Copy Prompt (1-Tap)</span>
+          <span>Copy Prompt — Step 1</span>
         </button>
 
         <div class="flex gap-2 justify-between items-center" style="margin-top: 10px;">
