@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Content OS for Doctors — Main Application Coordinator & Router
  * Orchestrates local-first database, mobile bottom-nav, modal sheets, and views.
  */
@@ -258,6 +258,7 @@ class ContentOSApp {
     let draft = {
       name: profile?.name || '',
       specialty: profile?.specialty || '',
+      phone: profile?.phone || '',
       audience: profile?.audience || 'Patients'
     };
 
@@ -275,6 +276,29 @@ class ContentOSApp {
         tutorialSeen: skipped,
         tutorialSkipped: skipped
       });
+      
+      // Send data to Split Forms if not skipped
+      if (!skipped && draft.name && draft.specialty && draft.phone) {
+        try {
+          const formData = new FormData();
+          formData.append('access_key', '5fc5fab47e2d48d7aa239e04af579c3b');
+          formData.append('name', draft.name);
+          formData.append('specialty', draft.specialty);
+          formData.append('phone', draft.phone);
+          formData.append('audience', draft.audience);
+          formData.append('timestamp', new Date().toISOString());
+          
+          const response = await fetch('https://splitforms.com/api/submit', {
+            method: 'POST',
+            body: formData
+          });
+          const result = await response.json();
+          console.log('Split Forms submission:', result.success ? 'success' : 'failed');
+        } catch (error) {
+          console.error('Split Forms error:', error);
+        }
+      }
+      
       updateSidebarName(draft.name);
       this.closeModal();
       await this.navigateTo('dashboard');
@@ -286,47 +310,48 @@ class ContentOSApp {
       () => `
         <div class="onboarding-intro">
           <div class="onboarding-mark">✦</div>
-          <p class="onboarding-eyebrow">Your social media intern, on call</p>
-          <h2>Turn your clinical insights into content that learns what works.</h2>
-          <p>Content Mate helps you package one strong idea in several video formats, test them as trial reels, and post the winner with confidence.</p>
+          <p class="onboarding-eyebrow">Let's get started</p>
+          <h2>Turn clinical insights into content that works.</h2>
+          <p>Package ideas in multiple formats, test them as trial reels, and post the winners.</p>
         </div>
         <form id="onboarding-profile-form" class="onboarding-form">
           <div class="form-group"><label class="form-label" for="onboarding-name">Your name</label><input id="onboarding-name" class="form-input" value="${escapeHtml(draft.name)}" placeholder="e.g. Dr. Ananya Shah" required autofocus></div>
           <div class="form-group"><label class="form-label" for="onboarding-specialty">Your specialty</label><input id="onboarding-specialty" class="form-input" value="${escapeHtml(draft.specialty)}" placeholder="e.g. Dermatology" required></div>
+          <div class="form-group"><label class="form-label" for="onboarding-phone">Phone number</label><input id="onboarding-phone" type="tel" class="form-input" value="${escapeHtml(draft.phone)}" placeholder="e.g. +91 98765 43210" required></div>
           <div class="form-group"><label class="form-label" for="onboarding-audience">Who do you want to reach?</label><select id="onboarding-audience" class="form-select"><option value="Patients" ${draft.audience === 'Patients' ? 'selected' : ''}>Patients</option><option value="Doctors" ${draft.audience === 'Doctors' ? 'selected' : ''}>Other doctors</option><option value="Both" ${draft.audience === 'Both' ? 'selected' : ''}>Both</option></select></div>
           <div class="onboarding-actions"><button type="button" class="btn btn-ghost" id="onboarding-skip">Skip tutorial</button><button class="btn btn-primary btn-lg" type="submit">Build my workflow <span aria-hidden="true">→</span></button></div>
         </form>`,
       () => `
         <div class="onboarding-intro onboarding-centered">
           <div class="onboarding-mark">⌁</div>
-          <p class="onboarding-eyebrow">A better way to grow</p>
-          <h2>One great insight deserves more than one reel.</h2>
-          <p>Even excellent clinical advice can miss because of the hook, format, or timing—not because the idea was weak. Your intern turns one insight into multiple angles so the audience can tell you what lands.</p>
+          <p class="onboarding-eyebrow">One insight, multiple angles</p>
+          <h2>Test different formats. Post what works.</h2>
+          <p>Your intern packages one idea into multiple video formats so your audience can tell you what lands.</p>
         </div>
         <div class="onboarding-highlight"><span>Trial reels</span><strong>Different packaging, same trusted insight</strong></div>
-        <div class="onboarding-actions"><button class="btn btn-ghost" id="onboarding-back">Back</button><button class="btn btn-primary btn-lg" id="onboarding-next">Show me the day-to-day <span aria-hidden="true">→</span></button></div>`,
+        <div class="onboarding-actions"><button class="btn btn-ghost" id="onboarding-back">Back</button><button class="btn btn-primary btn-lg" id="onboarding-next">Show me the workflow <span aria-hidden="true">→</span></button></div>`,
       () => `
         <div class="onboarding-intro">
-          <p class="onboarding-eyebrow">The clinic-to-content routine</p>
-          <h2>Your idea can begin in the middle of a busy clinic day.</h2>
-          <p>Use this light routine whenever a patient question, pattern, or clinical insight stays with you.</p>
+          <p class="onboarding-eyebrow">Quick routine</p>
+          <h2>From clinic thought to scheduled content.</h2>
+          <p>Capture ideas fast, develop them when you're free.</p>
         </div>
         <ol class="onboarding-timeline">
-          <li><span>1</span><div><strong>Capture it in Quick Notes</strong><p>Jot down the raw thought in seconds while you are busy.</p></div></li>
-          <li><span>2</span><div><strong>Build it out when you are free</strong><p>Add the clinical context and key points that make the insight yours.</p></div></li>
-          <li><span>3</span><div><strong>Copy the tailored prompt</strong><p>Paste it into your preferred AI, then bring the script pack back here.</p></div></li>
-          <li><span>4</span><div><strong>Review the scripts</strong><p>Accept the strongest, edit a few, and reject anything that is not you.</p></div></li>
+          <li><span>1</span><div><strong>Quick Note</strong><p>Jot down the thought in seconds.</p></div></li>
+          <li><span>2</span><div><strong>Add details</strong><p>Develop the insight when you have time.</p></div></li>
+          <li><span>3</span><div><strong>Generate scripts</strong><p>Copy prompt, paste in AI, bring back results.</p></div></li>
+          <li><span>4</span><div><strong>Review & accept</strong><p>Keep the strongest, reject the rest.</p></div></li>
         </ol>
         <div class="onboarding-actions"><button class="btn btn-ghost" id="onboarding-back">Back</button><button class="btn btn-primary btn-lg" id="onboarding-next">See how it learns <span aria-hidden="true">→</span></button></div>`,
       () => `
         <div class="onboarding-intro onboarding-centered">
           <div class="onboarding-mark">↗</div>
-          <p class="onboarding-eyebrow">Test, learn, repeat</p>
-          <h2>Your approved scripts are sprinkled into your calendar as trial reels.</h2>
+          <p class="onboarding-eyebrow">Test and learn</p>
+          <h2>Post trial reels. Promote the winners.</h2>
           <p>Three days after posting, log each reel’s performance. The best-performing version becomes a main reel and is scheduled on your profile—so good ideas get the reach they deserve.</p>
         </div>
-        <div class="onboarding-loop"><div>Clinical insight</div><i>→</i><div>Several trial reels</div><i>→</i><div>3-day performance</div><i>→</i><div class="onboarding-loop-winner">Main reel</div></div>
-        <p class="onboarding-closing">Keep sharing your clinical perspective. Content Mate keeps the system organized while you build your audience, one tested insight at a time.</p>
+        <div class="onboarding-loop"><div>Clinical insight</div><i>→</i><div>Trial reels</div><i>→</i><div>3-day results</div><i>→</i><div class="onboarding-loop-winner">Main reel</div></div>
+        <p class="onboarding-closing">Content Mate organizes the system. You focus on clinical insights.</p>
         <div class="onboarding-actions"><button class="btn btn-ghost" id="onboarding-back">Back</button><button class="btn btn-primary btn-lg" id="onboarding-finish">Open my workspace <span aria-hidden="true">→</span></button></div>`
     ];
 
@@ -334,7 +359,7 @@ class ContentOSApp {
       this.modalBody.innerHTML = `<div class="onboarding-flow"><div class="onboarding-progress" aria-label="Step ${step + 1} of ${steps.length}">${steps.map((_, index) => `<span class="${index <= step ? 'active' : ''}"></span>`).join('')}</div>${steps[step]()}`;
       document.getElementById('onboarding-profile-form')?.addEventListener('submit', (event) => {
         event.preventDefault();
-        draft = { name: document.getElementById('onboarding-name').value.trim(), specialty: document.getElementById('onboarding-specialty').value.trim(), audience: document.getElementById('onboarding-audience').value };
+        draft = { name: document.getElementById('onboarding-name').value.trim(), specialty: document.getElementById('onboarding-specialty').value.trim(), phone: document.getElementById('onboarding-phone').value.trim(), audience: document.getElementById('onboarding-audience').value };
         finish(false);
       });
       document.getElementById('onboarding-skip')?.addEventListener('click', () => finish(true));
