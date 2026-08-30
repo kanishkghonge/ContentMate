@@ -74,9 +74,6 @@ class ContentOSApp {
 
     if (!updatedProfile.onboarded) {
       await this.startOnboarding();
-    } else if (updatedProfile.tutorialSeen === false && !updatedProfile.tutorialSkipped) {
-      // Resume an interrupted first-use tour after a refresh or navigation.
-      this.tutorial.start();
     }
 
     // 6. Update Badge Counts
@@ -234,15 +231,30 @@ class ContentOSApp {
           </div>
           <h4 class="reel-script-detail-title">${escapeHtml(reel.title || 'Untitled script')}</h4>
           <div class="reel-script-detail-box">${escapeHtml(fullScript)}</div>
-          <div class="flex justify-between items-center" style="margin-top: 16px;">
-            <button type="button" class="btn btn-ghost" id="btn-close-script-detail">Close</button>
-            <button type="button" class="btn btn-primary" id="btn-copy-full-script">Copy Whole Script</button>
+          <div class="flex justify-between items-center" style="margin-top: 16px; gap: 8px;">
+            <button type="button" class="btn btn-danger btn-sm" id="btn-delete-script-detail" data-id="${reel.id}">
+              🗑️ Delete Script
+            </button>
+            <div class="flex gap-2">
+              <button type="button" class="btn btn-ghost" id="btn-close-script-detail">Close</button>
+              <button type="button" class="btn btn-primary" id="btn-copy-full-script">Copy Whole Script</button>
+            </div>
           </div>
         </div>
       `;
 
       document.getElementById('btn-close-script-detail')?.addEventListener('click', () => this.closeModal());
       document.getElementById('btn-copy-full-script')?.addEventListener('click', () => copyToClipboard(fullScript));
+      document.getElementById('btn-delete-script-detail')?.addEventListener('click', async (e) => {
+        const id = e.currentTarget.dataset.id;
+        if (confirm('Are you sure you want to delete this script? This cannot be undone.')) {
+          await db.deleteScheduledReel(id);
+          showToast('Script deleted successfully', 'success');
+          this.closeModal();
+          // Refresh current view
+          await this.navigateTo(this.currentView);
+        }
+      });
     } else if (modalType === 'onboarding') {
       this.renderOnboarding(options.profile);
     }
@@ -273,7 +285,7 @@ class ContentOSApp {
         ...currentProfile,
         ...draft,
         onboarded: true,
-        tutorialSeen: skipped,
+        tutorialSeen: false,
         tutorialSkipped: skipped
       });
       
@@ -302,8 +314,15 @@ class ContentOSApp {
       updateSidebarName(draft.name);
       this.closeModal();
       await this.navigateTo('dashboard');
-      if (skipped) showToast('You can complete your profile anytime in Settings.', 'success');
-      else this.tutorial.start();
+      
+      if (skipped) {
+        showToast('You can complete your profile anytime in Settings.', 'success');
+      } else {
+        // Ask if user wants to start tutorial after onboarding
+        setTimeout(() => {
+          this.showTutorialPrompt();
+        }, 300);
+      }
     };
 
     const steps = [
@@ -369,6 +388,35 @@ class ContentOSApp {
     };
 
     renderStep();
+  }
+
+  showTutorialPrompt() {
+    const promptOverlay = document.createElement('div');
+    promptOverlay.className = 'tutorial-prompt-overlay';
+    promptOverlay.innerHTML = `
+      <div class="tutorial-prompt-card">
+        <h3>Start Tutorial?</h3>
+        <p>Get a quick walkthrough of Content Mate's workflow (estimated time: 2 min)</p>
+        <div class="tutorial-prompt-actions">
+          <button class="btn btn-ghost" id="tutorial-prompt-skip">Start using</button>
+          <button class="btn btn-primary" id="tutorial-prompt-start">Start tutorial</button>
+        </div>
+        <p class="tutorial-prompt-hint">You can do it anytime from Settings</p>
+      </div>
+    `;
+    document.body.appendChild(promptOverlay);
+
+    document.getElementById('tutorial-prompt-start')?.addEventListener('click', () => {
+      promptOverlay.remove();
+      this.tutorial.start();
+    });
+
+    document.getElementById('tutorial-prompt-skip')?.addEventListener('click', async () => {
+      promptOverlay.remove();
+      const profile = await db.getProfile();
+      await db.saveProfile({ ...profile, tutorialSeen: true, tutorialSkipped: true });
+      showToast('You can start the tutorial anytime from Settings.', 'success');
+    });
   }
 
   closeModal() {
