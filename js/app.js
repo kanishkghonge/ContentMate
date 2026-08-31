@@ -215,13 +215,10 @@ class ContentOSApp {
       ManualScriptModal.render(this.modalBody, options, this.closeModal.bind(this), this.navigateTo.bind(this));
     } else if (modalType === 'scriptDetail') {
       const reel = options.reel || {};
-      const fullScript = [
-        reel.title && `TITLE: ${reel.title}`,
-        reel.format && `FORMAT: ${reel.format}`,
-        reel.hook && `HOOK: ${reel.hook}`,
-        reel.script && `SCRIPT:\n${reel.script}`,
-        reel.cta && `CTA: ${reel.cta}`
-      ].filter(Boolean).join('\n\n');
+      
+      // Combine hook, script body, and CTA into one script
+      const scriptContent = [reel.hook, reel.script, reel.cta].filter(Boolean).join('\n\n');
+      const displayScript = `Title: ${reel.title || 'Untitled script'}\n\nScript:\n${scriptContent}`;
 
       this.modalBody.innerHTML = `
         <div class="reel-script-detail">
@@ -229,31 +226,92 @@ class ContentOSApp {
             <span>${escapeHtml(reel.format || 'Reel')}</span>
             ${reel.estimated_duration ? `<span>• ${escapeHtml(reel.estimated_duration)}</span>` : ''}
           </div>
-          <h4 class="reel-script-detail-title">${escapeHtml(reel.title || 'Untitled script')}</h4>
-          <div class="reel-script-detail-box">${escapeHtml(fullScript)}</div>
-          <div class="flex justify-between items-center" style="margin-top: 16px; gap: 8px;">
-            <button type="button" class="btn btn-danger btn-sm" id="btn-delete-script-detail" data-id="${reel.id}">
-              🗑️ Delete Script
-            </button>
-            <div class="flex gap-2">
-              <button type="button" class="btn btn-ghost" id="btn-close-script-detail">Close</button>
-              <button type="button" class="btn btn-primary" id="btn-copy-full-script">Copy Whole Script</button>
+          <div id="script-view-mode">
+            <div class="reel-script-detail-box" style="white-space: pre-wrap;">${escapeHtml(displayScript)}</div>
+            <div class="flex justify-between items-center" style="margin-top: 16px; gap: 8px;">
+              <button type="button" class="btn btn-danger btn-sm" id="btn-delete-script-detail" data-id="${reel.id}">
+                🗑️ Delete Script
+              </button>
+              <div class="flex gap-2">
+                <button type="button" class="btn btn-secondary" id="btn-edit-script">Edit Script</button>
+                <button type="button" class="btn btn-ghost" id="btn-close-script-detail">Close</button>
+                <button type="button" class="btn btn-primary" id="btn-copy-full-script">Copy Script</button>
+              </div>
+            </div>
+          </div>
+          <div id="script-edit-mode" class="hidden">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" for="edit-script-title">Title</label>
+              <input type="text" id="edit-script-title" class="form-input" value="${escapeHtml(reel.title || '')}" />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" for="edit-script-content">Script</label>
+              <textarea id="edit-script-content" class="form-textarea" rows="12" style="font-family: var(--font-body); font-size: 14px; line-height: 1.6;">${escapeHtml(scriptContent)}</textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+              <button type="button" class="btn btn-ghost" id="btn-cancel-edit">Cancel</button>
+              <button type="button" class="btn btn-primary" id="btn-save-edit">Save Changes</button>
             </div>
           </div>
         </div>
       `;
 
       document.getElementById('btn-close-script-detail')?.addEventListener('click', () => this.closeModal());
-      document.getElementById('btn-copy-full-script')?.addEventListener('click', () => copyToClipboard(fullScript));
+      
+      // Copy only the script content (not the title)
+      document.getElementById('btn-copy-full-script')?.addEventListener('click', () => {
+        copyToClipboard(scriptContent);
+        showToast('Script copied (without title)', 'success');
+      });
+      
       document.getElementById('btn-delete-script-detail')?.addEventListener('click', async (e) => {
         const id = e.currentTarget.dataset.id;
         if (confirm('Are you sure you want to delete this script? This cannot be undone.')) {
           await db.deleteScheduledReel(id);
           showToast('Script deleted successfully', 'success');
           this.closeModal();
-          // Refresh current view
           await this.navigateTo(this.currentView);
         }
+      });
+
+      // Edit functionality
+      document.getElementById('btn-edit-script')?.addEventListener('click', () => {
+        document.getElementById('script-view-mode').classList.add('hidden');
+        document.getElementById('script-edit-mode').classList.remove('hidden');
+      });
+
+      document.getElementById('btn-cancel-edit')?.addEventListener('click', () => {
+        document.getElementById('script-edit-mode').classList.add('hidden');
+        document.getElementById('script-view-mode').classList.remove('hidden');
+      });
+
+      document.getElementById('btn-save-edit')?.addEventListener('click', async () => {
+        const newTitle = document.getElementById('edit-script-title').value.trim();
+        const newScriptContent = document.getElementById('edit-script-content').value.trim();
+        
+        if (!newTitle || !newScriptContent) {
+          showToast('Title and script cannot be empty', 'error');
+          return;
+        }
+
+        // Parse the script content back into hook, body, and CTA
+        // For simplicity, we'll store the entire content in the script field
+        // and extract the first paragraph as hook if it exists
+        const paragraphs = newScriptContent.split('\n\n').filter(p => p.trim());
+        const newHook = paragraphs[0] || '';
+        const newBody = paragraphs.slice(1, -1).join('\n\n') || newScriptContent;
+        const newCta = paragraphs.length > 1 ? paragraphs[paragraphs.length - 1] : '';
+
+        reel.title = newTitle;
+        reel.hook = newHook;
+        reel.script = newBody;
+        reel.cta = newCta;
+        reel.updated_at = new Date().toISOString();
+
+        await db.saveScheduledReel(reel);
+        showToast('Script updated successfully', 'success');
+        this.closeModal();
+        await this.navigateTo(this.currentView);
       });
     } else if (modalType === 'onboarding') {
       this.renderOnboarding(options.profile);

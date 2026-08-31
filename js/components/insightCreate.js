@@ -3,7 +3,7 @@
  */
 
 import { db } from '../db.js';
-import { buildDoctorPrompt } from '../prompt.js';
+import { buildDoctorPrompt, getTopPerformingScriptsContext } from '../prompt.js';
 import { uuidv4, copyToClipboard, showToast, escapeHtml } from '../utils.js';
 
 export const InsightCreateModal = {
@@ -190,9 +190,13 @@ export const InsightCreateModal = {
         }
       }
 
-      // Generate bespoke prompt
+      // Get top performing scripts context from profile settings
       const latestProfile = await db.getProfile();
-      const promptText = buildDoctorPrompt(latestProfile, newInsight);
+      const topScriptsCount = latestProfile.topScriptsContext || 'none';
+      const topScriptsContext = await getTopPerformingScriptsContext(topScriptsCount);
+
+      // Generate bespoke prompt
+      const promptText = await buildDoctorPrompt(latestProfile, newInsight, topScriptsContext);
 
       document.getElementById('generated-prompt-box').value = promptText;
       document.getElementById('step-insight-form').classList.add('hidden');

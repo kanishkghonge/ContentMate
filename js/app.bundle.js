@@ -1,9 +1,10 @@
 /**
- * Content Mate - generated bundle
+ * Content Mate â€” generated standalone bundle.
+ * Generated from the ES module sources; supports direct file:// use.
  */
-(function () {
-"use strict";
 
+(function () {
+  "use strict";
 /* js/db.js */
 /**
  * Content OS for Doctors — Local-First IndexedDB Persistence Layer
@@ -402,7 +403,6 @@ const db = {
   }
 };
 
-
 /* js/formats.js */
 /**
  * Content OS for Doctors — Script Formats & Content Balancing Taxonomy
@@ -512,7 +512,6 @@ function getFormatById(id) {
     description: 'Clinical health content.'
   };
 }
-
 
 /* js/utils.js */
 /**
@@ -724,7 +723,6 @@ function setDevToolsEnabled(enabled) {
   }
   window.dispatchEvent(new CustomEvent('doctor-os-dev-tools-change', { detail: { enabled } }));
 }
-
 
 /* js/scheduler.js */
 /**
@@ -1078,7 +1076,6 @@ async function promoteToMainReel(trialReelId) {
   return mainReel;
 }
 
-
 /* js/sampleData.js */
 /**
  * Content OS for Doctors — Realistic Clinical Sample Dataset
@@ -1296,7 +1293,6 @@ async function populateSampleDoctorWorkspace() {
   await db.saveScheduledReels(scheduledReels);
   await recalculateFutureSchedule();
 }
-
 
 /* js/components/dashboard.js */
 /**
@@ -1744,7 +1740,6 @@ const DashboardView = {
   }
 };
 
-
 /* js/components/notes.js */
 /**
  * Content OS for Doctors — Quick Notes System
@@ -1871,7 +1866,6 @@ const NotesView = {
   }
 };
 
-
 /* js/prompt.js */
 /**
  * Content OS for Doctors — Prompt Generator Engine
@@ -1963,11 +1957,55 @@ function getDefaultWritingInstructions() {
   return DEFAULT_WRITING_INSTRUCTIONS;
 }
 
-function buildDoctorPrompt(profile = {}, insight = {}) {
+async function getTopPerformingScriptsContext(count) {
+  if (!count || count === 'none' || count === 0) return '';
+  
+  // Import db dynamically to avoid circular dependencies
+  const { db } = await import('./db.js');
+  
+  const allReels = await db.getScheduledReels();
+  
+  // Filter reels that have feedback logged and performance score
+  const reelsWithFeedback = allReels.filter(r => 
+    r.feedback_logged && 
+    r.performance_score !== undefined && 
+    r.performance_score !== null
+  );
+  
+  // Sort by performance score descending
+  reelsWithFeedback.sort((a, b) => (b.performance_score || 0) - (a.performance_score || 0));
+  
+  // Take top N
+  const topReels = reelsWithFeedback.slice(0, parseInt(count));
+  
+  if (topReels.length === 0) return '';
+  
+  // Build context string
+  let contextText = `CONTEXT FROM TOP ${topReels.length} PERFORMING SCRIPTS (Use these as style and structure references):\n\n`;
+  
+  topReels.forEach((reel, index) => {
+    const fullScript = [reel.hook, reel.script, reel.cta].filter(Boolean).join('\n\n');
+    contextText += `Example ${index + 1} (Performance Score: ${reel.performance_score}):\n`;
+    contextText += `Title: ${reel.title}\n`;
+    contextText += `Format: ${reel.format}\n`;
+    contextText += `Script: ${fullScript}\n\n`;
+  });
+  
+  return contextText;
+}
+
+async function buildDoctorPrompt(profile = {}, insight = {}, topScriptsContext = '') {
   const selectedDuration = insight.reel_length || profile.reelLength || '40s';
   const selectedLanguage = insight.language || profile.language || 'English';
   const specialty = profile.specialty || 'General Medicine & Preventative Care';
   const selectedCta = insight.custom_cta || 'Check caption for more';
+  
+  // Build additional context with top performing scripts if provided
+  let additionalContext = insight.references || 'None provided.';
+  if (topScriptsContext) {
+    additionalContext = topScriptsContext + '\n\n' + additionalContext;
+  }
+  
   const values = {
     doctor_name: profile.name || 'Doctor',
     specialty,
@@ -1979,7 +2017,7 @@ function buildDoctorPrompt(profile = {}, insight = {}) {
     insight_title_json: escapeJsonString(insight.title),
     specialty_json: escapeJsonString(specialty),
     insight_details: insight.supporting_points || insight.description || 'Explain the underlying mechanism with clinical clarity.',
-    additional_context: insight.references || 'None provided.',
+    additional_context: additionalContext,
     selected_cta: selectedCta,
     selected_cta_json: escapeJsonString(selectedCta),
     writing_instructions: profile.writingInstructions || DEFAULT_WRITING_INSTRUCTIONS
@@ -1989,7 +2027,6 @@ function buildDoctorPrompt(profile = {}, insight = {}) {
     Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : token
   ));
 }
-
 
 /* js/components/insightCreate.js */
 /**
@@ -2184,9 +2221,13 @@ const InsightCreateModal = {
         }
       }
 
-      // Generate bespoke prompt
+      // Get top performing scripts context from profile settings
       const latestProfile = await db.getProfile();
-      const promptText = buildDoctorPrompt(latestProfile, newInsight);
+      const topScriptsCount = latestProfile.topScriptsContext || 'none';
+      const topScriptsContext = await getTopPerformingScriptsContext(topScriptsCount);
+
+      // Generate bespoke prompt
+      const promptText = await buildDoctorPrompt(latestProfile, newInsight, topScriptsContext);
 
       document.getElementById('generated-prompt-box').value = promptText;
       document.getElementById('step-insight-form').classList.add('hidden');
@@ -2208,7 +2249,6 @@ const InsightCreateModal = {
     });
   }
 };
-
 
 /* js/importer.js */
 /**
@@ -2544,7 +2584,6 @@ function parseAndValidateAIResponse(rawText, insightId) {
   };
 }
 
-
 /* js/components/aiImport.js */
 /**
  * Content OS for Doctors — AI JSON Importer Modal
@@ -2664,7 +2703,6 @@ const AIImportModal = {
     });
   }
 };
-
 
 /* js/components/scriptReview.js */
 /**
@@ -2901,7 +2939,6 @@ const ScriptReviewView = {
     document.getElementById('btn-completion-go-today')?.addEventListener('click', () => navigateTo('dashboard'));
   }
 };
-
 
 /* js/components/scheduleView.js */
 /**
@@ -3326,7 +3363,6 @@ const ScheduleView = {
   }
 };
 
-
 /* js/components/manualScript.js */
 /**
  * Hand-written script modal — saves directly to the selected calendar date.
@@ -3386,7 +3422,6 @@ const ManualScriptModal = {
     });
   }
 };
-
 
 /* js/components/trialFeedback.js */
 /**
@@ -3556,7 +3591,6 @@ const TrialFeedbackModal = {
     });
   }
 };
-
 
 /* js/components/feedbackView.js */
 /**
@@ -3847,7 +3881,6 @@ const FeedbackView = {
   }
 };
 
-
 /* js/components/library.js */
 /**
  * Content OS for Doctors — Content Library & Unified Insight Timelines
@@ -4101,7 +4134,6 @@ const LibraryView = {
   }
 };
 
-
 /* js/components/settings.js */
 /** Doctor profile, workflow settings, data controls, and gated developer tools. */
 
@@ -4141,6 +4173,7 @@ const SettingsView = {
               <div class="form-group"><label class="form-label" for="prof-audience">Target audience</label><select id="prof-audience" class="form-select"><option value="Patients" ${profile.audience === 'Patients' ? 'selected' : ''}>Patients</option><option value="Doctors" ${profile.audience === 'Doctors' ? 'selected' : ''}>Doctors</option><option value="Both" ${profile.audience === 'Both' ? 'selected' : ''}>Both</option></select></div>
               <div class="form-group"><label class="form-label" for="prof-lang">Primary language / dialect</label><select id="prof-lang" class="form-select"><option value="English" ${profile.language === 'English' ? 'selected' : ''}>English</option><option value="Hinglish" ${profile.language === 'Hinglish' ? 'selected' : ''}>Hinglish</option><option value="Hindi" ${profile.language === 'Hindi' ? 'selected' : ''}>Hindi</option><option value="Marathi" ${profile.language === 'Marathi' ? 'selected' : ''}>Marathi</option><option value="Telugu" ${profile.language === 'Telugu' ? 'selected' : ''}>Telugu</option><option value="Kannada" ${profile.language === 'Kannada' ? 'selected' : ''}>Kannada</option><option value="Punjabi" ${profile.language === 'Punjabi' ? 'selected' : ''}>Punjabi</option></select></div>
               <div class="form-group"><label class="form-label" for="prof-tone">Preferred tone</label><select id="prof-tone" class="form-select"><option value="Conversational & Empathetic" ${profile.tone === 'Conversational & Empathetic' ? 'selected' : ''}>Conversational & empathetic</option><option value="Authoritative & Evidence-Based" ${profile.tone === 'Authoritative & Evidence-Based' ? 'selected' : ''}>Authoritative & evidence-based</option><option value="Friendly & Approachable" ${profile.tone === 'Friendly & Approachable' ? 'selected' : ''}>Friendly & approachable</option></select></div>
+              <div class="form-group"><label class="form-label" for="prof-top-scripts">Include context from best performing scripts</label><select id="prof-top-scripts" class="form-select"><option value="none" ${!profile.topScriptsContext || profile.topScriptsContext === 'none' ? 'selected' : ''}>None - Don't include examples</option><option value="3" ${profile.topScriptsContext === '3' ? 'selected' : ''}>Top 3 performing scripts</option><option value="5" ${profile.topScriptsContext === '5' ? 'selected' : ''}>Top 5 performing scripts</option><option value="10" ${profile.topScriptsContext === '10' ? 'selected' : ''}>Top 10 performing scripts</option></select><p class="settings-helper" style="margin-top:3px;">AI will use your best scripts as style references when generating new prompts (requires logged feedback).</p></div>
               <div class="form-group full-width"><label class="form-label" for="prof-clinic">Clinic / hospital name <span class="form-sublabel">optional</span></label><input type="text" id="prof-clinic" class="form-input" value="${escapeHtml(profile.clinicName || '')}" placeholder="e.g. Heart & Vascular Institute"></div>
             </div><div class="settings-card-actions"><button type="submit" class="btn btn-primary">Save profile</button></div>
           </form>
@@ -4170,11 +4203,7 @@ const SettingsView = {
           <section class="card settings-card">${cardHead('↥', 'Backup & restore', 'Your workspace stays in this browser. Save a JSON backup before changing devices or resetting data.')}<div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-export-json">Export backup</button><button class="btn btn-secondary btn-sm" id="btn-import-json-trigger">Restore backup</button><input type="file" id="input-file-backup" accept=".json,application/json" class="hidden"></div></section>
 
           <section class="card settings-card settings-support-card">
-            ${cardHead('📞', 'Call/Text the Founder', 'Need to shout at the person who made this stupid app? Or want to thank me for helping? I\'m all ears.')}
-            <div class="support-beta-banner">
-              <span class="support-beta-badge">Beta</span>
-              <p class="support-beta-text">Any and all feedback is welcome. Whether you love it, hate it, or something broke — let me know directly.</p>
-            </div>
+            ${cardHead('📞', 'Call/Text the Founder', 'Need to shout at the person who made this stupid app? Or want to thank them for helping you script your reels? I\'m all ears, any feature request feedback is welcome.')}
             <p class="settings-helper" style="margin-top:12px;">Call, text, or WhatsApp me:</p>
             <a href="https://wa.me/852183292" target="_blank" rel="noopener noreferrer" class="support-contact-btn" id="btn-support-whatsapp" aria-label="WhatsApp founder at 852183292">
               <span class="support-contact-icon">
@@ -4203,7 +4232,7 @@ const SettingsView = {
 
     document.getElementById('form-doctor-profile')?.addEventListener('submit', async (event) => {
       event.preventDefault();
-      await saveProfile({ name: document.getElementById('prof-name').value.trim(), specialty: document.getElementById('prof-specialty').value.trim(), audience: document.getElementById('prof-audience').value, language: document.getElementById('prof-lang').value, tone: document.getElementById('prof-tone').value, clinicName: document.getElementById('prof-clinic').value.trim(), onboarded: true }, 'Doctor profile saved.');
+      await saveProfile({ name: document.getElementById('prof-name').value.trim(), specialty: document.getElementById('prof-specialty').value.trim(), audience: document.getElementById('prof-audience').value, language: document.getElementById('prof-lang').value, tone: document.getElementById('prof-tone').value, topScriptsContext: document.getElementById('prof-top-scripts').value, clinicName: document.getElementById('prof-clinic').value.trim(), onboarded: true }, 'Doctor profile saved.');
       const sideName = document.getElementById('sidebar-dr-name'); if (sideName) sideName.textContent = profile.name || 'Doctor Workspace';
     });
     document.getElementById('btn-save-writing-instructions')?.addEventListener('click', async () => {
@@ -4246,7 +4275,6 @@ const SettingsView = {
     document.getElementById('btn-reset-all-data')?.addEventListener('click', async () => { if (confirm('Delete all workspace data? This cannot be undone.')) { await db.resetAllData(); showToast('Workspace reset.', 'info'); window.location.reload(); } });
   }
 };
-
 
 /* js/tutorial.js */
 /** Guided first-use tour. It points at, and waits for, the real application controls. */
@@ -4890,7 +4918,6 @@ class WorkflowTutorial {
   }
 }
 
-
 /* js/app.js */
 /**
  * Content OS for Doctors — Main Application Coordinator & Router
@@ -5109,13 +5136,10 @@ class ContentOSApp {
       ManualScriptModal.render(this.modalBody, options, this.closeModal.bind(this), this.navigateTo.bind(this));
     } else if (modalType === 'scriptDetail') {
       const reel = options.reel || {};
-      const fullScript = [
-        reel.title && `TITLE: ${reel.title}`,
-        reel.format && `FORMAT: ${reel.format}`,
-        reel.hook && `HOOK: ${reel.hook}`,
-        reel.script && `SCRIPT:\n${reel.script}`,
-        reel.cta && `CTA: ${reel.cta}`
-      ].filter(Boolean).join('\n\n');
+      
+      // Combine hook, script body, and CTA into one script
+      const scriptContent = [reel.hook, reel.script, reel.cta].filter(Boolean).join('\n\n');
+      const displayScript = `Title: ${reel.title || 'Untitled script'}\n\nScript:\n${scriptContent}`;
 
       this.modalBody.innerHTML = `
         <div class="reel-script-detail">
@@ -5123,31 +5147,92 @@ class ContentOSApp {
             <span>${escapeHtml(reel.format || 'Reel')}</span>
             ${reel.estimated_duration ? `<span>• ${escapeHtml(reel.estimated_duration)}</span>` : ''}
           </div>
-          <h4 class="reel-script-detail-title">${escapeHtml(reel.title || 'Untitled script')}</h4>
-          <div class="reel-script-detail-box">${escapeHtml(fullScript)}</div>
-          <div class="flex justify-between items-center" style="margin-top: 16px; gap: 8px;">
-            <button type="button" class="btn btn-danger btn-sm" id="btn-delete-script-detail" data-id="${reel.id}">
-              🗑️ Delete Script
-            </button>
-            <div class="flex gap-2">
-              <button type="button" class="btn btn-ghost" id="btn-close-script-detail">Close</button>
-              <button type="button" class="btn btn-primary" id="btn-copy-full-script">Copy Whole Script</button>
+          <div id="script-view-mode">
+            <div class="reel-script-detail-box" style="white-space: pre-wrap;">${escapeHtml(displayScript)}</div>
+            <div class="flex justify-between items-center" style="margin-top: 16px; gap: 8px;">
+              <button type="button" class="btn btn-danger btn-sm" id="btn-delete-script-detail" data-id="${reel.id}">
+                🗑️ Delete Script
+              </button>
+              <div class="flex gap-2">
+                <button type="button" class="btn btn-secondary" id="btn-edit-script">Edit Script</button>
+                <button type="button" class="btn btn-ghost" id="btn-close-script-detail">Close</button>
+                <button type="button" class="btn btn-primary" id="btn-copy-full-script">Copy Script</button>
+              </div>
+            </div>
+          </div>
+          <div id="script-edit-mode" class="hidden">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" for="edit-script-title">Title</label>
+              <input type="text" id="edit-script-title" class="form-input" value="${escapeHtml(reel.title || '')}" />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" for="edit-script-content">Script</label>
+              <textarea id="edit-script-content" class="form-textarea" rows="12" style="font-family: var(--font-body); font-size: 14px; line-height: 1.6;">${escapeHtml(scriptContent)}</textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+              <button type="button" class="btn btn-ghost" id="btn-cancel-edit">Cancel</button>
+              <button type="button" class="btn btn-primary" id="btn-save-edit">Save Changes</button>
             </div>
           </div>
         </div>
       `;
 
       document.getElementById('btn-close-script-detail')?.addEventListener('click', () => this.closeModal());
-      document.getElementById('btn-copy-full-script')?.addEventListener('click', () => copyToClipboard(fullScript));
+      
+      // Copy only the script content (not the title)
+      document.getElementById('btn-copy-full-script')?.addEventListener('click', () => {
+        copyToClipboard(scriptContent);
+        showToast('Script copied (without title)', 'success');
+      });
+      
       document.getElementById('btn-delete-script-detail')?.addEventListener('click', async (e) => {
         const id = e.currentTarget.dataset.id;
         if (confirm('Are you sure you want to delete this script? This cannot be undone.')) {
           await db.deleteScheduledReel(id);
           showToast('Script deleted successfully', 'success');
           this.closeModal();
-          // Refresh current view
           await this.navigateTo(this.currentView);
         }
+      });
+
+      // Edit functionality
+      document.getElementById('btn-edit-script')?.addEventListener('click', () => {
+        document.getElementById('script-view-mode').classList.add('hidden');
+        document.getElementById('script-edit-mode').classList.remove('hidden');
+      });
+
+      document.getElementById('btn-cancel-edit')?.addEventListener('click', () => {
+        document.getElementById('script-edit-mode').classList.add('hidden');
+        document.getElementById('script-view-mode').classList.remove('hidden');
+      });
+
+      document.getElementById('btn-save-edit')?.addEventListener('click', async () => {
+        const newTitle = document.getElementById('edit-script-title').value.trim();
+        const newScriptContent = document.getElementById('edit-script-content').value.trim();
+        
+        if (!newTitle || !newScriptContent) {
+          showToast('Title and script cannot be empty', 'error');
+          return;
+        }
+
+        // Parse the script content back into hook, body, and CTA
+        // For simplicity, we'll store the entire content in the script field
+        // and extract the first paragraph as hook if it exists
+        const paragraphs = newScriptContent.split('\n\n').filter(p => p.trim());
+        const newHook = paragraphs[0] || '';
+        const newBody = paragraphs.slice(1, -1).join('\n\n') || newScriptContent;
+        const newCta = paragraphs.length > 1 ? paragraphs[paragraphs.length - 1] : '';
+
+        reel.title = newTitle;
+        reel.hook = newHook;
+        reel.script = newBody;
+        reel.cta = newCta;
+        reel.updated_at = new Date().toISOString();
+
+        await db.saveScheduledReel(reel);
+        showToast('Script updated successfully', 'success');
+        this.closeModal();
+        await this.navigateTo(this.currentView);
       });
     } else if (modalType === 'onboarding') {
       this.renderOnboarding(options.profile);
@@ -5373,6 +5458,5 @@ document.addEventListener('DOMContentLoaded', () => {
   const app = new ContentOSApp();
   app.init();
 });
-
 
 })();

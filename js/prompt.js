@@ -88,11 +88,55 @@ export function getDefaultWritingInstructions() {
   return DEFAULT_WRITING_INSTRUCTIONS;
 }
 
-export function buildDoctorPrompt(profile = {}, insight = {}) {
+export async function getTopPerformingScriptsContext(count) {
+  if (!count || count === 'none' || count === 0) return '';
+  
+  // Import db dynamically to avoid circular dependencies
+  const { db } = await import('./db.js');
+  
+  const allReels = await db.getScheduledReels();
+  
+  // Filter reels that have feedback logged and performance score
+  const reelsWithFeedback = allReels.filter(r => 
+    r.feedback_logged && 
+    r.performance_score !== undefined && 
+    r.performance_score !== null
+  );
+  
+  // Sort by performance score descending
+  reelsWithFeedback.sort((a, b) => (b.performance_score || 0) - (a.performance_score || 0));
+  
+  // Take top N
+  const topReels = reelsWithFeedback.slice(0, parseInt(count));
+  
+  if (topReels.length === 0) return '';
+  
+  // Build context string
+  let contextText = `CONTEXT FROM TOP ${topReels.length} PERFORMING SCRIPTS (Use these as style and structure references):\n\n`;
+  
+  topReels.forEach((reel, index) => {
+    const fullScript = [reel.hook, reel.script, reel.cta].filter(Boolean).join('\n\n');
+    contextText += `Example ${index + 1} (Performance Score: ${reel.performance_score}):\n`;
+    contextText += `Title: ${reel.title}\n`;
+    contextText += `Format: ${reel.format}\n`;
+    contextText += `Script: ${fullScript}\n\n`;
+  });
+  
+  return contextText;
+}
+
+export async function buildDoctorPrompt(profile = {}, insight = {}, topScriptsContext = '') {
   const selectedDuration = insight.reel_length || profile.reelLength || '40s';
   const selectedLanguage = insight.language || profile.language || 'English';
   const specialty = profile.specialty || 'General Medicine & Preventative Care';
   const selectedCta = insight.custom_cta || 'Check caption for more';
+  
+  // Build additional context with top performing scripts if provided
+  let additionalContext = insight.references || 'None provided.';
+  if (topScriptsContext) {
+    additionalContext = topScriptsContext + '\n\n' + additionalContext;
+  }
+  
   const values = {
     doctor_name: profile.name || 'Doctor',
     specialty,
@@ -104,7 +148,7 @@ export function buildDoctorPrompt(profile = {}, insight = {}) {
     insight_title_json: escapeJsonString(insight.title),
     specialty_json: escapeJsonString(specialty),
     insight_details: insight.supporting_points || insight.description || 'Explain the underlying mechanism with clinical clarity.',
-    additional_context: insight.references || 'None provided.',
+    additional_context: additionalContext,
     selected_cta: selectedCta,
     selected_cta_json: escapeJsonString(selectedCta),
     writing_instructions: profile.writingInstructions || DEFAULT_WRITING_INSTRUCTIONS
