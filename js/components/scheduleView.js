@@ -262,7 +262,7 @@ export const ScheduleView = {
                 <div class="flex items-center gap-2">
                   <span style="font-size: 18px;">${formatMeta.icon || '💡'}</span>
                   <span class="action-card-badge ${isMain ? 'badge-purple' : 'badge-gray'}">
-                    ${isMain ? '⭐ Main Reel' : enableTrialReels ? 'Trial Reel' : 'Scheduled Post'}
+                    ${isMain ? '⭐ Main Reel' : reel.is_mirrored_trial ? '🔁 Mirrored Trial' : enableTrialReels ? 'Trial Reel' : 'Scheduled Post'}
                   </span>
                   <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">
                     ${escapeHtml(reel.format)}

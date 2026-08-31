@@ -23,6 +23,7 @@ class ContentOSApp {
   constructor() {
     this.currentView = 'dashboard';
     this.modalActive = false;
+    this.onboardingActive = false;
     this.viewContainer = document.getElementById('view-container');
     this.modalOverlay = document.getElementById('modal-overlay');
     this.modalBody = document.getElementById('modal-body');
@@ -163,11 +164,12 @@ class ContentOSApp {
 
   openModal(modalType, options = {}) {
     this.modalActive = true;
+    this.onboardingActive = modalType === 'onboarding';
     this.modalOverlay.classList.remove('hidden');
     this.modalCard?.classList.toggle('onboarding-card', modalType === 'onboarding');
 
     const titles = {
-      insightCreate: 'Record New Clinical Insight',
+      insightCreate: 'Record New Idea',
       quickNote: 'Quick Thought / Scratchpad',
       aiImport: 'Import AI Script Pack',
       manualScript: 'Add Your Own Script',
@@ -370,6 +372,7 @@ class ContentOSApp {
       }
       
       updateSidebarName(draft.name);
+      this.onboardingActive = false;
       this.closeModal();
       await this.navigateTo('dashboard');
       
@@ -396,7 +399,7 @@ class ContentOSApp {
           <div class="form-group"><label class="form-label" for="onboarding-specialty">Your specialty</label><input id="onboarding-specialty" class="form-input" value="${escapeHtml(draft.specialty)}" placeholder="e.g. Dermatology" required></div>
           <div class="form-group"><label class="form-label" for="onboarding-phone">Phone number</label><input id="onboarding-phone" type="tel" class="form-input" value="${escapeHtml(draft.phone)}" placeholder="e.g. +91 98765 43210" required></div>
           <div class="form-group"><label class="form-label" for="onboarding-audience">Who do you want to reach?</label><select id="onboarding-audience" class="form-select"><option value="Patients" ${draft.audience === 'Patients' ? 'selected' : ''}>Patients</option><option value="Doctors" ${draft.audience === 'Doctors' ? 'selected' : ''}>Other doctors</option><option value="Both" ${draft.audience === 'Both' ? 'selected' : ''}>Both</option></select></div>
-          <div class="onboarding-actions"><button type="button" class="btn btn-ghost" id="onboarding-skip">Skip tutorial</button><button class="btn btn-primary btn-lg" type="submit">Build my workflow <span aria-hidden="true">→</span></button></div>
+          <div class="onboarding-actions"><button class="btn btn-primary btn-lg" type="submit">Build my workflow <span aria-hidden="true">→</span></button></div>
         </form>`,
       () => `
         <div class="onboarding-intro onboarding-centered">
@@ -439,7 +442,6 @@ class ContentOSApp {
         draft = { name: document.getElementById('onboarding-name').value.trim(), specialty: document.getElementById('onboarding-specialty').value.trim(), phone: document.getElementById('onboarding-phone').value.trim(), audience: document.getElementById('onboarding-audience').value };
         finish(false);
       });
-      document.getElementById('onboarding-skip')?.addEventListener('click', () => finish(true));
       document.getElementById('onboarding-back')?.addEventListener('click', () => { step -= 1; renderStep(); });
       document.getElementById('onboarding-next')?.addEventListener('click', () => { step += 1; renderStep(); });
       document.getElementById('onboarding-finish')?.addEventListener('click', () => finish(false));
@@ -478,6 +480,7 @@ class ContentOSApp {
   }
 
   closeModal() {
+    if (this.onboardingActive) return;
     this.modalActive = false;
     this.modalOverlay.classList.add('hidden');
     this.modalCard?.classList.remove('onboarding-card');

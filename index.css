@@ -993,9 +993,21 @@ body {
   border-top: 1px solid var(--border-subtle);
 }
 
-@media (min-width: 480px) {
+@media (min-width: 900px) {
   .flashcard-actions {
     grid-template-columns: 1fr 1fr 1fr 1.2fr;
+  }
+}
+.flashcard.workflow-tutorial-host { overflow: visible; }
+
+@media (max-width: 899px) {
+  .flashcard-actions .btn {
+    min-width: 0;
+    width: 100%;
+    padding-left: 8px;
+    padding-right: 8px;
+    white-space: normal;
+    line-height: 1.2;
   }
 }
 
@@ -1572,6 +1584,7 @@ body {
 .workflow-tutorial-top { display: flex; align-items:center; justify-content: space-between; gap:8px; margin-bottom: 9px; color: #0066CC; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; cursor: grab; touch-action:none; }
 .workflow-tutorial-top .btn { margin-left:auto; text-transform:none; letter-spacing:normal; cursor:pointer; }
 .workflow-tutorial-drag-hint { color: var(--text-tertiary); font-size: 10px; font-weight: 600; letter-spacing: 0.02em; text-transform: none; opacity: 0.8; }
+.workflow-tutorial-card { cursor: grab; touch-action: none; }
 .workflow-tutorial-card.is-dragging { cursor:grabbing; user-select:none; }
 .workflow-tutorial-target { 
   position:relative; 
@@ -1626,7 +1639,7 @@ body {
 .workflow-tutorial-actions .btn-primary { position:relative; animation:tutorial-next-attention 1.8s ease-in-out infinite; box-shadow:0 5px 14px rgba(37, 130, 215, .34); }
 .workflow-tutorial-actions .btn-primary::after { content:'Tap here'; position:absolute; right:0; bottom:calc(100% + 7px); padding:4px 7px; border-radius:6px; background:var(--text-primary); color:var(--bg-card); font-size:10px; font-weight:800; letter-spacing:.03em; white-space:nowrap; animation:tutorial-tap-label 1.8s ease-in-out infinite; }
 
-/* Remove animation from "Look blue highlighted button" */
+/* Keep instructional placeholder static */
 .workflow-tutorial-actions .btn-primary.tutorial-no-animation { animation:none; box-shadow:none; }
 .workflow-tutorial-actions .btn-primary.tutorial-no-animation::after { display:none; }
 
@@ -1749,15 +1762,15 @@ body {
   }
   .workflow-tutorial-card.tutorial-centered {
     position: fixed !important;
-    top: 20px !important;
-    left: 20px !important;
-    right: 20px !important;
-    bottom: 20px !important;
-    width: auto !important;
-    max-width: none !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: calc(100vw - 40px) !important;
+    max-width: 480px !important;
     height: auto !important;
-    max-height: none !important;
-    transform: none !important;
+    max-height: calc(100vh - 80px) !important;
+    transform: translate(-50%, -50%) !important;
     overflow-y: auto !important;
     padding: 15px !important;
     margin: 0 !important;

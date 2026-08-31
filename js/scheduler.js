@@ -167,6 +167,23 @@ export async function recalculateFutureSchedule() {
     }
   }
 
+  // Keep variants of the same script apart. A mirrored trial should have time
+  // to gather an independent audience, so reserve at least one other posting
+  // slot between it and its parent whenever the queue has room.
+  const lastVariantSlot = new Map();
+  balancedQueue.forEach((reel, idx) => {
+    const key = reel.script_id || reel.insight_id;
+    if (!key) return;
+    const previousIdx = lastVariantSlot.get(key);
+    if (previousIdx !== undefined && idx - previousIdx < 2) {
+      const swapIdx = Math.min(totalPosts - 1, previousIdx + 2);
+      if (swapIdx > idx) {
+        [assignedDates[idx], assignedDates[swapIdx]] = [assignedDates[swapIdx], assignedDates[idx]];
+      }
+    }
+    lastVariantSlot.set(key, idx);
+  });
+
   // 5. Assign calculated dates to the balanced queue
   const updatedReels = balancedQueue.map((reel, idx) => {
     return {
@@ -253,6 +270,7 @@ export async function scheduleAcceptedScript(script) {
 
   const todayStr = formatDateForInput(getSystemDate());
 
+  const now = new Date().toISOString();
   const newReel = {
     id: uuidv4(),
     script_id: script.id,
@@ -268,11 +286,28 @@ export async function scheduleAcceptedScript(script) {
     is_locked: false,
     is_main_reel: false,
     is_trial_reel: profile.enableTrialReelWorkflow !== false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    created_at: now,
+    updated_at: now
   };
 
-  await db.saveScheduledReel(newReel);
+  const reelsToSave = [newReel];
+  // A mirrored trial is deliberately a separate reel (and remains editable),
+  // allowing the same insight to be tested with a different cut/packaging.
+  if (profile.enableMirroredTrialWorkflow === true && profile.enableTrialReelWorkflow !== false) {
+    reelsToSave.push({
+      ...newReel,
+      id: uuidv4(),
+      title: `🔁 [Mirrored Trial] ${script.title}`,
+      variant: 'mirrored_trial',
+      is_mirrored_trial: true,
+      mirror_edit_required: true,
+      parent_trial_reel_id: newReel.id,
+      created_at: now,
+      updated_at: now
+    });
+  }
+
+  await db.saveScheduledReels(reelsToSave);
   await recalculateFutureSchedule();
 
   return newReel;

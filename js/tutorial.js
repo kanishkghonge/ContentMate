@@ -23,7 +23,13 @@ export class WorkflowTutorial {
     this.handlers = [];
   }
 
-  start() {
+  async start() {
+    // Snapshot the workspace before any tutorial actions so every script
+    // created during this session can be removed reliably, even if it becomes
+    // orphaned or is linked differently by a future workflow change.
+    const [initialScripts, initialInsights] = await Promise.all([db.getScripts(), db.getInsights()]);
+    this.tutorialInitialScriptIds = new Set(initialScripts.map((script) => script.id));
+    this.tutorialInitialInsightIds = new Set(initialInsights.map((insight) => insight.id));
     this.cleanup();
     this.step = 0;
     this.completed = false;
@@ -51,6 +57,7 @@ export class WorkflowTutorial {
     this.handlers.forEach(([target, type, fn, options]) => target.removeEventListener(type, fn, options));
     this.handlers = [];
     document.querySelectorAll('.workflow-tutorial-target').forEach((node) => node.classList.remove('workflow-tutorial-target'));
+    document.querySelectorAll('.workflow-tutorial-host').forEach((node) => node.classList.remove('workflow-tutorial-host'));
     this.root?.remove();
     this.root = null;
   }
@@ -65,11 +72,11 @@ export class WorkflowTutorial {
     this.card.addEventListener('pointerdown', (event) => {
       // Don't start dragging if clicking on a button
       if (event.target.closest('button')) return;
-      if (!event.target.closest('.workflow-tutorial-grab')) return;
       const rect = this.card.getBoundingClientRect();
       drag = { x: event.clientX - rect.left, y: event.clientY - rect.top };
       this.card.setPointerCapture(event.pointerId);
       this.card.classList.add('is-dragging');
+      this.card.style.transition = 'none';
       event.preventDefault();
     });
     this.card.addEventListener('pointermove', (event) => {
@@ -81,7 +88,11 @@ export class WorkflowTutorial {
       this.card.style.right = 'auto';
       this.card.style.bottom = 'auto';
     });
-    const stopDragging = () => { drag = null; this.card.classList.remove('is-dragging'); };
+    const stopDragging = () => {
+      drag = null;
+      this.card.classList.remove('is-dragging');
+      this.card.style.transition = 'none';
+    };
     this.card.addEventListener('pointerup', stopDragging);
     this.card.addEventListener('pointercancel', stopDragging);
     
@@ -99,6 +110,17 @@ export class WorkflowTutorial {
 
   async finish(skipped = false) {
     const profile = await db.getProfile();
+    const initialScriptIds = this.tutorialInitialScriptIds || new Set();
+    const sessionScripts = (await db.getScripts()).filter((script) => !initialScriptIds.has(script.id));
+    for (const script of sessionScripts) await db.deleteScript(script.id);
+    // Remove tutorial-created practice insights and any associated reels.
+    const initialInsightIds = this.tutorialInitialInsightIds || new Set();
+    const tutorialInsights = (await db.getInsights()).filter((insight) => !initialInsightIds.has(insight.id) && insight.title === FATIGUE_TITLE);
+    for (const insight of tutorialInsights) {
+      const reels = (await db.getScheduledReels()).filter((reel) => reel.insight_id === insight.id);
+      for (const reel of reels) await db.deleteScheduledReel(reel.id);
+      await db.deleteInsight(insight.id);
+    }
     await db.saveProfile({ ...profile, tutorialSeen: true, tutorialSkipped: skipped, onboarded: true });
     this.completed = true;
     this.cleanup();
@@ -109,6 +131,7 @@ export class WorkflowTutorial {
     this.handlers.forEach(([node, type, fn, options]) => node.removeEventListener(type, fn, options));
     this.handlers = [];
     document.querySelectorAll('.workflow-tutorial-target').forEach((node) => node.classList.remove('workflow-tutorial-target'));
+    document.querySelectorAll('.workflow-tutorial-host').forEach((node) => node.classList.remove('workflow-tutorial-host'));
     
     // Support multiple targets (for desktop + mobile highlighting)
     const allTargets = target ? [target, ...additionalTargets] : additionalTargets;
@@ -116,6 +139,7 @@ export class WorkflowTutorial {
     
     if (allTargets.length > 0) {
       this.root.classList.add('has-target');
+      this.root.querySelector('.workflow-tutorial-ring')?.style.removeProperty('display');
       
       // Add highlight class to all targets
       allTargets.forEach(selector => {
@@ -123,6 +147,7 @@ export class WorkflowTutorial {
         nodes.forEach(node => {
           if (node && node.isConnected) {
             node.classList.add('workflow-tutorial-target');
+            node.closest('.flashcard')?.classList.add('workflow-tutorial-host');
             if (!mainTargetNode) mainTargetNode = node;
           }
         });
@@ -130,11 +155,14 @@ export class WorkflowTutorial {
       
       // Scroll to first visible target
       if (mainTargetNode) {
-        mainTargetNode.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center', inline: 'center' });
+        // Measure the target after its final device-specific layout, rather than
+        // while smooth scrolling is still moving it.
+        mainTargetNode.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
         requestAnimationFrame(() => this.positionTarget(mainTargetNode));
       }
     } else {
       this.root.classList.remove('has-target');
+      this.root.querySelector('.workflow-tutorial-ring')?.style.setProperty('display', 'none');
       // Set default position when no target
       if (!centered) {
         const bottomNavHeight = window.innerWidth < 860 ? 68 : 0;
@@ -157,7 +185,7 @@ export class WorkflowTutorial {
       this.card.style.transform = '';
     }
     
-    // Show "Look blue highlighted button" when there's a target but no primary button
+    // Show an instruction when there's a target but no primary button
     const showLookButton = allTargets.length > 0 && !primary;
     
     // Control black screen visibility
@@ -177,7 +205,7 @@ export class WorkflowTutorial {
         <span>${Math.min(this.step + 1, 18)} / 18</span>
       </div>
       <h2>${title}</h2><p>${body}</p>${diagram}
-      <div class="workflow-tutorial-actions">${back && this.step > 0 ? '<button class="btn btn-ghost btn-sm" data-tutorial-back>Back</button>' : '<span></span>'}<div>${primary ? `<button class="btn btn-primary btn-sm" data-tutorial-next>${primary}</button>` : showLookButton ? `<button class="btn btn-primary btn-sm tutorial-no-animation" data-tutorial-look disabled>Look blue highlighted button</button><button class="btn btn-ghost btn-sm tutorial-failsafe-next" data-tutorial-failsafe>Next</button>` : ''}</div></div>`;
+      <div class="workflow-tutorial-actions">${back && this.step > 0 ? '<button class="btn btn-ghost btn-sm" data-tutorial-back>Back</button>' : '<span></span>'}<div>${primary ? `<button class="btn btn-primary btn-sm" data-tutorial-next>${primary}</button>` : showLookButton ? `<button class="btn btn-primary btn-sm tutorial-no-animation" data-tutorial-look disabled>Press blue highlighted button</button><button class="btn btn-ghost btn-sm tutorial-failsafe-next" data-tutorial-failsafe>Next</button>` : ''}</div></div>`;
     
     // Attach event listeners using direct DOM references
     const exitBtn = this.card.querySelector('.tutorial-exit-btn');
@@ -326,7 +354,7 @@ export class WorkflowTutorial {
     }
     
     // Apply positioning with smooth transition
-    this.card.style.transition = 'all 0.3s ease';
+    if (!this.card.classList.contains('is-dragging')) this.card.style.transition = 'all 0.3s ease';
     this.card.style.left = newLeft === 'auto' ? 'auto' : `${newLeft}px`;
     this.card.style.right = newRight === 'auto' ? 'auto' : `${newRight}px`;
     this.card.style.top = newTop === 'auto' ? 'auto' : `${newTop}px`;
@@ -403,7 +431,7 @@ export class WorkflowTutorial {
       case 1:
         this.show({ 
           title: 'I am draggable!', 
-          body: 'You can drag this box around if I come in between. Just grab me from the top bar.', 
+          body: 'You can drag this box around if I come in between. Grab anywhere on the box (except a button).',
           primary: 'Got it',
           showBlackScreen: true
         });
@@ -431,7 +459,7 @@ export class WorkflowTutorial {
         break;
       case 5:
         this.show({ 
-          title: 'Tap Record Insight when you have an idea', 
+          title: 'Tap Record Idea when you have an idea',
           body: 'Try it now - for patient questions, observations, or any video idea.', 
           target: '#header-btn-insight',
           showBlackScreen: false
@@ -543,8 +571,7 @@ export class WorkflowTutorial {
         this.waitForElement('#btn-card-accept').then(() => {
           this.show({ 
             title: 'Different video formats from one insight', 
-            body: 'Accept ones you like. Try accepting this one.', 
-            target: '#btn-card-accept',
+            body: 'Accept the format you want to keep. Press Accept on this card to continue.',
             showBlackScreen: false
           });
           this.waitForClick('#btn-card-accept', () => {
@@ -552,8 +579,7 @@ export class WorkflowTutorial {
             this.waitForElement('#btn-card-reject').then(() => {
               this.show({ 
                 title: 'Great! Now reject one', 
-                body: 'Not every format fits your style.', 
-                target: '#btn-card-reject',
+                body: 'Not every format fits your style. Press Reject on this card to continue.',
                 showBlackScreen: false
               });
               this.waitForClick('#btn-card-reject', () => {
@@ -561,8 +587,7 @@ export class WorkflowTutorial {
                 this.waitForElement('#btn-card-later').then(() => {
                   this.show({ 
                     title: 'Save the last one for later', 
-                    body: 'It stays in library but leaves queue.', 
-                    target: '#btn-card-later',
+                    body: 'Keep this one for later. Press Later on this card to continue.',
                     showBlackScreen: false
                   });
                   this.waitForClick('#btn-card-later', () => { this.step = 15; this.next(); });

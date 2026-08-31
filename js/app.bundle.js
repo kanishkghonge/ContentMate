@@ -107,6 +107,9 @@ const defaultDoctorProfile = {
   sprinkleStrategy: 'uniform', // 'uniform' | 'front_loaded' | 'preferred_days'
   enableFilmingWorkflow: true, // Keep filming tasks visible for new workspaces
   enableTrialReelWorkflow: true, // Test-and-evaluate workflow stays on by default
+  // When enabled, each accepted trial also gets an editable mirrored trial.
+  // Kept opt-in so existing publishing behavior is unchanged.
+  enableMirroredTrialWorkflow: false,
   missedPostRescheduleMode: 'manual', // 'manual' | 'auto'
   clinicName: 'Heart & Vascular Institute',
   website: 'drsarahchen.com',
@@ -894,6 +897,23 @@ async function recalculateFutureSchedule() {
     }
   }
 
+  // Keep variants of the same script apart. A mirrored trial should have time
+  // to gather an independent audience, so reserve at least one other posting
+  // slot between it and its parent whenever the queue has room.
+  const lastVariantSlot = new Map();
+  balancedQueue.forEach((reel, idx) => {
+    const key = reel.script_id || reel.insight_id;
+    if (!key) return;
+    const previousIdx = lastVariantSlot.get(key);
+    if (previousIdx !== undefined && idx - previousIdx < 2) {
+      const swapIdx = Math.min(totalPosts - 1, previousIdx + 2);
+      if (swapIdx > idx) {
+        [assignedDates[idx], assignedDates[swapIdx]] = [assignedDates[swapIdx], assignedDates[idx]];
+      }
+    }
+    lastVariantSlot.set(key, idx);
+  });
+
   // 5. Assign calculated dates to the balanced queue
   const updatedReels = balancedQueue.map((reel, idx) => {
     return {
@@ -980,6 +1000,7 @@ async function scheduleAcceptedScript(script) {
 
   const todayStr = formatDateForInput(getSystemDate());
 
+  const now = new Date().toISOString();
   const newReel = {
     id: uuidv4(),
     script_id: script.id,
@@ -995,11 +1016,28 @@ async function scheduleAcceptedScript(script) {
     is_locked: false,
     is_main_reel: false,
     is_trial_reel: profile.enableTrialReelWorkflow !== false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    created_at: now,
+    updated_at: now
   };
 
-  await db.saveScheduledReel(newReel);
+  const reelsToSave = [newReel];
+  // A mirrored trial is deliberately a separate reel (and remains editable),
+  // allowing the same insight to be tested with a different cut/packaging.
+  if (profile.enableMirroredTrialWorkflow === true && profile.enableTrialReelWorkflow !== false) {
+    reelsToSave.push({
+      ...newReel,
+      id: uuidv4(),
+      title: `🔁 [Mirrored Trial] ${script.title}`,
+      variant: 'mirrored_trial',
+      is_mirrored_trial: true,
+      mirror_edit_required: true,
+      parent_trial_reel_id: newReel.id,
+      created_at: now,
+      updated_at: now
+    });
+  }
+
+  await db.saveScheduledReels(reelsToSave);
   await recalculateFutureSchedule();
 
   return newReel;
@@ -3205,7 +3243,7 @@ const ScheduleView = {
                 <div class="flex items-center gap-2">
                   <span style="font-size: 18px;">${formatMeta.icon || '💡'}</span>
                   <span class="action-card-badge ${isMain ? 'badge-purple' : 'badge-gray'}">
-                    ${isMain ? '⭐ Main Reel' : enableTrialReels ? 'Trial Reel' : 'Scheduled Post'}
+                    ${isMain ? '⭐ Main Reel' : reel.is_mirrored_trial ? '🔁 Mirrored Trial' : enableTrialReels ? 'Trial Reel' : 'Scheduled Post'}
                   </span>
                   <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">
                     ${escapeHtml(reel.format)}
@@ -4197,6 +4235,7 @@ const SettingsView = {
             ${cardHead('🎬', 'Workflow', 'Keep only the steps that match how you work.')}
             <div class="settings-choice"><input type="checkbox" id="setting-enable-filming" ${profile.enableFilmingWorkflow ? 'checked' : ''}><div><label for="setting-enable-filming">Enable filming status workflow</label><p>Show filming queues and “Mark filmed” actions before posting.</p></div></div>
             <div class="settings-choice" style="margin-top:16px;"><input type="checkbox" id="setting-enable-trial-reels" ${profile.enableTrialReelWorkflow !== false ? 'checked' : ''}><div><label for="setting-enable-trial-reels">Enable trial reels and performance evaluation</label><p>Test accepted scripts as trial reels, then request a 3-day performance check and main-reel decision. Turn this off for a simpler publishing workflow.</p></div></div>
+            <div class="settings-choice" style="margin-top:16px;"><input type="checkbox" id="setting-enable-mirrored-trials" ${profile.enableMirroredTrialWorkflow === true ? 'checked' : ''}><div><label for="setting-enable-mirrored-trials">Create mirrored trial reels</label><p>Also schedule an editable second version of each trial. Versions are sprinkled apart so one script can become a trial, mirrored trial, and (if it wins) a main reel.</p></div></div>
             <div class="form-group" style="margin-top:16px; margin-bottom:0;"><label class="form-label" for="setting-missed-post-mode">When a post is missed</label><select id="setting-missed-post-mode" class="form-select"><option value="manual" ${(profile.missedPostRescheduleMode || 'manual') === 'manual' ? 'selected' : ''}>Ask me first</option><option value="auto" ${profile.missedPostRescheduleMode === 'auto' ? 'selected' : ''}>Automatically reschedule</option></select><p class="settings-helper">Automatic mode moves only missed posts and leaves filmed reels in place.</p></div><div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-replay-tutorial">Replay guided tutorial</button></div>
           </section>
 
@@ -4253,6 +4292,7 @@ const SettingsView = {
     document.getElementById('btn-resprinkle-now')?.addEventListener('click', () => saveSchedule(true));
     document.getElementById('setting-enable-filming')?.addEventListener('change', (event) => saveProfile({ enableFilmingWorkflow: event.target.checked }, event.target.checked ? 'Filming workflow enabled.' : 'Filming workflow disabled.'));
     document.getElementById('setting-enable-trial-reels')?.addEventListener('change', (event) => saveProfile({ enableTrialReelWorkflow: event.target.checked }, event.target.checked ? 'Trial reels and performance evaluation enabled.' : 'Simple publishing workflow enabled.'));
+    document.getElementById('setting-enable-mirrored-trials')?.addEventListener('change', async (event) => { await saveProfile({ enableMirroredTrialWorkflow: event.target.checked }, event.target.checked ? 'Mirrored trial reels enabled.' : 'Mirrored trial reels disabled.'); if (event.target.checked) { await recalculateFutureSchedule(); } });
     document.getElementById('setting-missed-post-mode')?.addEventListener('change', (event) => saveProfile({ missedPostRescheduleMode: event.target.value }, 'Missed-post preference saved.'));
     document.getElementById('btn-replay-tutorial')?.addEventListener('click', () => window.dispatchEvent(new Event('contentmate-replay-tutorial')));
 
@@ -4302,7 +4342,13 @@ class WorkflowTutorial {
     this.handlers = [];
   }
 
-  start() {
+  async start() {
+    // Snapshot the workspace before any tutorial actions so every script
+    // created during this session can be removed reliably, even if it becomes
+    // orphaned or is linked differently by a future workflow change.
+    const [initialScripts, initialInsights] = await Promise.all([db.getScripts(), db.getInsights()]);
+    this.tutorialInitialScriptIds = new Set(initialScripts.map((script) => script.id));
+    this.tutorialInitialInsightIds = new Set(initialInsights.map((insight) => insight.id));
     this.cleanup();
     this.step = 0;
     this.completed = false;
@@ -4330,6 +4376,7 @@ class WorkflowTutorial {
     this.handlers.forEach(([target, type, fn, options]) => target.removeEventListener(type, fn, options));
     this.handlers = [];
     document.querySelectorAll('.workflow-tutorial-target').forEach((node) => node.classList.remove('workflow-tutorial-target'));
+    document.querySelectorAll('.workflow-tutorial-host').forEach((node) => node.classList.remove('workflow-tutorial-host'));
     this.root?.remove();
     this.root = null;
   }
@@ -4344,11 +4391,11 @@ class WorkflowTutorial {
     this.card.addEventListener('pointerdown', (event) => {
       // Don't start dragging if clicking on a button
       if (event.target.closest('button')) return;
-      if (!event.target.closest('.workflow-tutorial-grab')) return;
       const rect = this.card.getBoundingClientRect();
       drag = { x: event.clientX - rect.left, y: event.clientY - rect.top };
       this.card.setPointerCapture(event.pointerId);
       this.card.classList.add('is-dragging');
+      this.card.style.transition = 'none';
       event.preventDefault();
     });
     this.card.addEventListener('pointermove', (event) => {
@@ -4360,7 +4407,11 @@ class WorkflowTutorial {
       this.card.style.right = 'auto';
       this.card.style.bottom = 'auto';
     });
-    const stopDragging = () => { drag = null; this.card.classList.remove('is-dragging'); };
+    const stopDragging = () => {
+      drag = null;
+      this.card.classList.remove('is-dragging');
+      this.card.style.transition = 'none';
+    };
     this.card.addEventListener('pointerup', stopDragging);
     this.card.addEventListener('pointercancel', stopDragging);
     
@@ -4378,6 +4429,17 @@ class WorkflowTutorial {
 
   async finish(skipped = false) {
     const profile = await db.getProfile();
+    const initialScriptIds = this.tutorialInitialScriptIds || new Set();
+    const sessionScripts = (await db.getScripts()).filter((script) => !initialScriptIds.has(script.id));
+    for (const script of sessionScripts) await db.deleteScript(script.id);
+    // Remove tutorial-created practice insights and any associated reels.
+    const initialInsightIds = this.tutorialInitialInsightIds || new Set();
+    const tutorialInsights = (await db.getInsights()).filter((insight) => !initialInsightIds.has(insight.id) && insight.title === FATIGUE_TITLE);
+    for (const insight of tutorialInsights) {
+      const reels = (await db.getScheduledReels()).filter((reel) => reel.insight_id === insight.id);
+      for (const reel of reels) await db.deleteScheduledReel(reel.id);
+      await db.deleteInsight(insight.id);
+    }
     await db.saveProfile({ ...profile, tutorialSeen: true, tutorialSkipped: skipped, onboarded: true });
     this.completed = true;
     this.cleanup();
@@ -4388,6 +4450,7 @@ class WorkflowTutorial {
     this.handlers.forEach(([node, type, fn, options]) => node.removeEventListener(type, fn, options));
     this.handlers = [];
     document.querySelectorAll('.workflow-tutorial-target').forEach((node) => node.classList.remove('workflow-tutorial-target'));
+    document.querySelectorAll('.workflow-tutorial-host').forEach((node) => node.classList.remove('workflow-tutorial-host'));
     
     // Support multiple targets (for desktop + mobile highlighting)
     const allTargets = target ? [target, ...additionalTargets] : additionalTargets;
@@ -4395,6 +4458,7 @@ class WorkflowTutorial {
     
     if (allTargets.length > 0) {
       this.root.classList.add('has-target');
+      this.root.querySelector('.workflow-tutorial-ring')?.style.removeProperty('display');
       
       // Add highlight class to all targets
       allTargets.forEach(selector => {
@@ -4402,6 +4466,7 @@ class WorkflowTutorial {
         nodes.forEach(node => {
           if (node && node.isConnected) {
             node.classList.add('workflow-tutorial-target');
+            node.closest('.flashcard')?.classList.add('workflow-tutorial-host');
             if (!mainTargetNode) mainTargetNode = node;
           }
         });
@@ -4409,11 +4474,14 @@ class WorkflowTutorial {
       
       // Scroll to first visible target
       if (mainTargetNode) {
-        mainTargetNode.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center', inline: 'center' });
+        // Measure the target after its final device-specific layout, rather than
+        // while smooth scrolling is still moving it.
+        mainTargetNode.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
         requestAnimationFrame(() => this.positionTarget(mainTargetNode));
       }
     } else {
       this.root.classList.remove('has-target');
+      this.root.querySelector('.workflow-tutorial-ring')?.style.setProperty('display', 'none');
       // Set default position when no target
       if (!centered) {
         const bottomNavHeight = window.innerWidth < 860 ? 68 : 0;
@@ -4436,7 +4504,7 @@ class WorkflowTutorial {
       this.card.style.transform = '';
     }
     
-    // Show "Look blue highlighted button" when there's a target but no primary button
+    // Show an instruction when there's a target but no primary button
     const showLookButton = allTargets.length > 0 && !primary;
     
     // Control black screen visibility
@@ -4456,7 +4524,7 @@ class WorkflowTutorial {
         <span>${Math.min(this.step + 1, 18)} / 18</span>
       </div>
       <h2>${title}</h2><p>${body}</p>${diagram}
-      <div class="workflow-tutorial-actions">${back && this.step > 0 ? '<button class="btn btn-ghost btn-sm" data-tutorial-back>Back</button>' : '<span></span>'}<div>${primary ? `<button class="btn btn-primary btn-sm" data-tutorial-next>${primary}</button>` : showLookButton ? `<button class="btn btn-primary btn-sm tutorial-no-animation" data-tutorial-look disabled>Look blue highlighted button</button><button class="btn btn-ghost btn-sm tutorial-failsafe-next" data-tutorial-failsafe>Next</button>` : ''}</div></div>`;
+      <div class="workflow-tutorial-actions">${back && this.step > 0 ? '<button class="btn btn-ghost btn-sm" data-tutorial-back>Back</button>' : '<span></span>'}<div>${primary ? `<button class="btn btn-primary btn-sm" data-tutorial-next>${primary}</button>` : showLookButton ? `<button class="btn btn-primary btn-sm tutorial-no-animation" data-tutorial-look disabled>Press blue highlighted button</button><button class="btn btn-ghost btn-sm tutorial-failsafe-next" data-tutorial-failsafe>Next</button>` : ''}</div></div>`;
     
     // Attach event listeners using direct DOM references
     const exitBtn = this.card.querySelector('.tutorial-exit-btn');
@@ -4605,7 +4673,7 @@ class WorkflowTutorial {
     }
     
     // Apply positioning with smooth transition
-    this.card.style.transition = 'all 0.3s ease';
+    if (!this.card.classList.contains('is-dragging')) this.card.style.transition = 'all 0.3s ease';
     this.card.style.left = newLeft === 'auto' ? 'auto' : `${newLeft}px`;
     this.card.style.right = newRight === 'auto' ? 'auto' : `${newRight}px`;
     this.card.style.top = newTop === 'auto' ? 'auto' : `${newTop}px`;
@@ -4682,7 +4750,7 @@ class WorkflowTutorial {
       case 1:
         this.show({ 
           title: 'I am draggable!', 
-          body: 'You can drag this box around if I come in between. Just grab me from the top bar.', 
+          body: 'You can drag this box around if I come in between. Grab anywhere on the box (except a button).',
           primary: 'Got it',
           showBlackScreen: true
         });
@@ -4710,7 +4778,7 @@ class WorkflowTutorial {
         break;
       case 5:
         this.show({ 
-          title: 'Tap Record Insight when you have an idea', 
+          title: 'Tap Record Idea when you have an idea',
           body: 'Try it now - for patient questions, observations, or any video idea.', 
           target: '#header-btn-insight',
           showBlackScreen: false
@@ -4822,8 +4890,7 @@ class WorkflowTutorial {
         this.waitForElement('#btn-card-accept').then(() => {
           this.show({ 
             title: 'Different video formats from one insight', 
-            body: 'Accept ones you like. Try accepting this one.', 
-            target: '#btn-card-accept',
+            body: 'Accept the format you want to keep. Press Accept on this card to continue.',
             showBlackScreen: false
           });
           this.waitForClick('#btn-card-accept', () => {
@@ -4831,8 +4898,7 @@ class WorkflowTutorial {
             this.waitForElement('#btn-card-reject').then(() => {
               this.show({ 
                 title: 'Great! Now reject one', 
-                body: 'Not every format fits your style.', 
-                target: '#btn-card-reject',
+                body: 'Not every format fits your style. Press Reject on this card to continue.',
                 showBlackScreen: false
               });
               this.waitForClick('#btn-card-reject', () => {
@@ -4840,8 +4906,7 @@ class WorkflowTutorial {
                 this.waitForElement('#btn-card-later').then(() => {
                   this.show({ 
                     title: 'Save the last one for later', 
-                    body: 'It stays in library but leaves queue.', 
-                    target: '#btn-card-later',
+                    body: 'Keep this one for later. Press Later on this card to continue.',
                     showBlackScreen: false
                   });
                   this.waitForClick('#btn-card-later', () => { this.step = 15; this.next(); });
@@ -4944,6 +5009,7 @@ class ContentOSApp {
   constructor() {
     this.currentView = 'dashboard';
     this.modalActive = false;
+    this.onboardingActive = false;
     this.viewContainer = document.getElementById('view-container');
     this.modalOverlay = document.getElementById('modal-overlay');
     this.modalBody = document.getElementById('modal-body');
@@ -5084,11 +5150,12 @@ class ContentOSApp {
 
   openModal(modalType, options = {}) {
     this.modalActive = true;
+    this.onboardingActive = modalType === 'onboarding';
     this.modalOverlay.classList.remove('hidden');
     this.modalCard?.classList.toggle('onboarding-card', modalType === 'onboarding');
 
     const titles = {
-      insightCreate: 'Record New Clinical Insight',
+      insightCreate: 'Record New Idea',
       quickNote: 'Quick Thought / Scratchpad',
       aiImport: 'Import AI Script Pack',
       manualScript: 'Add Your Own Script',
@@ -5291,6 +5358,7 @@ class ContentOSApp {
       }
       
       updateSidebarName(draft.name);
+      this.onboardingActive = false;
       this.closeModal();
       await this.navigateTo('dashboard');
       
@@ -5317,7 +5385,7 @@ class ContentOSApp {
           <div class="form-group"><label class="form-label" for="onboarding-specialty">Your specialty</label><input id="onboarding-specialty" class="form-input" value="${escapeHtml(draft.specialty)}" placeholder="e.g. Dermatology" required></div>
           <div class="form-group"><label class="form-label" for="onboarding-phone">Phone number</label><input id="onboarding-phone" type="tel" class="form-input" value="${escapeHtml(draft.phone)}" placeholder="e.g. +91 98765 43210" required></div>
           <div class="form-group"><label class="form-label" for="onboarding-audience">Who do you want to reach?</label><select id="onboarding-audience" class="form-select"><option value="Patients" ${draft.audience === 'Patients' ? 'selected' : ''}>Patients</option><option value="Doctors" ${draft.audience === 'Doctors' ? 'selected' : ''}>Other doctors</option><option value="Both" ${draft.audience === 'Both' ? 'selected' : ''}>Both</option></select></div>
-          <div class="onboarding-actions"><button type="button" class="btn btn-ghost" id="onboarding-skip">Skip tutorial</button><button class="btn btn-primary btn-lg" type="submit">Build my workflow <span aria-hidden="true">→</span></button></div>
+          <div class="onboarding-actions"><button class="btn btn-primary btn-lg" type="submit">Build my workflow <span aria-hidden="true">→</span></button></div>
         </form>`,
       () => `
         <div class="onboarding-intro onboarding-centered">
@@ -5360,7 +5428,6 @@ class ContentOSApp {
         draft = { name: document.getElementById('onboarding-name').value.trim(), specialty: document.getElementById('onboarding-specialty').value.trim(), phone: document.getElementById('onboarding-phone').value.trim(), audience: document.getElementById('onboarding-audience').value };
         finish(false);
       });
-      document.getElementById('onboarding-skip')?.addEventListener('click', () => finish(true));
       document.getElementById('onboarding-back')?.addEventListener('click', () => { step -= 1; renderStep(); });
       document.getElementById('onboarding-next')?.addEventListener('click', () => { step += 1; renderStep(); });
       document.getElementById('onboarding-finish')?.addEventListener('click', () => finish(false));
@@ -5399,6 +5466,7 @@ class ContentOSApp {
   }
 
   closeModal() {
+    if (this.onboardingActive) return;
     this.modalActive = false;
     this.modalOverlay.classList.add('hidden');
     this.modalCard?.classList.remove('onboarding-card');

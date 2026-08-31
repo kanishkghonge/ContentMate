@@ -99,6 +99,9 @@ export const defaultDoctorProfile = {
   sprinkleStrategy: 'uniform', // 'uniform' | 'front_loaded' | 'preferred_days'
   enableFilmingWorkflow: true, // Keep filming tasks visible for new workspaces
   enableTrialReelWorkflow: true, // Test-and-evaluate workflow stays on by default
+  // When enabled, each accepted trial also gets an editable mirrored trial.
+  // Kept opt-in so existing publishing behavior is unchanged.
+  enableMirroredTrialWorkflow: false,
   missedPostRescheduleMode: 'manual', // 'manual' | 'auto'
   clinicName: 'Heart & Vascular Institute',
   website: 'drsarahchen.com',
