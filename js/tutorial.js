@@ -50,7 +50,7 @@ export class WorkflowTutorial {
     };
     this.listen(window, 'resize', this.resizeHandler);
     
-    this.next();
+    this.showWakeup();
   }
 
   cleanup() {
@@ -125,6 +125,9 @@ export class WorkflowTutorial {
     this.completed = true;
     this.cleanup();
     showToast(skipped ? 'Tutorial closed. You can replay it from Doctor Profile.' : 'You are ready to use Content Mate.', 'success');
+    // Reload after cleanup so the workspace immediately reflects the scripts
+    // removed from the tutorial session instead of showing stale cards.
+    setTimeout(() => window.location.reload(), 150);
   }
 
   show({ eyebrow = 'Your first workflow', title, body, target, additionalTargets = [], primary, onPrimary, back = true, diagram = '', centered = false, showBlackScreen = true }) {
@@ -410,14 +413,28 @@ export class WorkflowTutorial {
     this.listen(document, 'click', handler, true);
   }
 
+  showWakeup() {
+    this.show({
+      eyebrow: 'Content Mate is waking up',
+      title: 'Hi, I\'m Content Mate.',
+      body: 'I can help you script, schedule, and evaluate your videos - faster, sharper, and more consistently than any social media intern could.',
+      diagram: `<div class="tutorial-awakening" aria-hidden="true"><span class="tutorial-awakening-core">✦</span></div>`,
+      primary: 'Wake up Content Mate',
+      onPrimary: () => this.next(),
+      back: false,
+      centered: true,
+      showBlackScreen: true
+    });
+  }
+
   next() {
     switch (this.step) {
       case 0:
         this.show({ 
           eyebrow: 'Welcome', 
-          title: 'Hi, I am Content Mate - your social media intern', 
-          body: 'I will help you script, schedule, and evaluate your content.', 
-          primary: 'Show me how', 
+          title: 'STOP - one rule before we start', 
+          body: 'Content Mate is simple when you follow the path. Read each screen, do the action it points to, then continue. Skip ahead and the workflow will feel confusing.', 
+          primary: 'Show me the system', 
           onPrimary: () => { 
             this.card.classList.remove('tutorial-centered');
             this.step++; 
@@ -430,37 +447,37 @@ export class WorkflowTutorial {
         break;
       case 1:
         this.show({ 
-          title: 'I am draggable!', 
-          body: 'You can drag this box around if I come in between. Grab anywhere on the box (except a button).',
-          primary: 'Got it',
+          title: 'Quick tip: move me out of the way', 
+          body: 'Am I blocking something? Drag this box anywhere by grabbing its surface. Buttons stay clickable.',
+          primary: 'I am ready',
           showBlackScreen: true
         });
         break;
       case 2:
         this.show({ 
-          title: 'You have a clinical insight', 
-          body: 'Scripting it as one video? Risky. Instagram is a numbers game.', 
-          primary: 'So what do we do?'
+          title: 'One insight can do more than one job', 
+          body: 'You bring the clinical expertise. Content Mate helps you turn one strong idea into several ways to connect with your audience.', 
+          primary: 'Show me the playbook'
         });
         break;
       case 3:
         this.show({ 
-          title: 'I package it in different formats', 
-          body: 'You review scripts - accept a few, reject others. Accepted ones become trial reels on your calendar.', 
-          primary: 'Then what?' 
+          title: 'More angles. More chances to land.', 
+          body: 'Your idea becomes several scripts in different formats. Keep the strongest, skip the rest, and let real viewers show you what works.', 
+          primary: 'Show me the test' 
         });
         break;
       case 4:
         this.show({ 
-          title: 'After 3 days, we see what worked', 
-          body: 'I turn the best performer into your main reel. I script, schedule, and evaluate for you.', 
-          primary: 'Lets get started' 
+          title: 'Test first. Double down later.', 
+          body: 'After three days, add the results. Content Mate helps you spot the winner and turn it into your next main reel.', 
+          primary: 'Start the walkthrough' 
         });
         break;
       case 5:
         this.show({ 
-          title: 'Tap Record Idea when you have an idea',
-          body: 'Try it now - for patient questions, observations, or any video idea.', 
+          title: 'Have an idea? Catch it before it disappears.',
+          body: 'Tap Record Idea whenever inspiration strikes - a patient question, a pattern you noticed, or a point worth explaining.', 
           target: '#header-btn-insight',
           showBlackScreen: false
         });
@@ -468,10 +485,10 @@ export class WorkflowTutorial {
         break;
       case 6:
         this.show({ 
-          title: 'Add your insight - not a full script', 
-          body: 'Just the core idea.', 
+          title: 'Start with the thought, not the script', 
+          body: 'Write the core idea in your own words. You do not need a polished script - that is what the next steps are for.', 
           target: '#insight-title', 
-          primary: 'Use example', 
+          primary: 'Use practice example', 
           onPrimary: () => { 
             const input = document.getElementById('insight-title'); 
             input.value = FATIGUE_TITLE; 
@@ -484,10 +501,10 @@ export class WorkflowTutorial {
         break;
       case 7:
         this.show({ 
-          title: 'Add key points you want covered', 
-          body: 'This keeps every script accurate.', 
+          title: 'Add the guardrails only you know', 
+          body: 'List the facts, caveats, and warning signs that matter. These details keep every version accurate and true to your expertise.', 
           target: '#insight-details', 
-          primary: 'Use example', 
+          primary: 'Use practice example', 
           onPrimary: () => { 
             const input = document.getElementById('insight-details'); 
             input.value = FATIGUE_DETAILS; 
@@ -500,8 +517,8 @@ export class WorkflowTutorial {
         break;
       case 8:
         this.show({ 
-          title: 'Now I create a prompt for the AI', 
-          body: 'Tap the button and I turn your insight into instructions.', 
+          title: 'Turn your expertise into an AI-ready brief', 
+          body: 'Tap here and Content Mate shapes your idea and key points into clear instructions for the AI.', 
           target: '#btn-generate-prompt',
           showBlackScreen: false
         });
@@ -509,8 +526,8 @@ export class WorkflowTutorial {
         break;
       case 9:
         this.show({ 
-          title: 'Copy, paste in AI, bring response', 
-          body: 'Copy prompt → Paste in ChatGPT/Claude → Copy response → Paste here.', 
+          title: 'Four moves from idea to script options', 
+          body: 'Copy the brief, paste it into ChatGPT or Claude, copy the response, then bring it back here. That is the whole handoff.', 
           target: '#btn-copy-prompt-hero',
           diagram: `<div class="ai-workflow-compact">
             <div class="ai-compact-step">Copy</div>
@@ -527,15 +544,15 @@ export class WorkflowTutorial {
         break;
       case 10:
         this.show({ 
-          title: 'Paste prompt in ChatGPT', 
-          body: 'Copy AI response and come back. For this walkthrough, we will use a practice response.', 
-          primary: 'Lets use an example'
+          title: 'Let AI do the heavy lifting', 
+          body: 'Paste the brief into your AI tool, copy the complete response, and come back here. We will use a practice response for this walkthrough.', 
+          primary: 'Use the practice response'
         });
         break;
       case 11:
         this.show({ 
-          title: 'Paste the complete AI response here', 
-          body: 'Dont edit it - I will convert it into scripts.', 
+          title: 'Bring the full response back', 
+          body: 'Paste the complete AI response here. Leave it intact - Content Mate will turn it into ready-to-review script options.', 
           target: '#btn-proceed-to-import',
           showBlackScreen: false
         });
@@ -543,24 +560,40 @@ export class WorkflowTutorial {
         break;
       case 12:
         this.show({ 
-          title: 'Paste in this box', 
-          body: 'Lets use a practice response for now.', 
+          title: 'This is your practice run', 
+          body: 'Use the example response or paste your own AI response here. Either way, once this box has content, the tutorial will take you to the next step.', 
           target: '#ai-pasted-text', 
-          primary: 'Use example', 
+          primary: 'Use practice response', 
           onPrimary: () => { 
             const input = document.getElementById('ai-pasted-text'); 
             input.value = JSON.stringify(FATIGUE_RESPONSE, null, 2); 
             input.dispatchEvent(new Event('input', { bubbles: true })); 
-            this.step++; 
-            this.next(); 
+            advanceFromPaste();
           },
           showBlackScreen: false
         });
+        {
+          const input = document.getElementById('ai-pasted-text');
+          let advanced = false;
+          const advanceFromPaste = () => {
+            if (advanced || !input?.value.trim()) return;
+            advanced = true;
+            this.step++;
+            this.next();
+          };
+          // Clipboard paste normally emits input, but change/paste cover
+          // browsers and paste methods that do not reliably emit both.
+          const detectPastedResponse = () => setTimeout(advanceFromPaste, 0);
+          this.listen(input, 'input', detectPastedResponse);
+          this.listen(input, 'change', detectPastedResponse);
+          this.listen(input, 'paste', detectPastedResponse);
+          if (input.value.trim()) detectPastedResponse();
+        }
         break;
       case 13:
         this.show({ 
-          title: 'Now I create your script options', 
-          body: 'Tap the button and I separate the response into scripts.', 
+          title: 'One response in. A menu of scripts out.', 
+          body: 'Tap here and Content Mate separates the response into distinct formats you can compare, review, and choose from.', 
           target: '#btn-submit-import',
           showBlackScreen: false
         });
@@ -570,24 +603,24 @@ export class WorkflowTutorial {
         // Wait for accept button, then show tutorial
         this.waitForElement('#btn-card-accept').then(() => {
           this.show({ 
-            title: 'Different video formats from one insight', 
-            body: 'Accept the format you want to keep. Press Accept on this card to continue.',
+            title: 'Pick the angle worth testing', 
+            body: 'Each card is a different way to tell the same story. Press <span class="tutorial-action-word tutorial-action-accept">Accept</span> on this one to keep it for your trial reel.',
             showBlackScreen: false
           });
           this.waitForClick('#btn-card-accept', () => {
             // Wait for next card's reject button
             this.waitForElement('#btn-card-reject').then(() => {
               this.show({ 
-                title: 'Great! Now reject one', 
-                body: 'Not every format fits your style. Press Reject on this card to continue.',
+                title: 'Not every angle deserves a slot', 
+                body: 'Your time is valuable. Press <span class="tutorial-action-word tutorial-action-reject">Reject</span> on this card to remove a version that does not fit your voice or audience.',
                 showBlackScreen: false
               });
               this.waitForClick('#btn-card-reject', () => {
                 // Wait for last card's later button
                 this.waitForElement('#btn-card-later').then(() => {
                   this.show({ 
-                    title: 'Save the last one for later', 
-                    body: 'Keep this one for later. Press Later on this card to continue.',
+                    title: 'Keep a maybe for later', 
+                    body: 'Good ideas do not have to be decided today. Press <span class="tutorial-action-word tutorial-action-later">Later</span> to save this version without putting it into the test yet.',
                     showBlackScreen: false
                   });
                   this.waitForClick('#btn-card-later', () => { this.step = 15; this.next(); });
@@ -599,8 +632,8 @@ export class WorkflowTutorial {
         break;
       case 15:
         this.show({ 
-          title: 'Accepted scripts become trial reels', 
-          body: 'I schedule them. After 3 days, you add performance data and I help pick the winner.', 
+          title: 'Your chosen ideas are ready for a real-world test', 
+          body: 'Accepted scripts become trial reels on your calendar. After three days, add the performance data and we will find the winner.', 
           target: '#nav-d-schedule',
           additionalTargets: ['#bnav-schedule'],
           showBlackScreen: false
@@ -610,8 +643,8 @@ export class WorkflowTutorial {
         break;
       case 16:
         this.show({ 
-          title: 'Your trial reels are planned here', 
-          body: 'After posting, enter results yourself after 3 days.', 
+          title: 'This is where the learning compounds', 
+          body: 'Your trial reels live here. After posting, return in three days, enter the results, and use the evidence to guide your next post.', 
           target: '#nav-d-dashboard',
           additionalTargets: ['#bnav-dashboard'],
           showBlackScreen: false
@@ -621,8 +654,8 @@ export class WorkflowTutorial {
         break;
       case 17:
         this.show({ 
-          title: 'Quick Notes for busy moments', 
-          body: 'Tap here to add a quick note. Later, access from Notes and convert it to scripts.', 
+          title: 'Busy? Save the thought now. Shape it later.', 
+          body: 'Tap here for a quick note when you are between patients or on the move. Find it in Notes later and turn it into scripts when you have time.', 
           target: '#header-btn-note',
           showBlackScreen: false
         });
@@ -638,9 +671,9 @@ export class WorkflowTutorial {
         break;
       case 18:
         this.show({ 
-          title: 'Lets get started!', 
-          body: 'Ready to script your first few scripts?', 
-          primary: 'Lets go', 
+          title: 'You are ready to turn ideas into consistency', 
+          body: 'Capture one insight, create a few angles, test them, and repeat what works. Ready to make your first set of scripts?', 
+          primary: 'Take me to my workspace', 
           onPrimary: () => this.finish(false), 
           back: false, 
           centered: true,
@@ -655,8 +688,8 @@ export class WorkflowTutorial {
   async showDashboardAndNotes() {
     await this.app.navigateTo('dashboard');
     this.show({ 
-      title: 'No need to feel overwhelmed!', 
-      body: 'I will tell you daily what needs attention. This is your control center.', 
+      title: 'Your content control center', 
+      body: 'Everything that needs your attention is gathered here. Check in, follow the next step, and keep your momentum without feeling overwhelmed.', 
       primary: 'Got it', 
       onPrimary: () => { this.step = 17; this.next(); },
       showBlackScreen: false

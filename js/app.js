@@ -439,8 +439,23 @@ class ContentOSApp {
       this.modalBody.innerHTML = `<div class="onboarding-flow"><div class="onboarding-progress" aria-label="Step ${step + 1} of ${steps.length}">${steps.map((_, index) => `<span class="${index <= step ? 'active' : ''}"></span>`).join('')}</div>${steps[step]()}`;
       document.getElementById('onboarding-profile-form')?.addEventListener('submit', (event) => {
         event.preventDefault();
+        const submitButton = event.currentTarget.querySelector('button[type="submit"]');
+        if (submitButton?.disabled) return;
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.setAttribute('aria-busy', 'true');
+          submitButton.innerHTML = 'Getting your workspace ready<span aria-hidden="true">…</span>';
+        }
         draft = { name: document.getElementById('onboarding-name').value.trim(), specialty: document.getElementById('onboarding-specialty').value.trim(), phone: document.getElementById('onboarding-phone').value.trim(), audience: document.getElementById('onboarding-audience').value };
-        finish(false);
+        finish(false).catch((error) => {
+          console.error('Onboarding error:', error);
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.removeAttribute('aria-busy');
+            submitButton.innerHTML = 'Build my workflow <span aria-hidden="true">→</span>';
+          }
+          showToast('We could not finish setting up your workspace. Please try again.', 'error');
+        });
       });
       document.getElementById('onboarding-back')?.addEventListener('click', () => { step -= 1; renderStep(); });
       document.getElementById('onboarding-next')?.addEventListener('click', () => { step += 1; renderStep(); });
