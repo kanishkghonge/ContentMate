@@ -231,6 +231,7 @@ export const DashboardView = {
                   ${scriptViewerButton(post.id)}
                   <input class="form-input missed-date-input" data-id="${post.id}" type="date" min="${todayStr}" value="${todayStr}" aria-label="New post date" style="width: 142px; padding: 6px 8px; font-size: 12px;" />
                   <button class="btn btn-sm btn-primary btn-reschedule-missed-date" data-id="${post.id}">Reschedule</button>
+                  <button class="btn btn-sm btn-secondary btn-mark-missed-posted" data-id="${post.id}">Posted Already</button>
                   <button class="btn btn-sm btn-secondary btn-skip-missed" data-id="${post.id}">Skip</button>
                 </div>
               </div>
@@ -356,6 +357,33 @@ export const DashboardView = {
         reel.skipped_at = new Date().toISOString();
         await db.saveScheduledReel(reel);
         showToast('Missed post skipped.', 'info');
+        DashboardView.render(container, navigateTo, openModal);
+      });
+    });
+
+    container.querySelectorAll('.btn-mark-missed-posted').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const reel = await db.getScheduledReel(e.currentTarget.dataset.id);
+        if (!reel) return;
+
+        const postedOnScheduledDate = confirm(
+          `Was “${reel.title}” posted on its scheduled date (${formatDate(reel.scheduled_date)})?\n\nSelect OK for the scheduled date, or Cancel to choose another date.`
+        );
+        let postedDate = reel.scheduled_date;
+        if (!postedOnScheduledDate) {
+          postedDate = prompt('Enter the posting date (YYYY-MM-DD):', todayStr);
+          if (!postedDate) return;
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(postedDate) || Number.isNaN(new Date(`${postedDate}T00:00:00`).getTime())) {
+            showToast('Enter a valid posting date in YYYY-MM-DD format.', 'error');
+            return;
+          }
+        }
+
+        reel.status = 'posted';
+        reel.posted_date = postedDate;
+        reel.updated_at = new Date().toISOString();
+        await db.saveScheduledReel(reel);
+        showToast(`Marked as posted on ${formatDate(postedDate)}.`, 'success');
         DashboardView.render(container, navigateTo, openModal);
       });
     });

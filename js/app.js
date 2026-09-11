@@ -23,6 +23,7 @@ class ContentOSApp {
   constructor() {
     this.currentView = 'dashboard';
     this.modalActive = false;
+    this.activeModalType = null;
     this.onboardingActive = false;
     this.viewContainer = document.getElementById('view-container');
     this.modalOverlay = document.getElementById('modal-overlay');
@@ -164,6 +165,7 @@ class ContentOSApp {
 
   openModal(modalType, options = {}) {
     this.modalActive = true;
+    this.activeModalType = modalType;
     this.onboardingActive = modalType === 'onboarding';
     this.modalOverlay.classList.remove('hidden');
     this.modalCard?.classList.toggle('onboarding-card', modalType === 'onboarding');
@@ -494,9 +496,39 @@ class ContentOSApp {
     });
   }
 
-  closeModal() {
+  async closeModal() {
     if (this.onboardingActive) return;
+
+    if (this.activeModalType === 'insightCreate') {
+      const title = document.getElementById('insight-title')?.value.trim() || '';
+      const details = document.getElementById('insight-details')?.value.trim() || '';
+      const cta = document.getElementById('insight-cta')?.value.trim() || '';
+      const references = document.getElementById('insight-references')?.value.trim() || '';
+      const hasUnfinishedIdea = Boolean(title || details || cta || references);
+
+      if (hasUnfinishedIdea) {
+        const shouldSave = confirm('Your idea is not finished. Save your progress to Notes before leaving?\n\nSelect OK to save it, or Cancel to keep working.');
+        if (!shouldSave) return;
+
+        const noteText = [
+          title && `Idea: ${title}`,
+          details && `Details: ${details}`,
+          cta && `CTA: ${cta}`,
+          references && `Extra context: ${references}`
+        ].filter(Boolean).join('\n\n');
+        await db.addNote({
+          id: `note-${Date.now()}`,
+          text: noteText,
+          created_at: new Date().toISOString(),
+          is_archived: false,
+          source: 'unfinished_insight'
+        });
+        showToast('Unfinished idea saved to Notes.', 'success');
+      }
+    }
+
     this.modalActive = false;
+    this.activeModalType = null;
     this.modalOverlay.classList.add('hidden');
     this.modalCard?.classList.remove('onboarding-card');
     this.modalBody.innerHTML = '';

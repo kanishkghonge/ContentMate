@@ -35,6 +35,30 @@ export function getNextPostingDates(startDate, count, postingDays = ['Mon', 'Wed
 }
 
 /**
+ * Returns every available posting slot inside a real calendar-day window.
+ * This differs from getNextPostingDates(): a 14-day window means 14 calendar
+ * days, not 14 Mon/Wed/Fri occurrences.
+ */
+function getPostingSlotsInWindow(startDate, windowDays, postingDays, maxPostsPerDay, existingCounts = {}) {
+  const slots = [];
+  const current = new Date(startDate);
+  current.setHours(0, 0, 0, 0);
+  const end = new Date(addDays(current, Math.max(0, windowDays - 1)));
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const allowAllDays = !postingDays || postingDays.length === 0 || postingDays.includes('Daily');
+
+  while (current <= end) {
+    const dateStr = formatDateForInput(current);
+    if (allowAllDays || postingDays.includes(dayNames[current.getDay()])) {
+      const available = Math.max(0, maxPostsPerDay - (existingCounts[dateStr] || 0));
+      for (let slot = 0; slot < available; slot++) slots.push(dateStr);
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  return slots;
+}
+
+/**
  * Intelligently interleaves scripts so adjacent dates have distinct formats and topics.
  */
 export function balanceContentQueue(items) {
@@ -128,21 +152,20 @@ export async function recalculateFutureSchedule() {
   // 2. Interleave formats & topics for variety
   const balancedQueue = balanceContentQueue(mutableReels);
 
-  // 3. Generate candidate open dates for the sprinkle window
-  // Represent every available post slot, not just every available day. This is
-  // essential when the doctor allows more than one post per day.
-  const candidateDates = [];
-  const rawDates = getNextPostingDates(getSystemDate(), Math.max(sprinkleWindowDays * 3, balancedQueue.length * 2), postingDays);
-
-  for (const dateStr of rawDates) {
-    const existingCount = postsCountByDate[dateStr] || 0;
-    const openSlots = Math.max(0, maxPostsPerDay - existingCount);
-    for (let slot = 0; slot < openSlots; slot++) {
-      candidateDates.push(dateStr);
-    }
-    if (candidateDates.length >= Math.max(sprinkleWindowDays, balancedQueue.length * 3)) {
-      break;
-    }
+  // 3. Generate open slots in the configured *calendar* window. If its
+  // capacity is full, extend only as far as needed; this keeps the promised
+  // window meaningful without ever silently dropping a reel.
+  const candidateDates = getPostingSlotsInWindow(
+    getSystemDate(), sprinkleWindowDays, postingDays, maxPostsPerDay, postsCountByDate
+  );
+  let extensionStart = addDays(getSystemDate(), sprinkleWindowDays);
+  while (candidateDates.length < balancedQueue.length) {
+    const extensionSlots = getPostingSlotsInWindow(
+      extensionStart, 14, postingDays, maxPostsPerDay, postsCountByDate
+    );
+    if (extensionSlots.length === 0) break;
+    candidateDates.push(...extensionSlots);
+    extensionStart = addDays(extensionStart, 14);
   }
 
   // 4. Uniformly space posts across candidate dates
@@ -315,9 +338,18 @@ export async function scheduleAcceptedScript(script) {
 
 /**
  * Adds a hand-written script straight to the publishing calendar. Manual
- * entries are pinned so a future Re-Sprinkle never changes the chosen date.
+ * entries start unpinned, like every other reel, so the schedule remains
+ * flexible until the user explicitly pins a date.
  */
 export async function scheduleManualScript({ title, script, scheduledDate, cta = '' }) {
+  const profile = await db.getProfile();
+  const existingReels = await db.getScheduledReels();
+  const maxPostsPerDay = profile.maxPostsPerDay || 1;
+  const postsOnDate = existingReels.filter((reel) => reel.scheduled_date === scheduledDate);
+  if (postsOnDate.length >= maxPostsPerDay) {
+    throw new Error(`This day already has the ${maxPostsPerDay}-post limit. Choose another date.`);
+  }
+
   const newReel = {
     id: uuidv4(),
     script_id: null,
@@ -331,7 +363,7 @@ export async function scheduleManualScript({ title, script, scheduledDate, cta =
     estimated_duration: '',
     scheduled_date: scheduledDate,
     status: 'scheduled',
-    is_locked: true,
+    is_locked: false,
     is_main_reel: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -366,7 +398,7 @@ export async function promoteToMainReel(trialReelId) {
     estimated_duration: reel.estimated_duration,
     scheduled_date: mainReelDate,
     status: 'scheduled',
-    is_locked: true,
+    is_locked: false,
     is_main_reel: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
