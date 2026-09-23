@@ -105,7 +105,7 @@ export const ScriptReviewView = {
             </div>
           </div>
 
-          <!-- 4 Clear Dedicated Actions: Accept | Edit | Reject | Review Later -->
+          <!-- Clear acceptance choices: trial or main, plus edit/reject/later. -->
           <div class="flashcard-actions">
             <button class="btn btn-reject btn-lg" id="btn-card-reject" title="Archive and remove from workflow" ${this.isEditing ? 'disabled aria-disabled="true"' : ''}>
               <span>✕ Reject</span>
@@ -119,8 +119,11 @@ export const ScriptReviewView = {
               <span>${this.isEditing ? '✓ Done Editing' : '✎ Edit'}</span>
             </button>
 
-            <button class="btn btn-accept btn-lg" id="btn-card-accept" title="${this.enableTrialReelWorkflow ? 'Good enough to become a Trial Reel' : 'Add this script to your publishing calendar'}" ${this.isEditing ? 'disabled aria-disabled="true"' : ''}>
-              <span>${this.enableTrialReelWorkflow ? 'Accept (Trial Reel) →' : 'Accept & Schedule →'}</span>
+            <button class="btn btn-secondary btn-lg" id="btn-card-accept-trial" title="Schedule this as a trial to compare with other trials for the same insight" ${this.isEditing ? 'disabled aria-disabled="true"' : ''}>
+              <span>Accept as Trial</span>
+            </button>
+            <button class="btn btn-accept btn-lg" id="btn-card-accept-main" title="Schedule this directly as a main reel; it will not enter trial feedback" ${this.isEditing ? 'disabled aria-disabled="true"' : ''}>
+              <span>Accept as Main Reel →</span>
             </button>
           </div>
         </div>
@@ -129,8 +132,7 @@ export const ScriptReviewView = {
 
     container.innerHTML = html;
 
-    // 1. ACCEPT ACTION (Converts to Trial Reel & auto-schedules)
-    document.getElementById('btn-card-accept')?.addEventListener('click', async () => {
+    const acceptScript = async (reelType) => {
       // If was editing, capture latest changes first
       if (this.isEditing) {
         this.saveCurrentEdits(script);
@@ -140,15 +142,16 @@ export const ScriptReviewView = {
       script.updated_at = new Date().toISOString();
       await db.updateScript(script);
 
-      // Auto-schedule accepted Trial Reel into smart calendar
-      await scheduleAcceptedScript(script);
+      await scheduleAcceptedScript(script, reelType);
       this.acceptedCount++;
 
-      showToast(this.enableTrialReelWorkflow ? 'Accepted! Added to Trial Reel schedule.' : 'Accepted! Added to your publishing calendar.', 'success');
+      showToast(reelType === 'main' ? 'Accepted as a Main Reel.' : 'Accepted as a Trial Reel.', 'success');
       this.isEditing = false;
       this.currentIndex++;
       this.renderCurrentCard(container, navigateTo, openModal);
-    });
+    };
+    document.getElementById('btn-card-accept-trial')?.addEventListener('click', () => acceptScript('trial'));
+    document.getElementById('btn-card-accept-main')?.addEventListener('click', () => acceptScript('main'));
 
     // 2. IN-PLACE EDIT ACTION (No page jump!)
     document.getElementById('btn-card-edit')?.addEventListener('click', async () => {
@@ -213,7 +216,7 @@ export const ScriptReviewView = {
           </h2>
 
           <p style="font-size: 14.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 24px;">
-            Every accepted script has been automatically balanced across your content calendar as a <strong>Trial Reel</strong>.
+            Your accepted scripts have been added to the calendar using the choices you made.
           </p>
 
           <div class="flex gap-3 justify-center" style="flex-wrap: wrap;">

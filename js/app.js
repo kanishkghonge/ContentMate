@@ -554,8 +554,12 @@ class ContentOSApp {
 
     // Feedback badge (posted >= 3 days ago)
     const systemDate = getSystemDate();
+    const trialCountByInsight = allReels.reduce((counts, reel) => {
+      if (reel.is_trial_reel && reel.insight_id) counts[reel.insight_id] = (counts[reel.insight_id] || 0) + 1;
+      return counts;
+    }, {});
     const feedbackDueCount = allReels.filter((r) => {
-      if (profile.enableTrialReelWorkflow === false || r.status !== 'posted' || r.feedback_logged) return false;
+      if (profile.enableTrialReelWorkflow === false || !r.is_trial_reel || !r.insight_id || trialCountByInsight[r.insight_id] < 2 || r.status !== 'posted' || r.feedback_logged) return false;
       const diff = Math.floor((systemDate - new Date(r.posted_date || r.scheduled_date)) / (1000 * 60 * 60 * 24));
       return diff >= 3;
     }).length;

@@ -264,7 +264,7 @@ export const ScheduleView = {
                 <div class="flex items-center gap-2">
                   <span style="font-size: 18px;">${formatMeta.icon || '💡'}</span>
                   <span class="action-card-badge ${isMain ? 'badge-purple' : 'badge-gray'}">
-                    ${isMain ? '⭐ Main Reel' : reel.is_mirrored_trial ? '🔁 Mirrored Trial' : enableTrialReels ? 'Trial Reel' : 'Scheduled Post'}
+                    ${isMain ? '⭐ Main Reel' : reel.is_mirrored_trial ? '🔁 Mirrored Trial' : reel.is_trial_reel ? 'Trial Reel' : 'Scheduled Post'}
                   </span>
                   <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">
                     ${escapeHtml(reel.format)}
@@ -331,9 +331,14 @@ export const ScheduleView = {
                       : ''
                   }
                   ${
+                    !isPosted && !isFilmed
+                      ? `<button class="btn btn-secondary btn-sm btn-detail-convert" data-id="${reel.id}" data-type="${isMain ? 'trial' : 'main'}">${isMain ? 'Convert to Trial' : 'Convert to Main'}</button>`
+                      : ''
+                  }
+                  ${
                     !isPosted
                       ? `<button class="btn btn-primary btn-sm btn-detail-post" data-id="${reel.id}">Mark Posted</button>`
-                      : enableTrialReels ? `<button class="btn btn-secondary btn-sm btn-detail-feedback" data-id="${reel.id}">Log 3-Day Feedback</button>` : ''
+                      : enableTrialReels && reel.is_trial_reel ? `<button class="btn btn-secondary btn-sm btn-detail-feedback" data-id="${reel.id}">Log 3-Day Feedback</button>` : ''
                   }
                 </div>
               </div>
@@ -382,10 +387,27 @@ export const ScheduleView = {
           reel.status = 'posted';
           reel.posted_date = formatDateForInput(new Date());
           await db.saveScheduledReel(reel);
-          showToast('Marked as Posted! 3-day feedback timer started.', 'success');
+          showToast(reel.is_trial_reel ? 'Marked as posted. It can be compared after three days.' : 'Marked as posted.', 'success');
           modalOverlay.classList.add('hidden');
           ScheduleView.render(document.getElementById('view-container'), navigateTo, openModal);
         }
+      });
+    });
+
+    modalBody.querySelectorAll('.btn-detail-convert').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const reel = await db.getScheduledReel(e.currentTarget.dataset.id);
+        if (!reel) return;
+        const becomesTrial = e.currentTarget.dataset.type === 'trial';
+        reel.is_main_reel = !becomesTrial;
+        reel.is_trial_reel = becomesTrial;
+        reel.is_mirrored_trial = false;
+        reel.variant = becomesTrial ? undefined : 'main';
+        await db.saveScheduledReel(reel);
+        await recalculateFutureSchedule();
+        showToast(becomesTrial ? 'Converted to a Trial Reel.' : 'Converted to a Main Reel.', 'success');
+        modalOverlay.classList.add('hidden');
+        ScheduleView.render(document.getElementById('view-container'), navigateTo, openModal);
       });
     });
 

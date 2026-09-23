@@ -50,6 +50,10 @@ function scriptViewerButton(reelId) {
   return `<button class="btn btn-sm btn-secondary btn-view-script" data-id="${reelId}">View Script</button>`;
 }
 
+function helpButton(text) {
+  return `<button class="btn btn-ghost btn-sm dash-help" data-help="${text}" aria-label="What is this?">?</button>`;
+}
+
 export const DashboardView = {
   async render(container, navigateTo, openModal) {
     const profile = await db.getProfile();
@@ -83,15 +87,7 @@ export const DashboardView = {
       (r) => r.scheduled_date < todayStr && r.status !== 'posted' && r.status !== 'archived' && r.status !== 'winner'
     );
 
-    // D. Feedback Due (posted >= 3 days ago and no metrics logged yet)
-    const feedbackDuePosts = allReels.filter((r) => {
-      if (!enableTrialReels || r.status !== 'posted' || r.is_main_reel_winner || r.feedback_logged) return false;
-      const postDate = new Date(r.posted_date || r.scheduled_date);
-      const diffDays = Math.floor((systemDate - postDate) / (1000 * 60 * 60 * 24));
-      return diffDays >= 3;
-    });
-
-    // E. Promoted Main Reels awaiting scheduling
+    // D. Promoted Main Reels awaiting scheduling
     const pendingMainReels = allReels.filter(
       (r) => r.is_main_reel && r.status === 'scheduled'
     );
@@ -109,7 +105,6 @@ export const DashboardView = {
           <div class="dashboard-daily-summary" aria-label="Today\'s content summary">
             <div class="dashboard-summary-item"><strong>${todayPosts.length}</strong><span>${todayPosts.length === 1 ? 'post scheduled' : 'posts scheduled'}</span></div>
             <div class="dashboard-summary-item"><strong>${pendingScripts.length}</strong><span>${pendingScripts.length === 1 ? 'script to review' : 'scripts to review'}</span></div>
-            <div class="dashboard-summary-item"><strong>${feedbackDuePosts.length}</strong><span>${feedbackDuePosts.length === 1 ? 'performance update due' : 'performance updates due'}</span></div>
             ${enableFilming ? `<div class="dashboard-summary-item"><strong>${filmingToday}</strong><span>${filmingToday === 1 ? 'post to film today' : 'posts to film today'}</span></div>` : ''}
           </div>
         </div>
@@ -121,7 +116,7 @@ export const DashboardView = {
         <div class="action-card" style="border-left: 4px solid var(--accent-blue);">
           <div class="action-card-header">
             <span class="action-card-badge badge-blue">⚡ Scheduled For Today</span>
-            <span style="font-size: 12px; color: var(--text-tertiary);">${formatDate(todayStr)}</span>
+            <div class="flex items-center gap-2"><span style="font-size: 12px; color: var(--text-tertiary);">${formatDate(todayStr)}</span>${helpButton('These are the posts planned for today. Open the script, publish it, then mark it posted so your calendar stays accurate.')}</div>
           </div>
           <h3 class="action-card-title">${todayPosts.length === 1 ? '1 Post to Publish Today' : `${todayPosts.length} Posts to Publish Today`}</h3>
           <p class="action-card-desc">Review your hook and mark as posted once published to social media.</p>
@@ -163,7 +158,7 @@ export const DashboardView = {
         <div class="action-card" style="border-left: 4px solid var(--accent-amber);">
           <div class="action-card-header">
             <span class="action-card-badge badge-amber">🃏 Review Queue</span>
-            <span style="font-size: 12px; font-weight: 600; color: var(--accent-amber);">${pendingScripts.length} Pending</span>
+            <div class="flex items-center gap-2"><span style="font-size: 12px; font-weight: 600; color: var(--accent-amber);">${pendingScripts.length} Pending</span>${helpButton('Review generated scripts here. Choose Trial when you want to compare variations later, or Main Reel when it is ready to publish directly.')}</div>
           </div>
           <h3 class="action-card-title">Scripts Waiting for Review</h3>
           <p class="action-card-desc">Swipe through scripts one card at a time. Accept, edit inline, or reject in under 30 seconds.</p>
@@ -177,49 +172,16 @@ export const DashboardView = {
       `;
     }
 
-    // 3. Feedback Due Card (3-day post evaluation)
-    if (feedbackDuePosts.length > 0) {
-      html += `
-        <div class="action-card" style="border-left: 4px solid var(--accent-purple);">
-          <div class="action-card-header">
-            <span class="action-card-badge badge-purple">📊 3-Day Performance Check</span>
-            <span style="font-size: 12px; color: var(--accent-purple); font-weight: 600;">${feedbackDuePosts.length} Due</span>
-          </div>
-          <h3 class="action-card-title">Trial Reel Feedback Due</h3>
-          <p class="action-card-desc">It's been 3 days since you posted. Enter your basic engagement to decide if this should become a permanent Main Reel.</p>
-
-          <div class="today-item-list">
-            ${feedbackDuePosts.map((post) => `
-              <div class="today-item">
-                <div class="today-item-info">
-                  <div class="today-item-title">${post.title}</div>
-                  <div class="today-item-meta">
-                    <span>Posted ${formatRelativeDate(post.posted_date || post.scheduled_date)}</span>
-                    <span>•</span>
-                    <span>${post.format}</span>
-                  </div>
-                </div>
-                <div class="flex gap-2">
-                  ${scriptViewerButton(post.id)}
-                  <button class="btn btn-sm btn-primary btn-log-feedback" data-id="${post.id}">Log Feedback & Decide</button>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }
-
-    // 4. Posts That Were Missed Card (Auto Reshuffle trigger)
+    // 3. Posts That Were Missed Card (Auto Reshuffle trigger)
     if (missedPosts.length > 0) {
       html += `
         <div class="action-card" style="border-left: 4px solid var(--accent-red);">
           <div class="action-card-header">
             <span class="action-card-badge badge-red">⚠️ Past Due</span>
-            <span style="font-size: 12px; color: var(--accent-red); font-weight: 600;">${missedPosts.length} Missed</span>
+            <div class="flex items-center gap-2"><span style="font-size: 12px; color: var(--accent-red); font-weight: 600;">${missedPosts.length} Missed</span>${helpButton('These scheduled posts were not marked as published. Pick a new date, mark one posted if it already went live, or skip it.')}</div>
           </div>
           <h3 class="action-card-title">Posts That Were Missed</h3>
-          <p class="action-card-desc">Life in clinic gets busy. Reschedule these into open upcoming slots, or skip any post you no longer want to publish.</p>
+          <p class="action-card-desc">Choose a new date, mark an already-published post, or skip a post you no longer want to publish.</p>
           <div class="today-item-list">
             ${missedPosts.map((post) => `
               <div class="today-item">
@@ -254,10 +216,10 @@ export const DashboardView = {
         <div class="action-card">
           <div class="action-card-header">
             <span class="action-card-badge badge-gray">🎥 Filming Queue</span>
-            <span style="font-size: 12px; color: var(--text-tertiary);">Next Up</span>
+            <div class="flex items-center gap-2"><span style="font-size: 12px; color: var(--text-tertiary);">Next Up</span>${helpButton('This is your upcoming recording list. Mark a reel filmed to protect its scheduled date from automatic reshuffles.')}</div>
           </div>
           <h3 class="action-card-title">Trial Reels Not Yet Shot</h3>
-          <p class="action-card-desc">Ready to record between patient consultations? Keep these 45-second scripts handy.</p>
+          <p class="action-card-desc">Your next scripts ready to record.</p>
 
           <div class="today-item-list">
             ${filmingQueue.map((post) => `
@@ -291,7 +253,7 @@ export const DashboardView = {
         <div class="action-card">
           <div class="action-card-header">
             <span class="action-card-badge badge-gray">💡 Recent Thoughts</span>
-            <button class="btn btn-ghost btn-sm" id="dash-btn-view-notes">All Notes →</button>
+            <div class="flex items-center gap-2">${helpButton('Recent thoughts are quick captures. Convert one into an insight when you are ready to turn it into scripts.')}<button class="btn btn-ghost btn-sm" id="dash-btn-view-notes">All Notes →</button></div>
           </div>
           <div class="today-item-list" style="margin-bottom: 0;">
             ${activeNotes.map((note) => `
@@ -311,7 +273,7 @@ export const DashboardView = {
     }
 
     // Zen state if all caught up
-    if (todayPosts.length === 0 && pendingScripts.length === 0 && feedbackDuePosts.length === 0 && missedPosts.length === 0) {
+    if (todayPosts.length === 0 && pendingScripts.length === 0 && missedPosts.length === 0) {
       html += `
         <div class="action-card text-center" style="padding: 32px 20px; align-items: center;">
           <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--accent-green-subtle); color: var(--accent-green); display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
@@ -319,7 +281,7 @@ export const DashboardView = {
           </div>
           <h3 style="font-size: 17px; font-weight: 700; color: var(--text-primary);">All Caught Up for Today!</h3>
           <p style="font-size: 13.5px; color: var(--text-secondary); max-width: 380px; margin-top: 4px;">
-            Your calendar is naturally balanced. Have a new clinical thought from your clinic rounds? Tap below.
+            Your calendar is naturally balanced. Capture a new content idea whenever one comes up.
           </p>
           <button class="btn btn-primary btn-sm" id="dash-zen-record-insight" style="margin-top: 16px;">
             Record a New Insight
@@ -443,18 +405,14 @@ export const DashboardView = {
           reel.status = 'posted';
           reel.posted_date = formatDateForInput(new Date());
           await db.saveScheduledReel(reel);
-          showToast('Marked as Posted! 3-day feedback timer started.', 'success');
+          showToast('Marked as posted.', 'success');
           DashboardView.render(container, navigateTo, openModal);
         }
       });
     });
 
-    // Log Feedback buttons
-    container.querySelectorAll('.btn-log-feedback').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const id = e.currentTarget.dataset.id;
-        openModal('trialFeedback', { reelId: id });
-      });
+    container.querySelectorAll('.dash-help').forEach((btn) => {
+      btn.addEventListener('click', (e) => window.alert(e.currentTarget.dataset.help));
     });
 
     // Convert Note buttons

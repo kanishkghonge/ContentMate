@@ -1,7 +1,7 @@
 /** Doctor profile, workflow settings, data controls, and gated developer tools. */
 
 import { db } from '../db.js';
-import { recalculateFutureSchedule } from '../scheduler.js';
+import { recalculateFutureSchedule, mirrorFutureTrialReels } from '../scheduler.js';
 import { populateSampleDoctorWorkspace } from '../sampleData.js';
 import { showToast, escapeHtml, getTimeShiftDays, setTimeShiftDays, getDevToolsEnabled, setDevToolsEnabled } from '../utils.js';
 import { getDefaultWritingInstructions } from '../prompt.js';
@@ -116,7 +116,26 @@ export const SettingsView = {
     document.getElementById('btn-resprinkle-now')?.addEventListener('click', () => saveSchedule(true));
     document.getElementById('setting-enable-filming')?.addEventListener('change', (event) => saveProfile({ enableFilmingWorkflow: event.target.checked }, event.target.checked ? 'Filming workflow enabled.' : 'Filming workflow disabled.'));
     document.getElementById('setting-enable-trial-reels')?.addEventListener('change', (event) => saveProfile({ enableTrialReelWorkflow: event.target.checked }, event.target.checked ? 'Trial reels and performance evaluation enabled.' : 'Simple publishing workflow enabled.'));
-    document.getElementById('setting-enable-mirrored-trials')?.addEventListener('change', async (event) => { await saveProfile({ enableMirroredTrialWorkflow: event.target.checked }, event.target.checked ? 'Mirrored trial reels enabled.' : 'Mirrored trial reels disabled.'); if (event.target.checked) { await recalculateFutureSchedule(); } });
+    document.getElementById('setting-enable-mirrored-trials')?.addEventListener('change', async (event) => {
+      const enabled = event.target.checked;
+      if (!enabled) {
+        const mirrored = (await db.getScheduledReels()).filter((reel) => reel.is_mirrored_trial && reel.status === 'scheduled');
+        if (mirrored.length && confirm(`Remove ${mirrored.length} scheduled mirrored trial${mirrored.length === 1 ? '' : 's'} as well?`)) {
+          for (const reel of mirrored) await db.deleteScheduledReel(reel.id);
+        }
+        await saveProfile({ enableMirroredTrialWorkflow: false }, 'Mirrored trials disabled.');
+        await recalculateFutureSchedule();
+        return;
+      }
+
+      await saveProfile({ enableMirroredTrialWorkflow: true }, 'Mirrored trials enabled.');
+      if (confirm('Also create mirrored versions of all eligible future trial reels?')) {
+        const created = await mirrorFutureTrialReels();
+        showToast(created ? `Created ${created} mirrored future trial${created === 1 ? '' : 's'}.` : 'No eligible future trial reels to mirror.', 'success');
+      } else {
+        await recalculateFutureSchedule();
+      }
+    });
     document.getElementById('setting-missed-post-mode')?.addEventListener('change', (event) => saveProfile({ missedPostRescheduleMode: event.target.value }, 'Missed-post preference saved.'));
     document.getElementById('btn-replay-tutorial')?.addEventListener('click', () => window.dispatchEvent(new Event('contentmate-replay-tutorial')));
 

@@ -321,7 +321,7 @@ export async function rescheduleMissedPosts() {
 /**
  * Creates a Trial Reel from an accepted script and reshuffles the eligible queue.
  */
-export async function scheduleAcceptedScript(script) {
+export async function scheduleAcceptedScript(script, reelType = 'trial') {
   const profile = await db.getProfile();
   const existingReels = await db.getScheduledReels();
   const duplicate = existingReels.find((r) => r.script_id === script.id);
@@ -346,8 +346,8 @@ export async function scheduleAcceptedScript(script) {
     scheduled_date: todayStr, // Will be uniformly positioned by recalculateFutureSchedule
     status: 'scheduled',
     is_locked: false,
-    is_main_reel: false,
-    is_trial_reel: profile.enableTrialReelWorkflow !== false,
+    is_main_reel: reelType === 'main',
+    is_trial_reel: reelType === 'trial',
     created_at: now,
     updated_at: now
   };
@@ -355,7 +355,7 @@ export async function scheduleAcceptedScript(script) {
   const reelsToSave = [newReel];
   // A mirrored trial is deliberately a separate reel (and remains editable),
   // allowing the same insight to be tested with a different cut/packaging.
-  if (profile.enableMirroredTrialWorkflow === true && profile.enableTrialReelWorkflow !== false) {
+  if (reelType === 'trial' && profile.enableMirroredTrialWorkflow === true && profile.enableTrialReelWorkflow !== false) {
     reelsToSave.push({
       ...newReel,
       id: uuidv4(),
@@ -373,6 +373,32 @@ export async function scheduleAcceptedScript(script) {
   await recalculateFutureSchedule();
 
   return newReel;
+}
+
+export async function mirrorFutureTrialReels() {
+  const [profile, reels] = await Promise.all([db.getProfile(), db.getScheduledReels()]);
+  const today = formatDateForInput(getSystemDate());
+  const now = new Date().toISOString();
+  const mirrors = reels.filter((reel) => (
+    reel.is_trial_reel && !reel.is_mirrored_trial && !reel.is_main_reel &&
+    reel.status === 'scheduled' && !reel.is_filmed && !reel.is_locked &&
+    reel.scheduled_date >= today
+  )).map((reel) => ({
+    ...reel,
+    id: uuidv4(),
+    title: `🔁 [Mirrored Trial] ${reel.title}`,
+    variant: 'mirrored_trial',
+    is_mirrored_trial: true,
+    mirror_edit_required: true,
+    parent_trial_reel_id: reel.id,
+    created_at: now,
+    updated_at: now
+  }));
+  if (mirrors.length) {
+    await db.saveScheduledReels(mirrors);
+    await recalculateFutureSchedule();
+  }
+  return mirrors.length;
 }
 
 /**
