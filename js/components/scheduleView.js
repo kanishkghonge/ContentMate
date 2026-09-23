@@ -46,7 +46,7 @@ export const ScheduleView = {
               Publishing Calendar
             </h2>
             <p style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">
-              Uniformly sprinkled across ${profile.sprinkleWindowDays || 14} days. Click any cell to view post details.
+              New reels are evenly arranged from today onward. Pinned and filmed reels keep their dates.
             </p>
           </div>
 
@@ -56,7 +56,7 @@ export const ScheduleView = {
             </button>
             <button class="btn btn-secondary btn-sm" id="btn-recalculate-schedule">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
-              <span>Re-Sprinkle Schedule</span>
+              <span>Reshuffle Unpinned</span>
             </button>
           </div>
         </div>
@@ -160,8 +160,7 @@ export const ScheduleView = {
     // Auto Reshuffle Future
     document.getElementById('btn-recalculate-schedule')?.addEventListener('click', async () => {
       const res = await recalculateFutureSchedule();
-      const windowLabel = profile.sprinkleWindowDays || 14;
-      showToast(`Evenly re-spaced ${res.updatedCount} future reels across ${windowLabel} days.`, 'success');
+      showToast(`Reshuffled ${res.updatedCount} unpinned reels.`, 'success');
       ScheduleView.render(container, navigateTo, openModal);
     });
 

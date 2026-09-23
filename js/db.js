@@ -93,10 +93,9 @@ export const defaultDoctorProfile = {
   tone: 'Conversational & Empathetic', // 'Conversational' | 'Authoritative' | 'Friendly'
   cta: 'both', // 'caption' | 'comment' | 'both'
   reelLength: '45-60s',
-  postingDays: ['Mon', 'Wed', 'Fri'], // Posting schedule
-  sprinkleWindowDays: 14, // Uniform 2-week scheduling window by default
-  maxPostsPerDay: 1, // Max posts per day limit
-  sprinkleStrategy: 'uniform', // 'uniform' | 'front_loaded' | 'preferred_days'
+  postingDays: ['Daily'], // Calendar days on which auto-scheduling may place posts
+  maxPostsPerDay: 3, // A firm safety limit; the scheduler aims for an even split below this.
+  schedulerVersion: 2,
   enableFilmingWorkflow: true, // Keep filming tasks visible for new workspaces
   enableTrialReelWorkflow: true, // Test-and-evaluate workflow stays on by default
   // When enabled, each accepted trial also gets an editable mirrored trial.
@@ -117,7 +116,21 @@ export const db = {
       return new Promise((resolve) => {
         const req = store.get('doctor_profile');
         // Merge defaults so older workspaces receive newly introduced defaults.
-        req.onsuccess = () => resolve(req.result ? { ...defaultDoctorProfile, ...req.result } : { ...defaultDoctorProfile, onboarded: false });
+        req.onsuccess = () => {
+          if (!req.result) {
+            resolve({ ...defaultDoctorProfile, onboarded: false });
+            return;
+          }
+          // Version 2 replaces the old one-post, Mon/Wed/Fri sprinkle with
+          // the compact daily batch scheduler. Later changes remain entirely
+          // user-controlled through Settings.
+          const isLegacySchedule = !req.result.schedulerVersion;
+          resolve({
+            ...defaultDoctorProfile,
+            ...req.result,
+            ...(isLegacySchedule ? { postingDays: ['Daily'], maxPostsPerDay: 3, schedulerVersion: 2 } : {})
+          });
+        };
       });
     });
   },
