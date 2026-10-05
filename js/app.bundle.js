@@ -118,6 +118,12 @@ const defaultDoctorProfile = {
 };
 
 
+function notifyDataChanged() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('contentmate-data-changed'));
+  }
+}
+
 const db = {
   // PROFILE
   async getProfile() {
@@ -145,9 +151,11 @@ const db = {
   },
 
   async saveProfile(profile) {
-    return performTx('profile', 'readwrite', (store) => {
+    const res = await performTx('profile', 'readwrite', (store) => {
       store.put(profile, 'doctor_profile');
     });
+    notifyDataChanged();
+    return res;
   },
 
   // NOTES (Lightweight thoughts)
@@ -162,24 +170,28 @@ const db = {
         };
       });
     });
-  },
-
-  async addNote(note) {
-    return performTx('notes', 'readwrite', (store) => {
+  },  async addNote(note) {
+    const res = await performTx('notes', 'readwrite', (store) => {
       store.put(note);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async updateNote(note) {
-    return performTx('notes', 'readwrite', (store) => {
+    const res = await performTx('notes', 'readwrite', (store) => {
       store.put(note);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteNote(id) {
-    return performTx('notes', 'readwrite', (store) => {
+    const res = await performTx('notes', 'readwrite', (store) => {
       store.delete(id);
     });
+    notifyDataChanged();
+    return res;
   },
 
   // INSIGHTS (Core clinical ideas)
@@ -206,9 +218,11 @@ const db = {
   },
 
   async saveInsight(insight) {
-    return performTx('insights', 'readwrite', (store) => {
+    const res = await performTx('insights', 'readwrite', (store) => {
       store.put(insight);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteInsight(id) {
@@ -220,6 +234,7 @@ const db = {
     for (const s of scripts) {
       await this.deleteScript(s.id);
     }
+    notifyDataChanged();
   },
 
   // SCRIPTS (Flashcard review queue)
@@ -256,32 +271,40 @@ const db = {
   },
 
   async saveScript(script) {
-    return performTx('scripts', 'readwrite', (store) => {
+    const res = await performTx('scripts', 'readwrite', (store) => {
       store.put(script);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async saveScripts(scriptsArray) {
     const database = await openDatabase();
-    return new Promise((resolve, reject) => {
+    const res = await new Promise((resolve, reject) => {
       const tx = database.transaction('scripts', 'readwrite');
       const store = tx.objectStore('scripts');
       scriptsArray.forEach((script) => store.put(script));
       tx.oncomplete = () => resolve(true);
       tx.onerror = (e) => reject(e.target.error);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async updateScript(script) {
-    return performTx('scripts', 'readwrite', (store) => {
+    const res = await performTx('scripts', 'readwrite', (store) => {
       store.put(script);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteScript(id) {
-    return performTx('scripts', 'readwrite', (store) => {
+    const res = await performTx('scripts', 'readwrite', (store) => {
       store.delete(id);
     });
+    notifyDataChanged();
+    return res;
   },
 
   // SCHEDULED REELS (Trial Reels & Main Reels on Calendar)
@@ -291,7 +314,7 @@ const db = {
         const req = store.getAll();
         req.onsuccess = () => {
           const items = req.result || [];
-          items.sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
+          items.sort((a, b) => new Date(a.scheduled_date) - new Date(a.scheduled_date));
           resolve(items);
         };
       });
@@ -308,32 +331,40 @@ const db = {
   },
 
   async saveScheduledReel(reel) {
-    return performTx('scheduled_reels', 'readwrite', (store) => {
+    const res = await performTx('scheduled_reels', 'readwrite', (store) => {
       store.put(reel);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async saveScheduledReels(reelsArray) {
     const database = await openDatabase();
-    return new Promise((resolve, reject) => {
+    const res = await new Promise((resolve, reject) => {
       const tx = database.transaction('scheduled_reels', 'readwrite');
       const store = tx.objectStore('scheduled_reels');
       reelsArray.forEach((reel) => store.put(reel));
       tx.oncomplete = () => resolve(true);
       tx.onerror = (e) => reject(e.target.error);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async updateScheduledReel(reel) {
-    return performTx('scheduled_reels', 'readwrite', (store) => {
+    const res = await performTx('scheduled_reels', 'readwrite', (store) => {
       store.put(reel);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteScheduledReel(id) {
-    return performTx('scheduled_reels', 'readwrite', (store) => {
+    const res = await performTx('scheduled_reels', 'readwrite', (store) => {
       store.delete(id);
     });
+    notifyDataChanged();
+    return res;
   },
 
   // FULL EXPORT & IMPORT (Zero-loss JSON Backup)
@@ -4338,8 +4369,502 @@ const LibraryView = {
   }
 };
 
+/* js/webdav.js */
+/**
+ * Content Mate — WebDAV Storage & Sync Engine
+ * Enables self-hosted cloud sync across multiple devices (Nextcloud, ownCloud, Caddy/Nginx WebDAV, NAS, etc.)
+ * Works offline-first with IndexedDB and syncs seamlessly over standard WebDAV protocol.
+ */
+
+
+
+
+const WEBDAV_STORAGE_KEY = 'contentmate_webdav_config';
+const WEBDAV_SYNC_META_KEY = 'contentmate_webdav_sync_meta';
+
+const WebDAVClient = {
+  /**
+   * Retrieve saved WebDAV configuration
+   */
+  getConfig() {
+    try {
+      const raw = localStorage.getItem(WEBDAV_STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return {
+        url: parsed.url || '',
+        username: parsed.username || '',
+        password: parsed.password || '',
+        filename: parsed.filename || 'contentmate-data.json',
+        autoSync: Boolean(parsed.autoSync)
+      };
+    } catch (e) {
+      console.error('Failed to parse WebDAV config:', e);
+      return null;
+    }
+  },
+
+  /**
+   * Save WebDAV configuration
+   */
+  saveConfig(config) {
+    const cleanConfig = {
+      url: (config.url || '').trim(),
+      username: (config.username || '').trim(),
+      password: config.password || '',
+      filename: (config.filename || 'contentmate-data.json').trim() || 'contentmate-data.json',
+      autoSync: Boolean(config.autoSync)
+    };
+    localStorage.setItem(WEBDAV_STORAGE_KEY, JSON.stringify(cleanConfig));
+    window.dispatchEvent(new CustomEvent('contentmate-webdav-status-change', { detail: { isConfigured: this.isConfigured() } }));
+    return cleanConfig;
+  },
+
+  /**
+   * Clear WebDAV configuration
+   */
+  clearConfig() {
+    localStorage.removeItem(WEBDAV_STORAGE_KEY);
+    localStorage.removeItem(WEBDAV_SYNC_META_KEY);
+    window.dispatchEvent(new CustomEvent('contentmate-webdav-status-change', { detail: { isConfigured: false } }));
+  },
+
+  /**
+   * Check if WebDAV is configured
+   */
+  isConfigured() {
+    const conf = this.getConfig();
+    return Boolean(conf && conf.url && conf.url.startsWith('http'));
+  },
+
+  /**
+   * Get sync metadata (last synced timestamp, etag, etc.)
+   */
+  getSyncMeta() {
+    try {
+      const raw = localStorage.getItem(WEBDAV_SYNC_META_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Save sync metadata
+   */
+  saveSyncMeta(meta) {
+    localStorage.setItem(WEBDAV_SYNC_META_KEY, JSON.stringify({
+      ...meta,
+      savedAt: new Date().toISOString()
+    }));
+  },
+
+  /**
+   * Safe base64 encode for UTF-8 credentials
+   */
+  encodeAuth(user, pass) {
+    const str = `${user}:${pass}`;
+    try {
+      return btoa(unescape(encodeURIComponent(str)));
+    } catch {
+      return btoa(str);
+    }
+  },
+
+  /**
+   * Normalize WebDAV base directory URL
+   */
+  normalizeBaseUrl(url) {
+    let clean = (url || '').trim();
+    if (!clean) return '';
+    if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+      clean = 'https://' + clean;
+    }
+    if (!clean.endsWith('/')) {
+      clean += '/';
+    }
+    return clean;
+  },
+
+  /**
+   * Build complete file URL
+   */
+  getFileUrl(config) {
+    const baseUrl = this.normalizeBaseUrl(config.url);
+    const filename = (config.filename || 'contentmate-data.json').replace(/^\/+/, '');
+    return baseUrl + filename;
+  },
+
+  /**
+   * Build authorization headers
+   */
+  getHeaders(config, extraHeaders = {}) {
+    const headers = { ...extraHeaders };
+    if (config.username || config.password) {
+      const auth = this.encodeAuth(config.username || '', config.password || '');
+      headers['Authorization'] = `Basic ${auth}`;
+    }
+    return headers;
+  },
+
+  /**
+   * Test connection to WebDAV server
+   */
+  async testConnection(customConfig) {
+    const config = customConfig || this.getConfig();
+    if (!config || !config.url) {
+      throw new Error('WebDAV URL is required.');
+    }
+
+    const baseUrl = this.normalizeBaseUrl(config.url);
+
+    try {
+      // Try PROPFIND first with depth 0 on the directory
+      const propfindRes = await fetch(baseUrl, {
+        method: 'PROPFIND',
+        headers: this.getHeaders(config, {
+          'Depth': '0',
+          'Content-Type': 'application/xml; charset=utf-8'
+        })
+      });
+
+      if (propfindRes.status === 401) {
+        throw new Error('Authentication failed (401 Unauthorized). Please check your username and app password.');
+      }
+
+      if (propfindRes.status === 403) {
+        throw new Error('Access forbidden (403 Forbidden). Ensure your account has permissions for this folder.');
+      }
+
+      if (propfindRes.ok || propfindRes.status === 207 || propfindRes.status === 405 || propfindRes.status === 404) {
+        // Also verify or test the file endpoint
+        return {
+          success: true,
+          status: propfindRes.status,
+          message: 'Successfully connected to WebDAV server.'
+        };
+      }
+
+      // Fallback: try GET / HEAD if PROPFIND method is disallowed by server
+      const headRes = await fetch(baseUrl, {
+        method: 'HEAD',
+        headers: this.getHeaders(config)
+      });
+
+      if (headRes.ok || headRes.status === 401 || headRes.status === 403) {
+        if (headRes.status === 401) throw new Error('Authentication failed (401 Unauthorized).');
+        if (headRes.status === 403) throw new Error('Access forbidden (403 Forbidden).');
+        return { success: true, status: headRes.status, message: 'Connected to server.' };
+      }
+
+      return {
+        success: true,
+        status: propfindRes.status,
+        message: `Server responded with status ${propfindRes.status}`
+      };
+    } catch (err) {
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        throw new Error('Network error or CORS issue. If self-hosting, ensure your server allows CORS headers (Access-Control-Allow-Origin, Access-Control-Allow-Methods: PROPFIND, GET, PUT, OPTIONS, HEAD, DELETE, MKCOL).');
+      }
+      throw err;
+    }
+  },
+
+  /**
+   * Upload (Push) local workspace data to WebDAV server
+   */
+  async pushToCloud(customConfig) {
+    const config = customConfig || this.getConfig();
+    if (!config || !config.url) {
+      throw new Error('WebDAV is not configured.');
+    }
+
+    const fileUrl = this.getFileUrl(config);
+    const localData = await db.exportFullDatabase();
+    
+    // Add sync metadata to the backup payload
+    const payload = {
+      ...localData,
+      _syncMeta: {
+        syncedAt: new Date().toISOString(),
+        client: 'ContentMate WebDAV Sync',
+        version: 1
+      }
+    };
+
+    const jsonString = JSON.stringify(payload, null, 2);
+
+    try {
+      const res = await fetch(fileUrl, {
+        method: 'PUT',
+        headers: this.getHeaders(config, {
+          'Content-Type': 'application/json; charset=utf-8'
+        }),
+        body: jsonString
+      });
+
+      if (res.status === 401) {
+        throw new Error('Authentication failed (401 Unauthorized). Check your WebDAV credentials.');
+      }
+
+      if (res.status === 403) {
+        throw new Error('Access forbidden (403 Forbidden). Cannot write to WebDAV destination.');
+      }
+
+      if (res.status === 409 || res.status === 404) {
+        // Parent collection may not exist; attempt MKCOL on base URL
+        try {
+          await fetch(this.normalizeBaseUrl(config.url), {
+            method: 'MKCOL',
+            headers: this.getHeaders(config)
+          });
+          // Retry PUT once
+          const retryRes = await fetch(fileUrl, {
+            method: 'PUT',
+            headers: this.getHeaders(config, { 'Content-Type': 'application/json; charset=utf-8' }),
+            body: jsonString
+          });
+          if (!retryRes.ok && retryRes.status !== 201 && retryRes.status !== 204) {
+            throw new Error(`Upload failed with status ${retryRes.status}`);
+          }
+        } catch (mkcolErr) {
+          throw new Error(`Upload failed: Directory might not exist (${res.status}).`);
+        }
+      } else if (!res.ok && res.status !== 201 && res.status !== 204) {
+        throw new Error(`Upload failed with status ${res.status}: ${res.statusText}`);
+      }
+
+      const etag = res.headers.get('ETag') || null;
+      this.saveSyncMeta({
+        lastSync: new Date().toISOString(),
+        lastSyncAction: 'push',
+        etag: etag,
+        itemsSynced: {
+          notes: payload.notes?.length || 0,
+          insights: payload.insights?.length || 0,
+          scripts: payload.scripts?.length || 0,
+          reels: payload.scheduledReels?.length || 0
+        }
+      });
+
+      window.dispatchEvent(new CustomEvent('contentmate-webdav-synced', {
+        detail: { action: 'push', timestamp: new Date().toISOString() }
+      }));
+
+      return {
+        success: true,
+        message: 'Successfully backed up local data to WebDAV cloud.'
+      };
+    } catch (err) {
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        throw new Error('Upload failed due to CORS or network error. Please verify server CORS configuration.');
+      }
+      throw err;
+    }
+  },
+
+  /**
+   * Download (Pull) remote workspace data from WebDAV server
+   */
+  async pullFromCloud(customConfig) {
+    const config = customConfig || this.getConfig();
+    if (!config || !config.url) {
+      throw new Error('WebDAV is not configured.');
+    }
+
+    const fileUrl = this.getFileUrl(config);
+
+    try {
+      const res = await fetch(fileUrl, {
+        method: 'GET',
+        headers: this.getHeaders(config, {
+          'Cache-Control': 'no-cache'
+        })
+      });
+
+      if (res.status === 404) {
+        return {
+          found: false,
+          message: 'No existing sync file found on WebDAV server. You can push your local workspace to create it.'
+        };
+      }
+
+      if (res.status === 401) {
+        throw new Error('Authentication failed (401 Unauthorized).');
+      }
+
+      if (res.status === 403) {
+        throw new Error('Access forbidden (403 Forbidden).');
+      }
+
+      if (!res.ok) {
+        throw new Error(`Failed to download remote data (${res.status} ${res.statusText}).`);
+      }
+
+      const rawText = await res.text();
+      let parsedData;
+      try {
+        parsedData = JSON.parse(rawText);
+      } catch (parseErr) {
+        throw new Error('Remote file is not valid ContentMate JSON data.');
+      }
+
+      // Import into local database
+      await db.importFullDatabase(parsedData);
+
+      const etag = res.headers.get('ETag') || null;
+      this.saveSyncMeta({
+        lastSync: new Date().toISOString(),
+        lastSyncAction: 'pull',
+        etag: etag,
+        itemsSynced: {
+          notes: parsedData.notes?.length || 0,
+          insights: parsedData.insights?.length || 0,
+          scripts: parsedData.scripts?.length || 0,
+          reels: parsedData.scheduledReels?.length || 0
+        }
+      });
+
+      window.dispatchEvent(new CustomEvent('contentmate-webdav-synced', {
+        detail: { action: 'pull', timestamp: new Date().toISOString() }
+      }));
+
+      return {
+        found: true,
+        success: true,
+        data: parsedData,
+        message: 'Successfully pulled and restored workspace from WebDAV cloud.'
+      };
+    } catch (err) {
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        throw new Error('Download failed due to CORS or network error.');
+      }
+      throw err;
+    }
+  },
+
+  /**
+   * Check remote file status without downloading entire payload
+   */
+  async checkRemoteStatus(customConfig) {
+    const config = customConfig || this.getConfig();
+    if (!config || !config.url) return null;
+
+    const fileUrl = this.getFileUrl(config);
+
+    try {
+      const res = await fetch(fileUrl, {
+        method: 'HEAD',
+        headers: this.getHeaders(config, { 'Cache-Control': 'no-cache' })
+      });
+
+      if (res.status === 404) {
+        return { exists: false };
+      }
+
+      if (res.ok) {
+        return {
+          exists: true,
+          lastModified: res.headers.get('Last-Modified'),
+          contentLength: res.headers.get('Content-Length'),
+          etag: res.headers.get('ETag')
+        };
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Smart Sync: compares local export date with remote and syncs appropriately
+   */
+  async syncNow() {
+    const config = this.getConfig();
+    if (!config || !config.url) {
+      throw new Error('WebDAV is not configured.');
+    }
+
+    // Try pulling remote file first
+    const fileUrl = this.getFileUrl(config);
+    try {
+      const res = await fetch(fileUrl, {
+        method: 'GET',
+        headers: this.getHeaders(config, { 'Cache-Control': 'no-cache' })
+      });
+
+      if (res.status === 404) {
+        // Remote file does not exist yet -> push local data to create it
+        const pushResult = await this.pushToCloud(config);
+        return {
+          action: 'created_remote',
+          message: 'Initialized remote WebDAV storage with your local workspace.'
+        };
+      }
+
+      if (!res.ok) {
+        if (res.status === 401) throw new Error('WebDAV authentication failed.');
+        throw new Error(`WebDAV sync failed (${res.status}).`);
+      }
+
+      const remoteData = await res.json();
+      const localData = await db.exportFullDatabase();
+
+      const remoteDate = new Date(remoteData.exportDate || remoteData._syncMeta?.syncedAt || 0).getTime();
+      const localDate = new Date(localData.exportDate || 0).getTime();
+
+      // If remote is newer (by more than 2 seconds), pull remote
+      if (remoteDate > localDate + 2000) {
+        await db.importFullDatabase(remoteData);
+        this.saveSyncMeta({
+          lastSync: new Date().toISOString(),
+          lastSyncAction: 'pull',
+          etag: res.headers.get('ETag')
+        });
+        return {
+          action: 'pulled',
+          message: 'Updated local workspace with newer data from WebDAV cloud.'
+        };
+      } else {
+        // Local is same or newer -> push local changes to cloud
+        await this.pushToCloud(config);
+        return {
+          action: 'pushed',
+          message: 'Pushed latest local workspace changes to WebDAV cloud.'
+        };
+      }
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  /**
+   * Debounced auto-sync scheduler for when data changes locally
+   */
+  _debounceTimer: null,
+  scheduleAutoPush() {
+    const config = this.getConfig();
+    if (!config || !config.autoSync || !config.url) return;
+
+    if (this._debounceTimer) {
+      clearTimeout(this._debounceTimer);
+    }
+
+    this._debounceTimer = setTimeout(async () => {
+      try {
+        console.log('[WebDAV] Auto-syncing local changes to cloud...');
+        await this.pushToCloud();
+      } catch (err) {
+        console.warn('[WebDAV] Auto-sync background push failed:', err.message);
+      }
+    }, 5000); // 5-second debounce
+  }
+};
+
 /* js/components/settings.js */
 /** Doctor profile, workflow settings, data controls, and gated developer tools. */
+
 
 
 
@@ -4359,6 +4884,9 @@ const SettingsView = {
     const timeShift = getTimeShiftDays();
     const devToolsEnabled = getDevToolsEnabled();
     const writingInstructions = profile.writingInstructions || getDefaultWritingInstructions();
+    const webdavConfig = WebDAVClient.getConfig() || { url: '', username: '', password: '', filename: 'contentmate-data.json', autoSync: false };
+    const webdavMeta = WebDAVClient.getSyncMeta();
+    const isWebDavConfigured = WebDAVClient.isConfigured();
 
     container.innerHTML = `
       <div class="settings-shell">
@@ -4402,6 +4930,70 @@ const SettingsView = {
             <div class="settings-choice" style="margin-top:16px;"><input type="checkbox" id="setting-enable-trial-reels" ${profile.enableTrialReelWorkflow !== false ? 'checked' : ''}><div><label for="setting-enable-trial-reels">Enable trial reels and performance evaluation</label><p>Test accepted scripts as trial reels, then request a 3-day performance check and main-reel decision. Turn this off for a simpler publishing workflow.</p></div></div>
             <div class="settings-choice" style="margin-top:16px;"><input type="checkbox" id="setting-enable-mirrored-trials" ${profile.enableMirroredTrialWorkflow === true ? 'checked' : ''}><div><label for="setting-enable-mirrored-trials">Create mirrored trial reels</label><p>Also schedule an editable second version of each trial. Versions are sprinkled apart so one script can become a trial, mirrored trial, and (if it wins) a main reel.</p></div></div>
             <div class="form-group" style="margin-top:16px; margin-bottom:0;"><label class="form-label" for="setting-missed-post-mode">When a post is missed</label><select id="setting-missed-post-mode" class="form-select"><option value="manual" ${(profile.missedPostRescheduleMode || 'manual') === 'manual' ? 'selected' : ''}>Ask me first</option><option value="auto" ${profile.missedPostRescheduleMode === 'auto' ? 'selected' : ''}>Automatically reschedule</option></select><p class="settings-helper">Automatic mode moves only missed posts and leaves filmed reels in place.</p></div><div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-replay-tutorial">Replay guided tutorial</button></div>
+          </section>
+
+          <!-- WebDAV Cloud Sync Card -->
+          <section class="card settings-card settings-card-wide" id="section-webdav-sync">
+            ${cardHead('☁️', 'Cloud Sync (WebDAV)', 'Sync your workspace across devices with your own cloud or self-hosted server (Nextcloud, ownCloud, NAS, Caddy/Nginx).')}
+            
+            <div class="webdav-status-bar ${isWebDavConfigured ? 'status-connected' : 'status-disconnected'}">
+              <div class="status-badge-dot"></div>
+              <div class="status-badge-text">
+                <strong>${isWebDavConfigured ? (webdavConfig.autoSync ? 'Auto-Sync Active' : 'Connected (Manual Sync)') : 'Local-First (Offline)'}</strong>
+                <span>${webdavMeta?.lastSync ? `Last synced: ${new Date(webdavMeta.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} (${webdavMeta.lastSyncAction === 'push' ? 'Uploaded' : 'Downloaded'})` : 'Your workspace stays private in local browser storage until configured.'}</span>
+              </div>
+            </div>
+
+            <form id="form-webdav-config" style="margin-top:16px;">
+              <div class="settings-form-grid">
+                <div class="form-group full-width">
+                  <label class="form-label" for="webdav-url">WebDAV Server Directory URL</label>
+                  <input type="url" id="webdav-url" class="form-input" placeholder="https://cloud.example.com/remote.php/dav/files/user/ContentMate/" value="${escapeHtml(webdavConfig.url || '')}">
+                  <p class="settings-helper">URL of your WebDAV directory. Examples: Nextcloud, ownCloud, NAS WebDAV, or self-hosted server.</p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="webdav-user">Username</label>
+                  <input type="text" id="webdav-user" class="form-input" autocomplete="username" value="${escapeHtml(webdavConfig.username || '')}">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="webdav-pass">App Password / Token</label>
+                  <input type="password" id="webdav-pass" class="form-input" autocomplete="current-password" placeholder="${webdavConfig.password ? '••••••••' : 'App password or token'}" value="${escapeHtml(webdavConfig.password || '')}">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="webdav-filename">Remote Sync File Name</label>
+                  <input type="text" id="webdav-filename" class="form-input" value="${escapeHtml(webdavConfig.filename || 'contentmate-data.json')}">
+                </div>
+                <div class="form-group">
+                  <div class="settings-choice" style="margin-top:22px;">
+                    <input type="checkbox" id="webdav-autosync" ${webdavConfig.autoSync ? 'checked' : ''}>
+                    <div>
+                      <label for="webdav-autosync">Enable Background Auto-Sync</label>
+                      <p>Syncs on startup and debounces cloud updates after local edits.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-card-actions">
+                <button type="submit" class="btn btn-primary btn-sm" id="btn-save-webdav">Save Cloud Settings</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-test-webdav">Test Connection</button>
+                ${isWebDavConfigured ? `
+                  <button type="button" class="btn btn-primary btn-sm" id="btn-sync-now" style="background:var(--accent-blue);">⚡ Sync Now</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-push-webdav" title="Upload local state to WebDAV">Push to Cloud</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-pull-webdav" title="Download latest state from WebDAV">Pull from Cloud</button>
+                  <button type="button" class="btn btn-danger btn-sm" id="btn-disconnect-webdav">Disconnect</button>
+                ` : ''}
+              </div>
+            </form>
+
+            <details class="webdav-help-details" style="margin-top:14px;">
+              <summary style="font-size:12.5px; color:var(--text-secondary); cursor:pointer; font-weight:500;">💡 Self-hosting & CORS setup guide</summary>
+              <div style="font-size:12px; color:var(--text-secondary); line-height:1.5; margin-top:8px; padding:10px 12px; background:var(--bg-subtle); border-radius:var(--radius-sm);">
+                <p style="margin:0 0 6px;"><strong>Nextcloud / ownCloud:</strong> Go to <em>Settings → Security → Devices & client passwords</em> to generate a dedicated App Password.</p>
+                <p style="margin:0 0 6px;"><strong>Self-hosted Nginx / Caddy:</strong> Ensure CORS headers (<code>Access-Control-Allow-Origin: *</code>, <code>Access-Control-Allow-Methods: PROPFIND, GET, PUT, HEAD, OPTIONS, MKCOL, DELETE</code>, <code>Access-Control-Allow-Headers: Authorization, Content-Type, Depth</code>) are configured, or host ContentMate behind the same reverse proxy.</p>
+                <p style="margin:0;"><strong>Offline Safety:</strong> All data is stored in browser IndexedDB first. WebDAV operates non-destructively.</p>
+              </div>
+            </details>
           </section>
 
           <section class="card settings-card">${cardHead('↥', 'Backup & restore', 'Your workspace stays in this browser. Save a JSON backup before changing devices or resetting data.')}<div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-export-json">Export backup</button><button class="btn btn-secondary btn-sm" id="btn-import-json-trigger">Restore backup</button><input type="file" id="input-file-backup" accept=".json,application/json" class="hidden"></div></section>
@@ -4479,6 +5071,101 @@ const SettingsView = {
     });
     document.getElementById('setting-missed-post-mode')?.addEventListener('change', (event) => saveProfile({ missedPostRescheduleMode: event.target.value }, 'Missed-post preference saved.'));
     document.getElementById('btn-replay-tutorial')?.addEventListener('click', () => window.dispatchEvent(new Event('contentmate-replay-tutorial')));
+
+    // WebDAV Form & Action Listeners
+    const getWebDavFormValues = () => ({
+      url: document.getElementById('webdav-url')?.value.trim() || '',
+      username: document.getElementById('webdav-user')?.value.trim() || '',
+      password: document.getElementById('webdav-pass')?.value || '',
+      filename: document.getElementById('webdav-filename')?.value.trim() || 'contentmate-data.json',
+      autoSync: Boolean(document.getElementById('webdav-autosync')?.checked)
+    });
+
+    document.getElementById('form-webdav-config')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const config = getWebDavFormValues();
+      if (!config.url) {
+        showToast('Please enter a WebDAV server URL.', 'error');
+        return;
+      }
+      WebDAVClient.saveConfig(config);
+      showToast('WebDAV settings saved.', 'success');
+      this.render(container, navigateTo);
+    });
+
+    document.getElementById('btn-test-webdav')?.addEventListener('click', async () => {
+      const config = getWebDavFormValues();
+      if (!config.url) {
+        showToast('Please enter a WebDAV server URL first.', 'error');
+        return;
+      }
+      const testBtn = document.getElementById('btn-test-webdav');
+      if (testBtn) { testBtn.disabled = true; testBtn.textContent = 'Testing...'; }
+      try {
+        const result = await WebDAVClient.testConnection(config);
+        showToast(result.message || 'Successfully connected to WebDAV server!', 'success');
+      } catch (err) {
+        showToast(`Connection test failed: ${err.message}`, 'error');
+      } finally {
+        if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test Connection'; }
+      }
+    });
+
+    document.getElementById('btn-sync-now')?.addEventListener('click', async () => {
+      const syncBtn = document.getElementById('btn-sync-now');
+      if (syncBtn) { syncBtn.disabled = true; syncBtn.textContent = 'Syncing...'; }
+      try {
+        const result = await WebDAVClient.syncNow();
+        showToast(result.message || 'Sync completed successfully.', 'success');
+        this.render(container, navigateTo);
+      } catch (err) {
+        showToast(`Sync failed: ${err.message}`, 'error');
+      } finally {
+        if (syncBtn) { syncBtn.disabled = false; syncBtn.textContent = '⚡ Sync Now'; }
+      }
+    });
+
+    document.getElementById('btn-push-webdav')?.addEventListener('click', async () => {
+      if (!confirm('Push your local workspace to WebDAV cloud? This will overwrite the remote backup.')) return;
+      const pushBtn = document.getElementById('btn-push-webdav');
+      if (pushBtn) { pushBtn.disabled = true; pushBtn.textContent = 'Uploading...'; }
+      try {
+        const result = await WebDAVClient.pushToCloud();
+        showToast(result.message, 'success');
+        this.render(container, navigateTo);
+      } catch (err) {
+        showToast(`Push failed: ${err.message}`, 'error');
+      } finally {
+        if (pushBtn) { pushBtn.disabled = false; pushBtn.textContent = 'Push to Cloud'; }
+      }
+    });
+
+    document.getElementById('btn-pull-webdav')?.addEventListener('click', async () => {
+      if (!confirm('Pull workspace from WebDAV cloud? This will overwrite local changes with the cloud copy.')) return;
+      const pullBtn = document.getElementById('btn-pull-webdav');
+      if (pullBtn) { pullBtn.disabled = true; pullBtn.textContent = 'Downloading...'; }
+      try {
+        const result = await WebDAVClient.pullFromCloud();
+        if (result.found) {
+          showToast(result.message, 'success');
+          this.render(container, navigateTo);
+        } else {
+          showToast(result.message, 'info');
+        }
+      } catch (err) {
+        showToast(`Pull failed: ${err.message}`, 'error');
+      } finally {
+        if (pullBtn) { pullBtn.disabled = false; pullBtn.textContent = 'Pull from Cloud'; }
+      }
+    });
+
+    document.getElementById('btn-disconnect-webdav')?.addEventListener('click', () => {
+      if (confirm('Disconnect WebDAV sync? Your local data will remain intact in this browser.')) {
+        WebDAVClient.clearConfig();
+        showToast('WebDAV disconnected. App is now local-first only.', 'info');
+        this.render(container, navigateTo);
+      }
+    });
 
     document.getElementById('setting-dev-tools')?.addEventListener('change', (event) => {
       if (event.target.checked && !getDevToolsEnabled()) { event.target.checked = false; document.getElementById('dev-access-form')?.classList.remove('hidden'); document.getElementById('dev-access-key')?.focus(); }
@@ -5222,6 +5909,7 @@ class WorkflowTutorial {
 
 
 
+
 class ContentOSApp {
   constructor() {
     this.currentView = 'dashboard';
@@ -5273,7 +5961,13 @@ class ContentOSApp {
     // 4. Setup Modal listeners
     this.setupModals();
 
-    // 5. Initial View Load
+    // 5. Setup WebDAV Sync & listeners
+    this.setupWebDAV();
+    window.addEventListener('contentmate-data-changed', () => {
+      WebDAVClient.scheduleAutoPush();
+    });
+
+    // 6. Initial View Load
     const hash = window.location.hash.replace(/^#/, '');
     await this.navigateTo(hash || 'dashboard');
 
@@ -5281,8 +5975,66 @@ class ContentOSApp {
       await this.startOnboarding();
     }
 
-    // 6. Update Badge Counts
+    // 7. Update Badge Counts
     this.updateBadges();
+  }
+
+  setupWebDAV() {
+    const syncBtn = document.getElementById('header-btn-sync');
+    const syncDot = document.getElementById('header-sync-dot');
+
+    const updateSyncIndicator = () => {
+      const isConfigured = WebDAVClient.isConfigured();
+      if (syncBtn) {
+        syncBtn.classList.toggle('is-configured', isConfigured);
+        syncBtn.title = isConfigured ? 'WebDAV Cloud Sync: Connected (Click to sync now)' : 'WebDAV Cloud Sync: Offline / Local only';
+      }
+      if (syncDot) {
+        syncDot.classList.toggle('hidden', !isConfigured);
+      }
+    };
+
+    updateSyncIndicator();
+
+    window.addEventListener('contentmate-webdav-status-change', updateSyncIndicator);
+    window.addEventListener('contentmate-webdav-synced', updateSyncIndicator);
+
+    syncBtn?.addEventListener('click', async () => {
+      if (!WebDAVClient.isConfigured()) {
+        window.location.hash = 'settings';
+        setTimeout(() => {
+          document.getElementById('section-webdav-sync')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+        showToast('Configure your WebDAV server in Settings.', 'info');
+        return;
+      }
+
+      syncBtn.classList.add('syncing');
+      try {
+        const res = await WebDAVClient.syncNow();
+        showToast(res.message || 'Synced with cloud.', 'success');
+        this.navigateTo(this.currentView);
+        this.updateBadges();
+      } catch (err) {
+        showToast(`WebDAV Sync Error: ${err.message}`, 'error');
+      } finally {
+        syncBtn.classList.remove('syncing');
+      }
+    });
+
+    // Check startup auto-sync if enabled
+    const config = WebDAVClient.getConfig();
+    if (config?.autoSync && WebDAVClient.isConfigured()) {
+      WebDAVClient.syncNow().then((res) => {
+        if (res.action === 'pulled') {
+          showToast('Updated workspace from WebDAV cloud.', 'info');
+          this.navigateTo(this.currentView);
+          this.updateBadges();
+        }
+      }).catch((e) => {
+        console.warn('[WebDAV startup sync]:', e.message);
+      });
+    }
   }
 
   setupNavigation() {

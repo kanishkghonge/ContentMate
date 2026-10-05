@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Content OS for Doctors — Main Application Coordinator & Router
  * Orchestrates local-first database, mobile bottom-nav, modal sheets, and views.
  */
@@ -18,6 +18,7 @@ import { SettingsView } from './components/settings.js';
 import { WorkflowTutorial } from './tutorial.js';
 import { rescheduleMissedPosts } from './scheduler.js';
 import { formatDate, getSystemDate, escapeHtml, showToast, copyToClipboard } from './utils.js';
+import { WebDAVClient } from './webdav.js';
 
 class ContentOSApp {
   constructor() {
@@ -70,7 +71,13 @@ class ContentOSApp {
     // 4. Setup Modal listeners
     this.setupModals();
 
-    // 5. Initial View Load
+    // 5. Setup WebDAV Sync & listeners
+    this.setupWebDAV();
+    window.addEventListener('contentmate-data-changed', () => {
+      WebDAVClient.scheduleAutoPush();
+    });
+
+    // 6. Initial View Load
     const hash = window.location.hash.replace(/^#/, '');
     await this.navigateTo(hash || 'dashboard');
 
@@ -78,8 +85,66 @@ class ContentOSApp {
       await this.startOnboarding();
     }
 
-    // 6. Update Badge Counts
+    // 7. Update Badge Counts
     this.updateBadges();
+  }
+
+  setupWebDAV() {
+    const syncBtn = document.getElementById('header-btn-sync');
+    const syncDot = document.getElementById('header-sync-dot');
+
+    const updateSyncIndicator = () => {
+      const isConfigured = WebDAVClient.isConfigured();
+      if (syncBtn) {
+        syncBtn.classList.toggle('is-configured', isConfigured);
+        syncBtn.title = isConfigured ? 'WebDAV Cloud Sync: Connected (Click to sync now)' : 'WebDAV Cloud Sync: Offline / Local only';
+      }
+      if (syncDot) {
+        syncDot.classList.toggle('hidden', !isConfigured);
+      }
+    };
+
+    updateSyncIndicator();
+
+    window.addEventListener('contentmate-webdav-status-change', updateSyncIndicator);
+    window.addEventListener('contentmate-webdav-synced', updateSyncIndicator);
+
+    syncBtn?.addEventListener('click', async () => {
+      if (!WebDAVClient.isConfigured()) {
+        window.location.hash = 'settings';
+        setTimeout(() => {
+          document.getElementById('section-webdav-sync')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+        showToast('Configure your WebDAV server in Settings.', 'info');
+        return;
+      }
+
+      syncBtn.classList.add('syncing');
+      try {
+        const res = await WebDAVClient.syncNow();
+        showToast(res.message || 'Synced with cloud.', 'success');
+        this.navigateTo(this.currentView);
+        this.updateBadges();
+      } catch (err) {
+        showToast(`WebDAV Sync Error: ${err.message}`, 'error');
+      } finally {
+        syncBtn.classList.remove('syncing');
+      }
+    });
+
+    // Check startup auto-sync if enabled
+    const config = WebDAVClient.getConfig();
+    if (config?.autoSync && WebDAVClient.isConfigured()) {
+      WebDAVClient.syncNow().then((res) => {
+        if (res.action === 'pulled') {
+          showToast('Updated workspace from WebDAV cloud.', 'info');
+          this.navigateTo(this.currentView);
+          this.updateBadges();
+        }
+      }).catch((e) => {
+        console.warn('[WebDAV startup sync]:', e.message);
+      });
+    }
   }
 
   setupNavigation() {

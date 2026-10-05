@@ -109,6 +109,12 @@ export const defaultDoctorProfile = {
 };
 
 
+function notifyDataChanged() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('contentmate-data-changed'));
+  }
+}
+
 export const db = {
   // PROFILE
   async getProfile() {
@@ -136,9 +142,11 @@ export const db = {
   },
 
   async saveProfile(profile) {
-    return performTx('profile', 'readwrite', (store) => {
+    const res = await performTx('profile', 'readwrite', (store) => {
       store.put(profile, 'doctor_profile');
     });
+    notifyDataChanged();
+    return res;
   },
 
   // NOTES (Lightweight thoughts)
@@ -153,24 +161,28 @@ export const db = {
         };
       });
     });
-  },
-
-  async addNote(note) {
-    return performTx('notes', 'readwrite', (store) => {
+  },  async addNote(note) {
+    const res = await performTx('notes', 'readwrite', (store) => {
       store.put(note);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async updateNote(note) {
-    return performTx('notes', 'readwrite', (store) => {
+    const res = await performTx('notes', 'readwrite', (store) => {
       store.put(note);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteNote(id) {
-    return performTx('notes', 'readwrite', (store) => {
+    const res = await performTx('notes', 'readwrite', (store) => {
       store.delete(id);
     });
+    notifyDataChanged();
+    return res;
   },
 
   // INSIGHTS (Core clinical ideas)
@@ -197,9 +209,11 @@ export const db = {
   },
 
   async saveInsight(insight) {
-    return performTx('insights', 'readwrite', (store) => {
+    const res = await performTx('insights', 'readwrite', (store) => {
       store.put(insight);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteInsight(id) {
@@ -211,6 +225,7 @@ export const db = {
     for (const s of scripts) {
       await this.deleteScript(s.id);
     }
+    notifyDataChanged();
   },
 
   // SCRIPTS (Flashcard review queue)
@@ -247,32 +262,40 @@ export const db = {
   },
 
   async saveScript(script) {
-    return performTx('scripts', 'readwrite', (store) => {
+    const res = await performTx('scripts', 'readwrite', (store) => {
       store.put(script);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async saveScripts(scriptsArray) {
     const database = await openDatabase();
-    return new Promise((resolve, reject) => {
+    const res = await new Promise((resolve, reject) => {
       const tx = database.transaction('scripts', 'readwrite');
       const store = tx.objectStore('scripts');
       scriptsArray.forEach((script) => store.put(script));
       tx.oncomplete = () => resolve(true);
       tx.onerror = (e) => reject(e.target.error);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async updateScript(script) {
-    return performTx('scripts', 'readwrite', (store) => {
+    const res = await performTx('scripts', 'readwrite', (store) => {
       store.put(script);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteScript(id) {
-    return performTx('scripts', 'readwrite', (store) => {
+    const res = await performTx('scripts', 'readwrite', (store) => {
       store.delete(id);
     });
+    notifyDataChanged();
+    return res;
   },
 
   // SCHEDULED REELS (Trial Reels & Main Reels on Calendar)
@@ -282,7 +305,7 @@ export const db = {
         const req = store.getAll();
         req.onsuccess = () => {
           const items = req.result || [];
-          items.sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
+          items.sort((a, b) => new Date(a.scheduled_date) - new Date(a.scheduled_date));
           resolve(items);
         };
       });
@@ -299,32 +322,40 @@ export const db = {
   },
 
   async saveScheduledReel(reel) {
-    return performTx('scheduled_reels', 'readwrite', (store) => {
+    const res = await performTx('scheduled_reels', 'readwrite', (store) => {
       store.put(reel);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async saveScheduledReels(reelsArray) {
     const database = await openDatabase();
-    return new Promise((resolve, reject) => {
+    const res = await new Promise((resolve, reject) => {
       const tx = database.transaction('scheduled_reels', 'readwrite');
       const store = tx.objectStore('scheduled_reels');
       reelsArray.forEach((reel) => store.put(reel));
       tx.oncomplete = () => resolve(true);
       tx.onerror = (e) => reject(e.target.error);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async updateScheduledReel(reel) {
-    return performTx('scheduled_reels', 'readwrite', (store) => {
+    const res = await performTx('scheduled_reels', 'readwrite', (store) => {
       store.put(reel);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteScheduledReel(id) {
-    return performTx('scheduled_reels', 'readwrite', (store) => {
+    const res = await performTx('scheduled_reels', 'readwrite', (store) => {
       store.delete(id);
     });
+    notifyDataChanged();
+    return res;
   },
 
   // FULL EXPORT & IMPORT (Zero-loss JSON Backup)
