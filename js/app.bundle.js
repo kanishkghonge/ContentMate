@@ -406,6 +406,16 @@ const db = {
   }
 };
 
+/* js/webdav.js */
+const KEY = 'contentmate.webdav.settings';
+function getWebDavSettings() { try { return { remoteFile: 'contentmate-backup.json', ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch (_) { return { remoteFile: 'contentmate-backup.json' }; } }
+function saveWebDavSettings(value) { const next = { ...getWebDavSettings(), ...value }; localStorage.setItem(KEY, JSON.stringify(next)); return next; }
+function url(s) { const base = String(s.url || '').trim().replace(/\/+$/, ''); const file = String(s.remoteFile || 'contentmate-backup.json').trim().replace(/^\/+/, ''); if (!base) throw new Error('Enter the WebDAV URL.'); return `${base}/${file.split('/').map(encodeURIComponent).join('/')}`; }
+async function request(s, method, body) { if (!s.username || !s.password) throw new Error('Enter the Koofr username and app password.'); try { const proxy = typeof location !== 'undefined' && location.protocol !== 'file:'; const response = await fetch(proxy ? '/api/webdav' : url(s), { method: proxy ? 'POST' : method, headers: proxy ? { 'Content-Type': 'application/json' } : { Authorization: `Basic ${btoa(`${s.username}:${s.password}`)}`, ...(body ? { 'Content-Type': 'application/json; charset=utf-8' } : {}) }, body: proxy ? JSON.stringify({ url: url(s), username: s.username, password: s.password, method, body }) : body, cache: 'no-store' }); if (!response.ok) throw new Error(`WebDAV ${method} failed (${response.status}).`); return response; } catch (e) { if (e instanceof TypeError) throw new Error('Could not reach the local WebDAV proxy. Start server.py and open http://127.0.0.1:8765.'); throw e; } }
+async function pushDatabase(s, backup) { await request(s, 'PUT', JSON.stringify(backup, null, 2)); }
+async function pullDatabase(s) { const data = await (await request(s, 'GET')).json().catch(() => null); if (!data || !data.version) throw new Error('The remote file is not a valid Content Mate backup.'); return data; }
+async function testWebDav(s) { await request(s, 'GET'); }
+
 /* js/formats.js */
 /**
  * Content OS for Doctors — Script Formats & Content Balancing Taxonomy
@@ -4181,6 +4191,7 @@ const LibraryView = {
 
 
 
+
 const DEV_ACCESS_KEYS = new Set(['kg-01', 'sm-01', 'tj-01']);
 
 function cardHead(icon, title, description) {
@@ -4193,6 +4204,7 @@ const SettingsView = {
     const timeShift = getTimeShiftDays();
     const devToolsEnabled = getDevToolsEnabled();
     const writingInstructions = profile.writingInstructions || getDefaultWritingInstructions();
+    const webdav = getWebDavSettings();
 
     container.innerHTML = `
       <div class="settings-shell">
@@ -4240,6 +4252,11 @@ const SettingsView = {
           </section>
 
           <section class="card settings-card">${cardHead('↥', 'Backup & restore', 'Your workspace stays in this browser. Save a JSON backup before changing devices or resetting data.')}<div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-export-json">Export backup</button><button class="btn btn-secondary btn-sm" id="btn-import-json-trigger">Restore backup</button><input type="file" id="input-file-backup" accept=".json,application/json" class="hidden"></div></section>
+
+          <section class="card settings-card settings-card-wide" id="webdav-sync-card">
+            ${cardHead('☁', 'Koofr / WebDAV sync', 'Use a Koofr app password. Your password is kept only in this browser.')}
+            <div class="settings-form-grid"><div class="form-group"><label class="form-label" for="webdav-url">WebDAV URL</label><input id="webdav-url" class="form-input" value="${escapeHtml(webdav.url || 'https://app.koofr.net/dav')}"></div><div class="form-group"><label class="form-label" for="webdav-file">Remote file path</label><input id="webdav-file" class="form-input" value="${escapeHtml(webdav.remoteFile || 'contentmate-backup.json')}"></div><div class="form-group"><label class="form-label" for="webdav-user">Koofr username</label><input id="webdav-user" class="form-input" autocomplete="username" value="${escapeHtml(webdav.username || '')}"></div><div class="form-group"><label class="form-label" for="webdav-pass">App password</label><input id="webdav-pass" type="password" class="form-input" autocomplete="current-password" value="${escapeHtml(webdav.password || '')}"></div></div><p class="settings-helper">Create an app password in Koofr. The remote folder must already exist.</p><div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-webdav-test">Test connection</button><button class="btn btn-primary btn-sm" id="btn-webdav-push">Push current data</button><button class="btn btn-secondary btn-sm" id="btn-webdav-pull">Pull remote data</button></div>
+          </section>
 
           <section class="card settings-card settings-support-card">
             ${cardHead('📞', 'Call/Text the Founder', 'Need to shout at the person who made this stupid app? Or want to thank them for helping you script your reels? I\'m all ears, any feature request feedback is welcome.')}
@@ -4312,6 +4329,10 @@ const SettingsView = {
     document.getElementById('btn-export-json')?.addEventListener('click', async () => { const backup = await db.exportFullDatabase(); const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })); const link = document.createElement('a'); link.href = url; link.download = `doctor-content-os-backup-${new Date().toISOString().slice(0, 10)}.json`; link.click(); URL.revokeObjectURL(url); showToast('Backup JSON downloaded.', 'success'); });
     document.getElementById('btn-import-json-trigger')?.addEventListener('click', () => document.getElementById('input-file-backup')?.click());
     document.getElementById('input-file-backup')?.addEventListener('change', async (event) => { const file = event.target.files[0]; if (!file) return; try { await db.importFullDatabase(JSON.parse(await file.text())); showToast('Workspace restored from JSON.', 'success'); navigateTo('dashboard'); } catch (error) { showToast(`Restore failed: ${error.message}`, 'error'); } });
+    const readWebDavForm = () => saveWebDavSettings({ url: document.getElementById('webdav-url').value, remoteFile: document.getElementById('webdav-file').value, username: document.getElementById('webdav-user').value, password: document.getElementById('webdav-pass').value });
+    document.getElementById('btn-webdav-test')?.addEventListener('click', async () => { try { await testWebDav(readWebDavForm()); showToast('WebDAV connection succeeded.', 'success'); } catch (error) { showToast(error.message, 'error'); } });
+    document.getElementById('btn-webdav-push')?.addEventListener('click', async () => { try { const s = readWebDavForm(); await pushDatabase(s, await db.exportFullDatabase()); showToast('Current workspace pushed to Koofr.', 'success'); } catch (error) { showToast(error.message, 'error'); } });
+    document.getElementById('btn-webdav-pull')?.addEventListener('click', async () => { if (!confirm('Replace this browser workspace with the remote backup?')) return; try { const s = readWebDavForm(); const backup = await pullDatabase(s); await db.resetAllData(); await db.importFullDatabase(backup); showToast('Workspace pulled from Koofr.', 'success'); navigateTo('dashboard'); } catch (error) { showToast(error.message, 'error'); } });
     document.getElementById('btn-reset-all-data')?.addEventListener('click', async () => { if (confirm('Delete all workspace data? This cannot be undone.')) { await db.resetAllData(); showToast('Workspace reset.', 'info'); window.location.reload(); } });
   }
 };

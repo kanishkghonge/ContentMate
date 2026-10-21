@@ -3,6 +3,7 @@ const path = require('path');
 
 const FILES_TO_BUNDLE = [
   'js/db.js',
+  'js/webdav.js',
   'js/formats.js',
   'js/utils.js',
   'js/scheduler.js',
