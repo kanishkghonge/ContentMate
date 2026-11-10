@@ -329,6 +329,7 @@ const db = {
     const insights = await this.getInsights();
     const scripts = await this.getScripts();
     const scheduledReels = await this.getScheduledReels();
+    const ideaMateIdeas = JSON.parse(localStorage.getItem('ideaBank_ideas') || '[]');
 
     return {
       appName: 'Content Mate',
@@ -338,7 +339,8 @@ const db = {
       notes,
       insights,
       scripts,
-      scheduledReels
+      scheduledReels,
+      ideaMateIdeas
     };
   },
 
@@ -348,6 +350,7 @@ const db = {
     }
 
     if (data.profile) await this.saveProfile(data.profile);
+    if (Array.isArray(data.ideaMateIdeas)) localStorage.setItem('ideaBank_ideas', JSON.stringify(data.ideaMateIdeas));
     
     // Clear and restore notes
     if (Array.isArray(data.notes)) {
@@ -736,6 +739,20 @@ function setDevToolsEnabled(enabled) {
   }
   window.dispatchEvent(new CustomEvent('doctor-os-dev-tools-change', { detail: { enabled } }));
 }
+
+/* js/ideamate.js */
+// Shared local bridge for the standalone IdeaMate idea bank.
+function syncInsightToIdeaMate(insight, source = 'content-mate') {
+  if (!insight?.id || !insight.title) return;
+  const key = 'ideaBank_ideas';
+  const ideas = JSON.parse(localStorage.getItem(key) || '[]');
+  const existing = ideas.find((idea) => idea.externalId === insight.id || idea.id === `cm_${insight.id}`);
+  const idea = { id: existing?.id || `cm_${insight.id}`, externalId: insight.id, title: insight.title, description: insight.description || insight.supporting_points || '', evidence: insight.supporting_points || '', notes: insight.references || '', category: insight.category || existing?.category || 'Clinical insights', subcategory: insight.subcategory || existing?.subcategory || (source === 'ideamate' ? 'IdeaMate' : 'Content Mate'), status: existing?.status || 'fresh', createdAt: existing?.createdAt || insight.created_at || new Date().toISOString(), usedAt: existing?.usedAt || null, trashedAt: existing?.trashedAt || null, savedAt: existing?.savedAt || null, useNote: existing?.useNote || '', useCount: existing?.useCount || 0, isDefault: false, isUserCreated: true, source };
+  const index = ideas.findIndex((item) => item.id === idea.id);
+  if (index >= 0) ideas[index] = { ...ideas[index], ...idea }; else ideas.push(idea);
+  localStorage.setItem(key, JSON.stringify(ideas));
+}
+function getIdeaMateIdeas() { return JSON.parse(localStorage.getItem('ideaBank_ideas') || '[]'); }
 
 /* js/scheduler.js */
 /**
@@ -1797,6 +1814,7 @@ const DashboardView = {
 
 
 
+
 const NotesView = {
   async render(container, navigateTo, openModal) {
     const notes = await db.getNotes();
@@ -1886,6 +1904,7 @@ const NotesView = {
       };
 
       await db.addNote(newNote);
+      syncInsightToIdeaMate({ id: newNote.id, title: val, description: val, supporting_points: val, created_at: newNote.created_at }, 'quick-note');
       showToast('Quick thought saved!', 'success');
       textInput.value = '';
       NotesView.render(container, navigateTo, openModal);
@@ -2085,10 +2104,16 @@ async function buildDoctorPrompt(profile = {}, insight = {}, topScriptsContext =
 
 
 
+
 const InsightCreateModal = {
   async render(container, options = {}, onDone, openModal) {
     const prefillTitle = options.prefillTitle || '';
+    const linkedIdea = options.prefillTitle ? JSON.parse(localStorage.getItem('ideaBank_ideas') || '[]').find((idea) => idea.title === options.prefillTitle) : null;
+    const prefillDetails = options.prefillDetails || linkedIdea?.description || linkedIdea?.evidence || '';
+    const prefillCategory = options.prefillCategory || linkedIdea?.category || '';
+    const prefillSubcategory = options.prefillSubcategory || linkedIdea?.subcategory || '';
     const noteId = options.noteId || null;
+    const source = options.source || 'content-mate';
     const profile = await db.getProfile();
     const languageOptions = ['English', 'Hinglish', 'Hindi', 'Marathi', 'Telugu', 'Kannada', 'Punjabi'];
     const selectedLanguage = languageOptions.includes(profile.language)
@@ -2112,7 +2137,7 @@ const InsightCreateModal = {
               type="text" 
               id="insight-title" 
               class="form-input" 
-              placeholder="e.g. Why normal blood pressure doesn't guarantee clean arteries..." 
+              placeholder="Write what this video is about..." 
               value="${escapeHtml(prefillTitle)}"
               required 
             />
@@ -2124,10 +2149,12 @@ const InsightCreateModal = {
               id="insight-details" 
               class="form-textarea" 
               rows="4" 
-              placeholder="1. Endothelial micro-damage happens decades before hypertension.&#10;2. High ApoB and Lp(a) drive plaque formation.&#10;3. Early screening recommendation..."
+              placeholder="What key points should the video cover?&#10;1. Main idea or explanation&#10;2. Important context for the audience&#10;3. Practical takeaway or recommendation"
+              value="${escapeHtml(prefillDetails)}"
               required
             ></textarea>
           </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label class="form-label" for="insight-category">Category</label><input type="text" id="insight-category" class="form-input" placeholder="e.g. Patient education" value="${escapeHtml(prefillCategory)}" /></div><div class="form-group"><label class="form-label" for="insight-subcategory">Subcategory</label><input type="text" id="insight-subcategory" class="form-input" placeholder="e.g. Preventive care" value="${escapeHtml(prefillSubcategory)}" /></div></div>
 
           <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
             <div class="form-group">
@@ -2238,6 +2265,8 @@ const InsightCreateModal = {
       const reel_length = document.getElementById('insight-duration').value;
       const ctaVal = document.getElementById('insight-cta').value.trim();
       const references = document.getElementById('insight-references').value.trim();
+      const category = document.getElementById('insight-category').value.trim();
+      const subcategory = document.getElementById('insight-subcategory').value.trim();
 
       if (!title || !details) return;
 
@@ -2253,11 +2282,14 @@ const InsightCreateModal = {
         reel_length,
         custom_cta,
         references,
+        category: category || 'Clinical insights',
+        subcategory,
         status: 'active',
         created_at: new Date().toISOString()
       };
 
       await db.saveInsight(newInsight);
+      syncInsightToIdeaMate(newInsight, source);
 
       // If created from a quick note, archive the note
       if (noteId) {
@@ -4192,7 +4224,7 @@ const LibraryView = {
 
 
 
-const DEV_ACCESS_KEYS = new Set(['kg-01', 'sm-01', 'tj-01']);
+const DEV_ACCESS_KEYS = new Set(['kg-01', 'sm-01', 'tj-01', 'clinic-growth']);
 
 function cardHead(icon, title, description) {
   return `<div class="settings-card-head"><div class="settings-card-icon" aria-hidden="true">${icon}</div><div><h3 class="settings-card-title">${title}</h3><p class="settings-card-description">${description}</p></div></div>`;
@@ -4317,10 +4349,12 @@ const SettingsView = {
       if (event.target.checked && !getDevToolsEnabled()) { event.target.checked = false; document.getElementById('dev-access-form')?.classList.remove('hidden'); document.getElementById('dev-access-key')?.focus(); }
       else if (!event.target.checked) { setDevToolsEnabled(false); showToast('Developer options locked.', 'info'); this.render(container, navigateTo); }
     });
-    document.getElementById('dev-access-form')?.addEventListener('submit', (event) => {
+    document.getElementById('dev-access-form')?.addEventListener('submit', async (event) => {
       event.preventDefault(); const key = document.getElementById('dev-access-key').value.trim();
       if (!DEV_ACCESS_KEYS.has(key.toLowerCase())) { showToast('Incorrect access key.', 'error'); return; }
-      setDevToolsEnabled(true); showToast('Developer options unlocked for this session.', 'success'); this.render(container, navigateTo);
+      setDevToolsEnabled(true);
+      if (key.toLowerCase() === 'clinic-growth') { await populateSampleDoctorWorkspace(); showToast('Clinic growth insights loaded.', 'success'); navigateTo('dashboard'); return; }
+      showToast('Developer options unlocked for this session.', 'success'); this.render(container, navigateTo);
     });
     document.getElementById('btn-test-time-travel')?.addEventListener('click', () => { setTimeShiftDays(getTimeShiftDays() + 3); showToast('System date advanced by 3 days.', 'success'); this.render(container, navigateTo); });
     document.getElementById('btn-reset-time-travel')?.addEventListener('click', () => { setTimeShiftDays(0); showToast('System date reset to today.', 'info'); this.render(container, navigateTo); });
@@ -4334,6 +4368,34 @@ const SettingsView = {
     document.getElementById('btn-webdav-push')?.addEventListener('click', async () => { try { const s = readWebDavForm(); await pushDatabase(s, await db.exportFullDatabase()); showToast('Current workspace pushed to Koofr.', 'success'); } catch (error) { showToast(error.message, 'error'); } });
     document.getElementById('btn-webdav-pull')?.addEventListener('click', async () => { if (!confirm('Replace this browser workspace with the remote backup?')) return; try { const s = readWebDavForm(); const backup = await pullDatabase(s); await db.resetAllData(); await db.importFullDatabase(backup); showToast('Workspace pulled from Koofr.', 'success'); navigateTo('dashboard'); } catch (error) { showToast(error.message, 'error'); } });
     document.getElementById('btn-reset-all-data')?.addEventListener('click', async () => { if (confirm('Delete all workspace data? This cannot be undone.')) { await db.resetAllData(); showToast('Workspace reset.', 'info'); window.location.reload(); } });
+  }
+};
+
+/* js/components/ideaMateView.js */
+const IDEA_MATE_KEY = 'ideaBank_ideas';
+const readIdeas = () => getIdeaMateIdeas();
+const saveIdeas = (items) => localStorage.setItem(IDEA_MATE_KEY, JSON.stringify(items));
+
+const IdeaMateView = {
+  render(container, navigateTo, openModal) {
+    const all = readIdeas();
+    const showingMine = container.dataset.ideamateFilter === 'mine';
+    const ideas = all.filter((item) => item.status !== 'trashed' && (!showingMine || item.isUserCreated === true));
+    const fresh = ideas.filter((item) => !item.status || item.status === 'fresh').length;
+    const saved = ideas.filter((item) => item.status === 'saved').length;
+    const used = ideas.filter((item) => item.status === 'used').length;
+    const trash = all.filter((item) => item.status === 'trashed').length;
+    container.innerHTML = '<div class="settings-shell"><header class="settings-hero"><p class="settings-eyebrow">IdeaMate</p><h2 class="settings-title">Your idea bank</h2><p class="settings-subtitle">Discover, organize, and reuse ideas through the prompt-to-script workflow.</p><div class="flex gap-2" style="flex-wrap:wrap"><button class="btn btn-primary" id="btn-ideamate-new">Add idea & generate prompt</button><button class="btn btn-accent" id="btn-ideamate-random">Give me an idea</button><button class="btn btn-secondary" id="btn-ideamate-mine">' + (showingMine ? 'Show all ideas' : 'Show my ideas') + '</button></div></header><div class="ideamate-stats"><div class="ideamate-stat ideamate-stat-total"><span>Total ideas</span><strong>' + ideas.length + '</strong></div><div class="ideamate-stat ideamate-stat-fresh"><span>Fresh</span><strong>' + fresh + '</strong></div><div class="ideamate-stat ideamate-stat-saved"><span>Saved</span><strong>' + saved + '</strong></div><div class="ideamate-stat ideamate-stat-used"><span>Used</span><strong>' + used + '</strong></div><div class="ideamate-stat ideamate-stat-trash"><span>Trash</span><strong>' + trash + '</strong></div></div><section class="card" id="ideamate-discovery" style="display:none;margin:18px 0"></section><section class="card" id="ideamate-table" style="padding:18px;overflow:auto"></section></div>';
+    const table = document.getElementById('ideamate-table');
+    if (!ideas.length) table.innerHTML = '<div class="text-center" style="padding:30px;color:var(--text-tertiary)">IdeaMate is empty. Add your first idea to start.</div>';
+    else {
+      table.innerHTML = '<h3>All ideas</h3><p style="color:var(--text-secondary);font-size:13px">Track usage and manage each idea.</p><table style="width:100%;min-width:680px;border-collapse:collapse"><thead><tr><th style="text-align:left">Idea</th><th>Status</th><th>Used</th><th>Actions</th></tr></thead><tbody id="ideamate-rows"></tbody></table>';
+      const rows = document.getElementById('ideamate-rows');
+      ideas.forEach((idea) => { const row = document.createElement('tr'); row.style.borderTop = '1px solid var(--border-subtle)'; row.innerHTML = '<td style="padding:12px 0"><strong>' + escapeHtml(idea.title) + '</strong><div style="font-size:12px;color:var(--text-tertiary)">' + escapeHtml(idea.category || 'Uncategorized') + (idea.subcategory ? ' · ' + escapeHtml(idea.subcategory) : '') + '</div><div style="font-size:12px;color:var(--text-tertiary)">' + escapeHtml(idea.description || '') + '</div></td><td>' + escapeHtml(idea.status || 'fresh') + '</td><td style="text-align:center">' + (idea.useCount || 0) + '</td><td><button class="btn btn-ghost btn-sm" data-action="edit">Edit</button> <button class="btn btn-secondary btn-sm" data-action="save">' + (idea.status === 'saved' ? 'Unsave' : 'Save') + '</button> <button class="btn btn-accent btn-sm" data-action="use">Use</button> <button class="btn btn-ghost btn-sm" data-action="trash">Trash</button></td>'; row.querySelectorAll('[data-action]').forEach((button) => button.addEventListener('click', () => { const items = readIdeas(); const item = items.find((entry) => entry.id === idea.id); if (button.dataset.action === 'edit') { const title = window.prompt('Edit idea title', item.title); if (title && title.trim()) { item.title = title.trim(); item.category = window.prompt('Edit category', item.category || '') || item.category; item.subcategory = window.prompt('Edit subcategory', item.subcategory || '') || item.subcategory; saveIdeas(items); this.render(container, navigateTo, openModal); } } else if (button.dataset.action === 'save') { item.status = item.status === 'saved' ? 'fresh' : 'saved'; saveIdeas(items); this.render(container, navigateTo, openModal); } else if (button.dataset.action === 'use') { item.status = 'used'; item.useCount = (item.useCount || 0) + 1; saveIdeas(items); openModal('insightCreate', { prefillTitle: item.title, source: 'ideamate' }); } else { item.status = 'trashed'; saveIdeas(items); this.render(container, navigateTo, openModal); } })); rows.appendChild(row); });
+    }
+    document.getElementById('btn-ideamate-new').onclick = () => openModal('insightCreate', { source: 'ideamate' });
+    document.getElementById('btn-ideamate-mine').onclick = () => { container.dataset.ideamateFilter = showingMine ? '' : 'mine'; this.render(container, navigateTo, openModal); };
+    document.getElementById('btn-ideamate-random').onclick = () => { const pool = readIdeas().filter((item) => item.status !== 'trashed' && item.status !== 'saved'); const idea = pool[Math.floor(Math.random() * pool.length)]; if (!idea) { showToast('IdeaMate has no fresh ideas yet.', 'info'); return; } const card = document.getElementById('ideamate-discovery'); card.style.display = 'block'; card.innerHTML = '<h3>' + escapeHtml(idea.title) + '</h3><p class="idea-meta-label">' + escapeHtml(idea.category || 'Uncategorized') + (idea.subcategory ? ' · ' + escapeHtml(idea.subcategory) : '') + '</p><p>' + escapeHtml(idea.description || '') + '</p><button class="btn btn-accent btn-sm" id="discovery-use">Use</button> <button class="btn btn-secondary btn-sm" id="discovery-edit">Edit</button> <button class="btn btn-secondary btn-sm" id="discovery-other">Other idea</button> <button class="btn btn-ghost btn-sm" id="discovery-trash">Trash</button>'; document.getElementById('discovery-edit').onclick = () => { idea.title = window.prompt('Edit idea title', idea.title) || idea.title; idea.category = window.prompt('Edit category', idea.category || '') || idea.category; idea.subcategory = window.prompt('Edit subcategory', idea.subcategory || '') || idea.subcategory; saveIdeas(readIdeas()); this.render(container, navigateTo, openModal); }; document.getElementById('discovery-other').onclick = () => document.getElementById('btn-ideamate-random').click(); document.getElementById('discovery-trash').onclick = () => { idea.status = 'trashed'; saveIdeas(readIdeas()); this.render(container, navigateTo, openModal); }; document.getElementById('discovery-use').onclick = () => { idea.status = 'used'; idea.useCount = (idea.useCount || 0) + 1; saveIdeas(readIdeas()); openModal('insightCreate', { prefillTitle: idea.title, source: 'ideamate' }); }; };
   }
 };
 
@@ -5059,6 +5121,8 @@ class WorkflowTutorial {
 
 
 
+
+
 class ContentOSApp {
   constructor() {
     this.currentView = 'dashboard';
@@ -5186,6 +5250,8 @@ class ContentOSApp {
       await LibraryView.render(this.viewContainer, this.navigateTo.bind(this), this.openModal.bind(this));
     } else if (viewName === 'settings') {
       await SettingsView.render(this.viewContainer, this.navigateTo.bind(this), this.openModal.bind(this));
+    } else if (viewName === 'ideamate') {
+      IdeaMateView.render(this.viewContainer, this.navigateTo.bind(this), this.openModal.bind(this));
     }
 
     this.updateBadges();
@@ -5239,12 +5305,9 @@ class ContentOSApp {
         e.preventDefault();
         const text = document.getElementById('modal-input-note').value.trim();
         if (text) {
-          await db.addNote({
-            id: 'note-' + Date.now(),
-            text,
-            created_at: new Date().toISOString(),
-            is_archived: false
-          });
+          const note = { id: 'note-' + Date.now(), text, created_at: new Date().toISOString(), is_archived: false };
+          await db.addNote(note);
+          syncInsightToIdeaMate({ id: note.id, title: text, description: text, supporting_points: text, created_at: note.created_at }, 'quick-note');
           this.closeModal();
           this.navigateTo(this.currentView);
         }

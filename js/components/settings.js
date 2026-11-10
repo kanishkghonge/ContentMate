@@ -7,7 +7,7 @@ import { showToast, escapeHtml, getTimeShiftDays, setTimeShiftDays, getDevToolsE
 import { getDefaultWritingInstructions } from '../prompt.js';
 import { getWebDavSettings, saveWebDavSettings, pushDatabase, pullDatabase, testWebDav } from '../webdav.js';
 
-const DEV_ACCESS_KEYS = new Set(['kg-01', 'sm-01', 'tj-01']);
+const DEV_ACCESS_KEYS = new Set(['kg-01', 'sm-01', 'tj-01', 'clinic-growth']);
 
 function cardHead(icon, title, description) {
   return `<div class="settings-card-head"><div class="settings-card-icon" aria-hidden="true">${icon}</div><div><h3 class="settings-card-title">${title}</h3><p class="settings-card-description">${description}</p></div></div>`;
@@ -132,10 +132,12 @@ export const SettingsView = {
       if (event.target.checked && !getDevToolsEnabled()) { event.target.checked = false; document.getElementById('dev-access-form')?.classList.remove('hidden'); document.getElementById('dev-access-key')?.focus(); }
       else if (!event.target.checked) { setDevToolsEnabled(false); showToast('Developer options locked.', 'info'); this.render(container, navigateTo); }
     });
-    document.getElementById('dev-access-form')?.addEventListener('submit', (event) => {
+    document.getElementById('dev-access-form')?.addEventListener('submit', async (event) => {
       event.preventDefault(); const key = document.getElementById('dev-access-key').value.trim();
       if (!DEV_ACCESS_KEYS.has(key.toLowerCase())) { showToast('Incorrect access key.', 'error'); return; }
-      setDevToolsEnabled(true); showToast('Developer options unlocked for this session.', 'success'); this.render(container, navigateTo);
+      setDevToolsEnabled(true);
+      if (key.toLowerCase() === 'clinic-growth') { await populateSampleDoctorWorkspace(); showToast('Clinic growth insights loaded.', 'success'); navigateTo('dashboard'); return; }
+      showToast('Developer options unlocked for this session.', 'success'); this.render(container, navigateTo);
     });
     document.getElementById('btn-test-time-travel')?.addEventListener('click', () => { setTimeShiftDays(getTimeShiftDays() + 3); showToast('System date advanced by 3 days.', 'success'); this.render(container, navigateTo); });
     document.getElementById('btn-reset-time-travel')?.addEventListener('click', () => { setTimeShiftDays(0); showToast('System date reset to today.', 'info'); this.render(container, navigateTo); });

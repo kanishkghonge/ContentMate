@@ -15,6 +15,8 @@ import { ManualScriptModal } from './components/manualScript.js';
 import { FeedbackView } from './components/feedbackView.js';
 import { LibraryView } from './components/library.js';
 import { SettingsView } from './components/settings.js';
+import { IdeaMateView } from './components/ideaMateView.js';
+import { syncInsightToIdeaMate } from './ideamate.js';
 import { WorkflowTutorial } from './tutorial.js';
 import { rescheduleMissedPosts } from './scheduler.js';
 import { formatDate, getSystemDate, escapeHtml, showToast, copyToClipboard } from './utils.js';
@@ -146,6 +148,8 @@ class ContentOSApp {
       await LibraryView.render(this.viewContainer, this.navigateTo.bind(this), this.openModal.bind(this));
     } else if (viewName === 'settings') {
       await SettingsView.render(this.viewContainer, this.navigateTo.bind(this), this.openModal.bind(this));
+    } else if (viewName === 'ideamate') {
+      IdeaMateView.render(this.viewContainer, this.navigateTo.bind(this), this.openModal.bind(this));
     }
 
     this.updateBadges();
@@ -199,12 +203,9 @@ class ContentOSApp {
         e.preventDefault();
         const text = document.getElementById('modal-input-note').value.trim();
         if (text) {
-          await db.addNote({
-            id: 'note-' + Date.now(),
-            text,
-            created_at: new Date().toISOString(),
-            is_archived: false
-          });
+          const note = { id: 'note-' + Date.now(), text, created_at: new Date().toISOString(), is_archived: false };
+          await db.addNote(note);
+          syncInsightToIdeaMate({ id: note.id, title: text, description: text, supporting_points: text, created_at: note.created_at }, 'quick-note');
           this.closeModal();
           this.navigateTo(this.currentView);
         }

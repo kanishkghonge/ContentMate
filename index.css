@@ -2344,3 +2344,29 @@ body {
     display: none !important;
   }
 }
+/* IdeaMate workspace */
+.ideamate-stats { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:12px; margin:18px 0; }
+.ideamate-stat { min-height:86px; padding:16px; border:1px solid var(--border-subtle); border-radius:14px; background:var(--bg-card); box-shadow:0 8px 20px rgba(20,32,48,.05); display:flex; flex-direction:column; justify-content:space-between; }
+.ideamate-stat span { color:var(--text-secondary); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+.ideamate-stat strong { color:var(--text-primary); font-family:var(--font-heading); font-size:28px; line-height:1; }
+.ideamate-stat-total { background:linear-gradient(135deg,#edf6ff,#fff); border-color:#cfe5fb; }
+.ideamate-stat-fresh { background:linear-gradient(135deg,#effbf5,#fff); border-color:#cdeedb; }
+.ideamate-stat-saved { background:linear-gradient(135deg,#fff9e9,#fff); border-color:#f5e3ae; }
+.ideamate-stat-used { background:linear-gradient(135deg,#f4efff,#fff); border-color:#dfd0fb; }
+.ideamate-stat-trash { background:linear-gradient(135deg,#fff1f1,#fff); border-color:#f3d1d1; }
+#ideamate-table { border: 1px solid var(--border-subtle); box-shadow: 0 10px 28px rgba(20, 32, 48, .05); }
+#ideamate-table h3 { font-family: var(--font-heading); font-size: 18px; margin-bottom: 4px; }
+#ideamate-table table { margin-top: 16px; }
+#ideamate-table th { color: var(--text-tertiary); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 10px 8px; border-bottom: 1px solid var(--border-subtle); }
+#ideamate-table td { padding: 13px 8px; color: var(--text-secondary); vertical-align: middle; }
+#ideamate-table td:first-child { color: var(--text-primary); min-width: 280px; }
+#ideamate-table tbody tr { transition: background .16s ease; }
+#ideamate-table tbody tr:hover { background: var(--bg-subtle); }
+#ideamate-discovery { border: 1px solid rgba(37, 130, 215, .22); background: linear-gradient(135deg, var(--bg-card), var(--accent-blue-subtle)); box-shadow: 0 10px 26px rgba(37, 130, 215, .08); }
+#ideamate-discovery h3 { font-family: var(--font-heading); font-size: 20px; margin: 5px 0 7px; }
+#ideamate-discovery p { color: var(--text-secondary); line-height: 1.55; }
+@media (max-width: 700px) {
+  .ideamate-stats { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  #ideamate-table { padding: 14px !important; }
+  #ideamate-table table { min-width: 590px !important; }
+}

@@ -321,6 +321,7 @@ export const db = {
     const insights = await this.getInsights();
     const scripts = await this.getScripts();
     const scheduledReels = await this.getScheduledReels();
+    const ideaMateIdeas = JSON.parse(localStorage.getItem('ideaBank_ideas') || '[]');
 
     return {
       appName: 'Content Mate',
@@ -330,7 +331,8 @@ export const db = {
       notes,
       insights,
       scripts,
-      scheduledReels
+      scheduledReels,
+      ideaMateIdeas
     };
   },
 
@@ -340,6 +342,7 @@ export const db = {
     }
 
     if (data.profile) await this.saveProfile(data.profile);
+    if (Array.isArray(data.ideaMateIdeas)) localStorage.setItem('ideaBank_ideas', JSON.stringify(data.ideaMateIdeas));
     
     // Clear and restore notes
     if (Array.isArray(data.notes)) {

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="manifest.json">
+    <title>Content Idea Bank</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="logo">💡 Idea Bank</h1>
+            <ul class="nav-menu">
+                <li><a href="#" data-page="discover" class="nav-link active">Discover</a></li>
+                <li><a href="#" data-page="all" class="nav-link">All Ideas</a></li>
+                <li><a href="#" data-page="default-insights" class="nav-link">Default Insights</a></li>
+                <li><a href="#" data-page="user-ideas" class="nav-link">My Ideas</a></li>
+                <li><a href="#" data-page="saved" class="nav-link">Saved</a></li>
+                <li><a href="#" data-page="used" class="nav-link">Used</a></li>
+                <li><a href="#" data-page="trash" class="nav-link">Trash</a></li>
+                <li><a href="#" data-page="import-export" class="nav-link">Import/Export</a></li>
+                <li><a href="#" data-page="settings" class="nav-link">Settings</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Discover Page -->
+        <div id="discover-page" class="page active">
+            <div class="stats-bar">
+                <div class="stat">
+                    <span class="stat-label">Fresh Ideas</span>
+                    <span class="stat-value" id="fresh-count">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Saved</span>
+                    <span class="stat-value" id="saved-count">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Used</span>
+                    <span class="stat-value" id="used-count">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Trashed</span>
+                    <span class="stat-value" id="trash-count">0</span>
+                </div>
+            </div>
+
+            <div class="discover-container">
+                <button id="give-idea-btn" class="primary-btn">Give Me an Idea</button>
+                <div class="discover-filters"><label><input type="checkbox" id="exclude-category-toggle"> Exclude categories/subcategories</label><div id="discover-exclusion-list" class="hidden"></div></div>
+                
+                <div id="idea-card" class="idea-card hidden">
+                    <div class="category-badge" id="idea-category"></div>
+                    <div class="idea-subcategory" id="idea-subcategory"></div>
+                    <h2 id="idea-title"></h2>
+                    <div class="idea-section">
+                        <h3>Description</h3>
+                        <p id="idea-description"></p>
+                    </div>
+                    <div class="idea-section">
+                        <h3>Description / Notes</h3>
+                        <textarea id="idea-notes" rows="3" placeholder="Notes about this insight..."></textarea>
+                        <button id="save-idea-notes-btn" class="btn">Save Notes</button>
+                    </div>
+                    <div class="idea-section">
+                        <h3>Evidence / Execution Notes</h3>
+                        <p id="idea-evidence"></p>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="use-btn" class="btn btn-use">USE</button>
+                        <button id="trash-btn" class="btn btn-trash">TRASH</button>
+                        <button id="save-btn" class="btn btn-save">SAVE</button>
+                        <button id="skip-btn" class="btn btn-skip">SKIP</button>
+                        <button id="edit-btn" class="btn btn-edit">EDIT</button>
+                    </div>
+                </div>
+
+                <div id="no-ideas-message" class="message hidden">
+                    <p>No eligible ideas available. Import some ideas or check your saved/trashed ideas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Ideas Page -->
+        <div id="all-page" class="page">
+            <div class="page-header">
+                <h2>All Ideas</h2>
+                <button id="add-idea-btn" class="primary-btn">+ Add New Idea</button>
+                <button id="toggle-table-btn" class="btn">Table View</button>
+            </div>
+            
+            <div class="filters">
+                <input type="text" id="search-all" placeholder="Search ideas..." class="search-input">
+                <select id="filter-category-all" class="filter-select">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
+            <div id="all-ideas-list" class="ideas-list"></div>
+        </div>
+
+        <!-- Default Insights Page -->
+        <div id="default-insights-page" class="page">
+            <div class="page-header">
+                <h2>📚 Default Insights</h2>
+                <p class="page-description">Bundled hardcoded insights from the clinic growth map.</p>
+            </div>
+            
+            <div class="filters">
+                <input type="text" id="search-default" placeholder="Search default insights..." class="search-input">
+                <select id="filter-category-default" class="filter-select">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
+            <div id="default-ideas-list" class="ideas-list"></div>
+        </div>
+
+        <!-- User-Created Ideas Page -->
+        <div id="user-ideas-page" class="page">
+            <div class="page-header">
+                <h2>✍️ My Ideas</h2>
+                <p class="page-description">Ideas you've created yourself.</p>
+                <button id="add-user-idea-btn" class="primary-btn">+ Add New Idea</button>
+            </div>
+            
+            <div class="filters">
+                <input type="text" id="search-user" placeholder="Search your ideas..." class="search-input">
+                <select id="filter-category-user" class="filter-select">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
+            <div id="user-ideas-list" class="ideas-list"></div>
+        </div>
+
+        <!-- Saved Ideas Page -->
+        <div id="saved-page" class="page">
+            <div class="page-header">
+                <h2>Saved Ideas</h2>
+            </div>
+            
+            <div class="filters">
+                <input type="text" id="search-saved" placeholder="Search saved ideas..." class="search-input">
+                <select id="filter-category-saved" class="filter-select">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
+            <div id="saved-ideas-list" class="ideas-list"></div>
+        </div>
+
+        <!-- Used Ideas Page -->
+        <div id="used-page" class="page">
+            <div class="page-header">
+                <h2>Used Ideas</h2>
+            </div>
+            
+            <div class="filters">
+                <input type="text" id="search-used" placeholder="Search used ideas..." class="search-input">
+                <select id="filter-category-used" class="filter-select">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
+            <div id="used-ideas-list" class="ideas-list"></div>
+        </div>
+
+        <!-- Trash Page -->
+        <div id="trash-page" class="page">
+            <div class="page-header">
+                <h2>Trash</h2>
+                <p class="page-description">Ideas here are excluded from discovery. You can restore them anytime.</p>
+            </div>
+            
+            <div class="filters">
+                <input type="text" id="search-trash" placeholder="Search trashed ideas..." class="search-input">
+                <select id="filter-category-trash" class="filter-select">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
+            <div id="trash-ideas-list" class="ideas-list"></div>
+        </div>
+
+        <!-- Import/Export Page -->
+        <div id="import-export-page" class="page">
+            <div class="page-header">
+                <h2>Import & Export</h2>
+            </div>
+
+            <div class="import-export-container">
+                <div class="section">
+                    <h3>Import Ideas</h3>
+                    <p>Import a JSON backup file. Excel is intentionally not used for app data.</p>
+                    <input type="file" id="import-file" accept=".json" class="file-input">
+                    <button id="import-btn" class="primary-btn">Import File</button>
+                    <div id="import-preview" class="import-preview hidden"></div>
+                </div>
+
+                <div class="section">
+                    <h3>Export Ideas</h3>
+                    <div class="export-options">
+                        <button id="export-all-btn" class="btn btn-export">Export All (Excel)</button>
+                        <button id="export-fresh-btn" class="btn btn-export">Export Fresh Ideas (Excel)</button>
+                        <button id="export-used-btn" class="btn btn-export">Export Used (Excel)</button>
+                        <button id="export-trash-btn" class="btn btn-export">Export Trash (Excel)</button>
+                        <button id="export-backup-btn" class="btn btn-export">Full Backup (JSON)</button>
+                    </div>
+                    <p class="export-note">💡 Use Full Backup to save all your data and restore it on another device or browser.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings-page" class="page">
+            <div class="page-header">
+                <h2>Settings</h2>
+            </div>
+
+            <div class="settings-container">
+                <div class="setting-item">
+                    <label for="cooldown-days">
+                        <strong>Cooldown Period (days)</strong>
+                        <span class="setting-description">How long to wait before showing used ideas again</span>
+                    </label>
+                    <input type="number" id="cooldown-days" min="0" max="365" value="90" class="setting-input">
+                </div>
+
+                <div class="setting-item">
+                    <strong>Data Migration</strong>
+                    <span class="setting-description">If your default insights are not showing up correctly, click below to migrate existing ideas</span>
+                    <br><br>
+                    <button id="migrate-ideas-btn" class="btn btn-save">Migrate Existing Ideas</button>
+                    <p id="migration-status" style="margin-top: 0.5rem; color: var(--gray-600);"></p>
+                </div>
+
+                <div class="setting-item">
+                    <strong>WebDAV Sync</strong>
+                    <span class="setting-description">Store and restore a JSON backup on your WebDAV server. Credentials stay in this browser.</span>
+                    <div class="form-group" style="margin-top: 1rem;"><label for="webdav-url">WebDAV file URL</label><input type="url" id="webdav-url" class="form-input" placeholder="https://cloud.example.com/remote.php/dav/files/me/ideamate.json" autocomplete="url"></div>
+                    <div class="form-group"><label for="webdav-username">Username</label><input type="text" id="webdav-username" class="form-input" autocomplete="username"></div>
+                    <div class="form-group"><label for="webdav-password">Password / app password</label><input type="password" id="webdav-password" class="form-input" autocomplete="current-password"></div>
+                    <div class="modal-buttons" style="justify-content: flex-start;"><button id="webdav-test-btn" class="btn">Test Connection</button><button id="webdav-upload-btn" class="btn btn-save">Upload Backup</button><button id="webdav-download-btn" class="btn">Download Backup</button></div>
+                    <p id="webdav-status" style="margin-top: 0.5rem; color: var(--gray-600);"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Use Note -->
+    <div id="use-modal" class="modal">
+        <div class="modal-content">
+            <h3>Add a Note (Optional)</h3>
+            <textarea id="use-note" placeholder="Add any notes about how you used this idea..." rows="4"></textarea>
+            <div class="modal-buttons">
+                <button id="use-confirm-btn" class="primary-btn">Confirm</button>
+                <button id="use-cancel-btn" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Edit Idea -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="edit-modal-title">Edit Idea</h3>
+            <div class="form-group">
+                <label>Title / Insight</label>
+                <input type="text" id="edit-title" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="edit-description" rows="3" class="form-input"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <input type="text" id="edit-category" class="form-input" list="edit-category-list" placeholder="Select or type new category">
+                <datalist id="edit-category-list"></datalist>
+            </div>
+            <div class="form-group">
+                <label>Subcategory</label>
+                <input type="text" id="edit-subcategory" class="form-input" list="edit-subcategory-list" placeholder="Select or type new subcategory">
+                <datalist id="edit-subcategory-list"></datalist>
+            </div>
+            <div class="form-group">
+                <label>Evidence / Execution Notes</label>
+                <textarea id="edit-evidence" rows="3" class="form-input"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Personal Notes</label>
+                <textarea id="edit-notes" rows="2" class="form-input"></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button id="edit-save-btn" class="primary-btn">Save Changes</button>
+                <button id="edit-cancel-btn" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add New Idea -->
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <h3>Add New Idea</h3>
+            <div class="form-group">
+                <label>Title / Insight *</label>
+                <input type="text" id="add-title" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="add-description" rows="3" class="form-input"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <input type="text" id="add-category" class="form-input" list="category-list" placeholder="Select or type new category">
+                <datalist id="category-list"></datalist>
+            </div>
+            <div class="form-group">
+                <label>Subcategory</label>
+                <input type="text" id="add-subcategory" class="form-input" list="subcategory-list" placeholder="Select or type new subcategory">
+                <datalist id="subcategory-list"></datalist>
+            </div>
+            <div class="form-group">
+                <label>Evidence / Execution Notes</label>
+                <textarea id="add-evidence" rows="3" class="form-input"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Personal Notes</label>
+                <textarea id="add-notes" rows="2" class="form-input"></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button id="add-save-btn" class="primary-btn">Add Idea</button>
+                <button id="add-cancel-btn" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading SheetJS from CDN for Excel support -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="default-data.js"></script>
+    <script src="app.js"></script>
+    <script src="import-export.js"></script>
+</body>
+</html>

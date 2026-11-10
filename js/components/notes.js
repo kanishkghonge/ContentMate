@@ -5,6 +5,7 @@
 
 import { db } from '../db.js';
 import { uuidv4, formatRelativeDate, showToast, escapeHtml } from '../utils.js';
+import { syncInsightToIdeaMate } from '../ideamate.js';
 
 export const NotesView = {
   async render(container, navigateTo, openModal) {
@@ -95,6 +96,7 @@ export const NotesView = {
       };
 
       await db.addNote(newNote);
+      syncInsightToIdeaMate({ id: newNote.id, title: val, description: val, supporting_points: val, created_at: newNote.created_at }, 'quick-note');
       showToast('Quick thought saved!', 'success');
       textInput.value = '';
       NotesView.render(container, navigateTo, openModal);

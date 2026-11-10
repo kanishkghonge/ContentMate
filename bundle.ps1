@@ -5,6 +5,7 @@ $FILES_TO_BUNDLE = @(
   'js/webdav.js',
   'js/formats.js',
   'js/utils.js',
+  'js/ideamate.js',
   'js/scheduler.js',
   'js/sampleData.js',
   'js/components/dashboard.js',
@@ -20,6 +21,7 @@ $FILES_TO_BUNDLE = @(
   'js/components/feedbackView.js',
   'js/components/library.js',
   'js/components/settings.js',
+  'js/components/ideaMateView.js',
   'js/tutorial.js',
   'js/app.js'
 )

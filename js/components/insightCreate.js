@@ -5,11 +5,17 @@
 import { db } from '../db.js';
 import { buildDoctorPrompt, getTopPerformingScriptsContext } from '../prompt.js';
 import { uuidv4, copyToClipboard, showToast, escapeHtml } from '../utils.js';
+import { syncInsightToIdeaMate } from '../ideamate.js';
 
 export const InsightCreateModal = {
   async render(container, options = {}, onDone, openModal) {
     const prefillTitle = options.prefillTitle || '';
+    const linkedIdea = options.prefillTitle ? JSON.parse(localStorage.getItem('ideaBank_ideas') || '[]').find((idea) => idea.title === options.prefillTitle) : null;
+    const prefillDetails = options.prefillDetails || linkedIdea?.description || linkedIdea?.evidence || '';
+    const prefillCategory = options.prefillCategory || linkedIdea?.category || '';
+    const prefillSubcategory = options.prefillSubcategory || linkedIdea?.subcategory || '';
     const noteId = options.noteId || null;
+    const source = options.source || 'content-mate';
     const profile = await db.getProfile();
     const languageOptions = ['English', 'Hinglish', 'Hindi', 'Marathi', 'Telugu', 'Kannada', 'Punjabi'];
     const selectedLanguage = languageOptions.includes(profile.language)
@@ -33,7 +39,7 @@ export const InsightCreateModal = {
               type="text" 
               id="insight-title" 
               class="form-input" 
-              placeholder="e.g. Why normal blood pressure doesn't guarantee clean arteries..." 
+              placeholder="Write what this video is about..." 
               value="${escapeHtml(prefillTitle)}"
               required 
             />
@@ -45,10 +51,12 @@ export const InsightCreateModal = {
               id="insight-details" 
               class="form-textarea" 
               rows="4" 
-              placeholder="1. Endothelial micro-damage happens decades before hypertension.&#10;2. High ApoB and Lp(a) drive plaque formation.&#10;3. Early screening recommendation..."
+              placeholder="What key points should the video cover?&#10;1. Main idea or explanation&#10;2. Important context for the audience&#10;3. Practical takeaway or recommendation"
+              value="${escapeHtml(prefillDetails)}"
               required
             ></textarea>
           </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label class="form-label" for="insight-category">Category</label><input type="text" id="insight-category" class="form-input" placeholder="e.g. Patient education" value="${escapeHtml(prefillCategory)}" /></div><div class="form-group"><label class="form-label" for="insight-subcategory">Subcategory</label><input type="text" id="insight-subcategory" class="form-input" placeholder="e.g. Preventive care" value="${escapeHtml(prefillSubcategory)}" /></div></div>
 
           <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
             <div class="form-group">
@@ -159,6 +167,8 @@ export const InsightCreateModal = {
       const reel_length = document.getElementById('insight-duration').value;
       const ctaVal = document.getElementById('insight-cta').value.trim();
       const references = document.getElementById('insight-references').value.trim();
+      const category = document.getElementById('insight-category').value.trim();
+      const subcategory = document.getElementById('insight-subcategory').value.trim();
 
       if (!title || !details) return;
 
@@ -174,11 +184,14 @@ export const InsightCreateModal = {
         reel_length,
         custom_cta,
         references,
+        category: category || 'Clinical insights',
+        subcategory,
         status: 'active',
         created_at: new Date().toISOString()
       };
 
       await db.saveInsight(newInsight);
+      syncInsightToIdeaMate(newInsight, source);
 
       // If created from a quick note, archive the note
       if (noteId) {
