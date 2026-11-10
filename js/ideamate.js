@@ -9,4 +9,14 @@ export function syncInsightToIdeaMate(insight, source = 'content-mate') {
   if (index >= 0) ideas[index] = { ...ideas[index], ...idea }; else ideas.push(idea);
   localStorage.setItem(key, JSON.stringify(ideas));
 }
-export function getIdeaMateIdeas() { return JSON.parse(localStorage.getItem('ideaBank_ideas') || '[]'); }
+export function getIdeaMateIdeas() {
+  const stored = JSON.parse(localStorage.getItem('ideaBank_ideas') || '[]').filter((idea) => !String(idea.id || '').startsWith('patient-content-'));
+  const bundled = [
+    ...(typeof DEFAULT_IDEAS !== 'undefined' && Array.isArray(DEFAULT_IDEAS) ? DEFAULT_IDEAS.map((idea, index) => ({ ...idea, id: idea.id || `clinic-growth-${index}`, status: idea.status || 'fresh', isDefault: true, isUserCreated: false })) : []),
+    ...(typeof PATIENT_QUESTIONS !== 'undefined' && Array.isArray(PATIENT_QUESTIONS) ? PATIENT_QUESTIONS.map((idea, index) => ({ ...idea, id: idea.id || `patient-question-${index}`, status: idea.status || 'fresh', isDefault: true, isUserCreated: false })) : [])
+  ];
+  const merged = [...stored];
+  bundled.forEach((idea) => { if (!merged.some((existing) => existing.id === idea.id || (existing.title === idea.title && existing.specialty === idea.specialty))) merged.push(idea); });
+  if (merged.length !== stored.length) localStorage.setItem('ideaBank_ideas', JSON.stringify(merged));
+  return merged;
+}

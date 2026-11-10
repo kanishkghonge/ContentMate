@@ -1,0 +1,5922 @@
+[
+  {
+    "specialty": "General Physician",
+    "title": "My fever keeps coming back. Why isn't it going away?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "I feel tired even after sleeping well. What could be wrong?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "Do I need antibiotics for every fever or sore throat?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "My blood tests are mostly normal, so why do I still feel unwell?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "How do I know if my headache is something serious?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "I keep catching colds. Is my immunity weak?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "Why do I feel dizzy when I suddenly stand up?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "My body aches all over. Could it be more than just tiredness?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "How high does a fever have to be before I should worry?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "Can stress really cause stomach pain, headaches, and body aches?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "Why do I feel breathless after doing things I used to manage easily?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "Do I need a full-body check-up if I feel perfectly fine?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "My reports show low haemoglobin. What should I change first?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "Why does my cough last for weeks after a cold?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "Can taking painkillers often damage my body?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "How do I know whether I should see a physician or a specialist?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "My weight is increasing even though I don't think I eat much. What should I check?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "Why do I feel sleepy after meals almost every day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "Can I stop my medicines once my symptoms disappear?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "General Physician",
+    "title": "Which health problems can be missed if I only get routine blood tests?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "I take medicines for BP, sugar, and cholesterol. Do I really need all of them?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "Why are several of my blood test results slightly abnormal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "Could one health problem be causing symptoms in different parts of my body?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "My sugar is controlled, but I still feel unwell. What could be going on?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "Why is my blood pressure high at home but normal at the clinic?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "How do I know if my medicines are interacting with each other?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "Do I need to see a different specialist for every problem I have?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "My reports look normal one month and abnormal the next. Why?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "Why am I losing weight without trying?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "Could my long-term medicines be affecting my kidneys or liver?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "How often should I repeat tests for my BP, diabetes, and cholesterol?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "My fever has lasted more than a week. What should we investigate now?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "Why do I keep getting infections even though I take care of myself?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "Can I take supplements along with my regular medicines?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "How do you decide which abnormal test result actually needs treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "Why am I feeling weak after recovering from an infection?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "Can high cholesterol be dangerous even if I feel completely normal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "What should I do when different doctors prescribe me different medicines?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "Do I need to fast before every blood test?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Internal Medicine",
+    "title": "How can I reduce the number of medicines I take safely?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Clinical medicine",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "Can one doctor look after the health problems of everyone in my family?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "My child, parents, and I all have different health concerns. Where should we start?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "How often should each person in my family get a health check-up?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "What should I do when I'm not sure which doctor to visit?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "My parents take many medicines. Who can check if they still need all of them?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "Can I bring all my old reports to one doctor and make a long-term health plan?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "How do I keep track of vaccinations for the whole family?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "My parents are getting older. Which changes should I not ignore?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "Do healthy people really need regular doctor visits?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "How can I manage diabetes and BP when they run in my family?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "My child keeps falling sick after starting school. Is that normal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "How do I prepare for a first doctor visit with my elderly parent?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "Can the same doctor help with both physical symptoms and stress?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "What health checks should couples do before planning a pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "How do I know whether a symptom can wait or needs attention today?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "My family has a history of heart disease. At what age should I start screening?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "Can lifestyle changes help several people in my family at the same time?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "What should I keep in a basic family medical file?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "How do I avoid repeating the same tests every time we visit a new doctor?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Family Medicine",
+    "title": "When should an older person have someone accompany them to appointments?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Primary care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "My heart suddenly starts racing even when I'm sitting. Should I worry?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "I get chest pain when I climb stairs. Could it be my heart?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "My BP is normal at the clinic but high at home. Which reading should I trust?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "Do I need an ECG if I don't have chest pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "Can a heart problem happen even if I'm young and fit?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "Why do my feet swell by the end of the day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "I get breathless while lying down. Is that related to my heart?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "My cholesterol is high but I feel fine. Do I need treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "Can anxiety feel exactly like a heart attack?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "How do I know whether chest pain is an emergency?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "My father had a heart attack at a young age. What should I get checked?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "Why do I feel my heartbeat skipping or missing a beat?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "Will I have to take BP medicines for the rest of my life?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "Can I exercise normally after being diagnosed with a heart condition?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "What does an echocardiogram tell us that an ECG cannot?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "Why has my doctor asked me to wear a heart monitor for a day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "Can blocked heart arteries be present without any warning symptoms?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "Do I need aspirin to prevent a heart attack?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "Why am I still tired after my heart treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Cardiology",
+    "title": "After a stent, what activities and foods do I actually need to avoid?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Heart health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "My sugar is high in the morning even when I don't eat at night. Why?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Can I have diabetes even if I don't feel thirsty or tired?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Does having diabetes mean I can never eat rice or roti again?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "My HbA1c has improved. Can I reduce my medicines now?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Why does my sugar rise after breakfast but stay normal at other times?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Do I really need to check my sugar every day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Can stress or poor sleep increase my blood sugar?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "My sugar drops suddenly. What should I do at that moment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Why do my wounds take longer to heal when I have diabetes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Can diabetes affect my eyes, kidneys, and feet even if I feel fine?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Is insulin something I'll have to take for the rest of my life?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Why has my doctor asked me to check my feet every day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Can I fast during festivals if I have diabetes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Are fruits safe to eat when I have diabetes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Why is my sugar still high even though I've stopped eating sweets?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Does walking after meals really help control sugar?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "What should I do if I forget to take my diabetes medicine?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Can diabetes go away if I lose enough weight?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "Why do two people with the same HbA1c need different treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Diabetology",
+    "title": "How do I know if my diabetes medicine is causing a low sugar episode?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Metabolic health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Why am I gaining weight even though my eating habits haven't changed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "My thyroid report is abnormal. Does that mean I need tablets for life?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Can thyroid problems affect my periods or fertility?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Why am I always feeling cold, tired, or sleepy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "My hair is falling a lot. Could it be because of my hormones?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Can PCOS make it difficult for me to lose weight?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Why am I feeling thirsty and passing urine so often?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Do I need treatment if my thyroid number is only slightly abnormal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Can hormone problems cause sudden mood changes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Why has my height stopped increasing?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Does having a thyroid nodule mean I could have cancer?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Can I take my thyroid tablet with tea or breakfast?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Why am I getting facial hair when I never had it before?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Can vitamin D or calcium deficiency cause bone pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "How do I know if my child is growing at a normal rate?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Why do I feel shaky and sweaty when I haven't eaten?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Can menopause cause palpitations and poor sleep?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Will my PCOS improve if I lose weight?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "Do all thyroid nodules need a biopsy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Endocrinology",
+    "title": "How long does it take for hormone treatment to show an effect?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Hormones and metabolism",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Why does my acne keep coming back even after treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "My skin gets darker around my neck. Is it just tanning?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Why am I losing so much hair, and can it grow back?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Is this rash an allergy, an infection, or something else?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Why does my skin itch more at night?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Can using fairness creams damage my skin?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Do I really need sunscreen when I'm indoors most of the day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Why do I keep getting dandruff even after using shampoo?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "My child has white patches on the skin. Is it contagious?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Can stress make my acne, eczema, or hair fall worse?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Why are my lips and skin getting unusually dry?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Will the marks left by pimples ever go away?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Is it safe to use steroid creams that I bought without a prescription?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Why do I get pimples only around my jaw and chin?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Can fungal infection come back even after the itching stops?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "How do I know if a mole or dark spot needs to be checked?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Does shaving make hair grow back thicker?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Why is my skin reacting to products I've used for years?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "Can laser treatment remove unwanted hair permanently?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dermatology",
+    "title": "How long should I try a treatment before deciding it isn't working?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Skin health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "I keep getting headaches. How do I know when they are serious?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Why do I get a headache on one side of my head?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "My hands keep shaking. Could it be a nerve problem?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Why do I feel tingling or pins and needles in my feet?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "I sometimes forget simple things. When should I get worried?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Could my dizziness be coming from my brain or nerves?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Why do I get sudden episodes where I feel completely blank?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Can migraines happen even when my head doesn't hurt badly?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "My face suddenly felt weak on one side. What should I do?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Why do I feel electric-shock-like pain going down my leg?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Can a seizure happen to someone who has never had one before?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Will epilepsy medicines affect my ability to study, work, or drive?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Why do my legs feel weak after walking for some time?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Can poor sleep make my headaches and memory problems worse?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "My parent has Parkinson's disease. Does that mean I will get it too?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Why do I feel numbness on only one side of my body?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Can a normal brain scan still miss the cause of my symptoms?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "How do I tell the difference between a migraine and a normal headache?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "Why do I keep losing my balance while walking?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Neurology",
+    "title": "After a stroke, how much recovery is actually possible?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Brain and nervous system",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "How do I know if what I'm feeling is stress or depression?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Why do I feel anxious even when nothing bad is happening?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "I can't sleep because my thoughts won't stop. What can I do?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Does taking psychiatric medicine mean I'll become dependent on it?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Why have I lost interest in things I used to enjoy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Can anxiety cause chest tightness, stomach problems, or breathlessness?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "How do I know if my child needs help for attention or behaviour problems?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Why do I keep checking things again and again even when I know they're fine?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Can depression happen even when my life looks fine from the outside?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Will antidepressants change my personality?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "How long will I need to continue treatment for anxiety or depression?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Why do I get angry over small things and regret it later?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Is it normal to feel scared of social situations all the time?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Can therapy help if I don't know what to talk about?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "How do I tell my family that I need mental health treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Why do I feel exhausted even when I haven't done much?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Can alcohol or cannabis make anxiety and low mood worse?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "What should I do if someone close to me talks about not wanting to live?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "Will people at work or college find out if I see a psychiatrist?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Psychiatry",
+    "title": "How do I know if my treatment is actually working?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Mental health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Why do I get breathless while climbing just one flight of stairs?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "My cough has lasted for weeks. When should I get it checked?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Why do I wheeze more at night or early in the morning?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Can I have asthma even if I don't wheeze every day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Will I become dependent on my inhaler if I use it regularly?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Why does my cough get worse whenever the weather changes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Can pollution in my city damage my lungs even if I don't smoke?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "How do I know if my inhaler technique is correct?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Is snoring harmless, or could I be stopping breathing during sleep?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Why do I feel breathless even when my oxygen level looks normal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Can tuberculosis come back after completing treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Do I need a chest X-ray for every cough?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Why am I coughing up blood, even if it is only a little?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Can smoking damage my lungs even if I smoke only a few cigarettes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Will my lungs recover if I stop smoking now?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Why do I keep getting chest infections?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Can asthma medicines be used safely during pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "What does a lung function test actually tell me?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "Why do I wake up at night gasping for air?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Pulmonology",
+    "title": "How long should a cough after a viral infection normally last?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Respiratory health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Why does my stomach bloat even when I don't eat much?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "I get acidity almost every day. Can it damage my food pipe?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Why do I feel full after eating just a little?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Do I need an endoscopy for frequent stomach pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "My ultrasound says I have fatty liver. Is it serious?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Why does my stomach hurt after drinking milk?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Can piles cause bleeding even when there is no pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Why am I constipated even though I drink plenty of water?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Is blood in my stool always a sign of something serious?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Why do I keep getting loose motions after eating outside?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Can stress really trigger acidity or changes in bowel habits?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Do I need to stop eating spicy food if I have acidity?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Why does my liver report remain abnormal even though I don't drink alcohol?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Can gallstones be present without causing pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Why do I feel nauseated almost every morning?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "How do I know if my abdominal pain is from gas or something serious?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Can long-term painkiller use damage my stomach?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Why has my doctor asked me to get a colonoscopy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Does having jaundice always mean there is a liver problem?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Gastroenterology",
+    "title": "Why do my symptoms keep returning after I finish the medicine?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Digestive health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Why is my creatinine high? Does that mean my kidneys are failing?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Can kidney disease happen even if I pass urine normally?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "My urine is foamy. Should I get my kidneys checked?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Why do my feet and face swell in the morning?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Can diabetes damage my kidneys without causing symptoms?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Do kidney stones always need surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "How much water should I drink if I have kidney disease?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Why has my doctor asked me to reduce salt?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Can high BP damage my kidneys even if I feel fine?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "What does protein in my urine mean?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Will I need dialysis if my creatinine keeps increasing?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Can kidney function improve once it has become low?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Why do I get pain in my side that comes in waves?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Are herbal medicines safe for my kidneys?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Can taking painkillers regularly damage my kidneys?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Why do I need so many blood and urine tests for kidney disease?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Can kidney disease cause itching, nausea, or tiredness?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "What should I eat if I have been told my kidney function is reduced?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "Does one kidney work well enough for a normal life?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Nephrology",
+    "title": "How will I know if my kidney problem is getting worse?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Kidney health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Does finding a lump mean I have cancer?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "How do I know if a symptom could be an early sign of cancer?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Why do I need a biopsy if my scan already shows a lump?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Does cancer always cause pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "If cancer runs in my family, should I get tested?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Can a normal blood test rule out cancer?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "How do doctors decide which cancer treatment I need?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Will chemotherapy always make my hair fall out?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Can I continue working during cancer treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Why do I need more than one scan during treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Does cancer treatment mean I will never be able to have children?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Can cancer come back after treatment is completed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "How do I know if a side effect during chemotherapy is an emergency?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Should I change my diet completely after a cancer diagnosis?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Can I take supplements or herbal medicines during cancer treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Why do I need radiation if the tumour has already been removed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "Is a second opinion useful before starting cancer treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "What does it mean when the doctor says the cancer has spread?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "How can I manage pain and nausea during treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oncology",
+    "title": "What follow-up tests will I need after finishing cancer treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Cancer care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "My child gets fever so often. Is that normal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "My baby is not gaining weight as expected. What should I do?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "How do I know if my child is drinking enough milk?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "My child is a very picky eater. Can this affect growth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "When should my baby start sitting, crawling, and walking?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "My child keeps getting coughs and colds after starting school. Why?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "How high does my child's fever need to be before I should worry?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "Is it okay if my child speaks later than other children?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "My baby spits up milk after feeds. Is that normal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "How do I know if my child is getting enough sleep?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "Does my child really need every vaccine on the schedule?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "My child is underweight but active. Should I be worried?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "Why does my child keep getting stomach infections?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "When should I stop breastfeeding?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "Can screen time affect my child's speech or sleep?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "My child snores every night. Should I get it checked?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "How do I know if my child is ready for solid foods?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "My child has started wetting the bed again. What could be the reason?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "When is a cough or cold in a child an emergency?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Paediatrics",
+    "title": "How can I tell if my teenager is struggling with anxiety or depression?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Child health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "My periods are irregular. Does that mean something is wrong?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "How late can my period be before I should take a pregnancy test?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Why do I get severe cramps every month?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Is it normal to bleed or spot between periods?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "How do I know if my vaginal discharge is normal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Can PCOS make it difficult for me to get pregnant?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "How long should we try to conceive before seeing a doctor?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Do I really need an ultrasound in every pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "How do I know if my baby's movements are enough?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Will I definitely need a C-section if my first delivery was one?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Can I exercise and travel during pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Why am I feeling nauseated even after the first three months?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Is sex safe during pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "What should I do if I notice bleeding during pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "How much weight gain is normal during pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Can I have a normal delivery if I have thyroid problems or diabetes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Why do I leak urine when I cough or sneeze after childbirth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "When should my periods return after delivery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Is painful sex something I should discuss with my gynaecologist?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Obstetrics & Gynaecology",
+    "title": "Do I need a Pap smear even if I have no symptoms?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Women's health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "My knee hurts when I climb stairs, but walking on flat ground is fine. Why?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Why does my back hurt after sitting for a long time?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Do all slipped discs need surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "My joints crack when I move. Is that harmful?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "How do I know if my shoulder pain is from a frozen shoulder?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Why does my heel hurt when I take my first steps in the morning?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Can I keep walking if I have knee arthritis?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Does bad posture really cause neck and back pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "How long does a fracture usually take to heal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Will I be able to walk normally after a knee replacement?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Why does my wrist hurt when I use my phone or laptop?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Is an MRI necessary for every case of back pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Can exercise make arthritis worse?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Why do my legs hurt after walking for a few minutes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Do I need calcium supplements if my bones are weak?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Can a sports injury cause problems years later?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Why does my neck pain sometimes cause a headache?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "When should a child with flat feet be treated?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "Will physiotherapy help if I have a ligament injury?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Orthopaedics",
+    "title": "How do I know if my joint pain is due to age or something else?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bones and joints",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "My joints are stiff when I wake up. Why does it get better later?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "How do I know if my joint pain is arthritis or just ageing?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Can arthritis affect people in their twenties or thirties?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Why do several joints hurt at the same time?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Will I have to take arthritis medicines for the rest of my life?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Can rheumatoid arthritis damage my joints even when the pain is mild?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Why do I feel unusually tired along with joint pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Is it safe to exercise when my joints are inflamed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Can lupus affect my kidneys or other organs?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Why do my fingers turn white or blue in cold weather?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Are steroid medicines the only way to control autoimmune disease?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Can food make my arthritis better or worse?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Why do my symptoms flare up and then settle down?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Does a positive rheumatoid factor test mean I definitely have rheumatoid arthritis?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Can autoimmune diseases run in families?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Why do I have muscle pain and weakness along with joint pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Will treatment stop my arthritis from getting worse?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Can I get pregnant safely if I have an autoimmune disease?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "Why has my doctor ordered so many antibody tests?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Rheumatology",
+    "title": "How do I know whether a flare needs an urgent visit?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Autoimmune and joint health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Why do I need to pass urine so often, especially at night?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Urology",
+    "title": "It burns when I pass urine. Is it always a urine infection?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Why is there blood in my urine even though I have no pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Do kidney or bladder stones always need an operation?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Why is my urine stream becoming weaker?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Is it normal to wake up three or four times at night to urinate?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Can an enlarged prostate lead to kidney problems?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Why do I keep getting urine infections?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Does drinking less water cause kidney stones?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Can erectile problems be an early sign of another health problem?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Is urine leakage after childbirth or with age treatable?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Why do I feel like my bladder hasn't emptied completely?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Does every prostate problem mean cancer?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Urology",
+    "title": "At what age should men start getting their prostate checked?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Can a urine infection spread to the kidneys?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Why do I have pain in my lower abdomen after urinating?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Will a vasectomy affect my sexual performance?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Can infertility in men be treated?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Urology",
+    "title": "Why has my doctor asked for a PSA test?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Urology",
+    "title": "What should I do if I suddenly cannot pass urine?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Urinary and reproductive health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "My vision is getting blurry. Do I need glasses or could it be something else?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Why do my eyes feel dry and tired after using my phone?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Can diabetes damage my eyes even if I can see clearly?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "My child sits very close to the TV. Does that mean they need glasses?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Why do I see flashes of light or floating spots?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Do cataracts always need surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Can eye pressure be high even if my eyes don't hurt?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Why do my eyes water when I go outside?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Is it safe to wear contact lenses every day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Why is one eye weaker than the other?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Can glasses stop my eyesight from getting worse?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "How often should I get my eyes checked if I have diabetes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Why do I wake up with red, sticky eyes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Can too much screen time permanently damage my eyesight?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "What should I do if a chemical or dust gets into my eye?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Why do I see halos around lights at night?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Can a sudden loss of vision come back on its own?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Is laser surgery safe if I want to stop wearing glasses?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "Why does my eyelid keep twitching?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Ophthalmology",
+    "title": "How do I know if my child's squint needs treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Eye health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "ENT",
+    "title": "My nose is blocked almost every day. Could it be an allergy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Why do I keep getting a sore throat?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Is snoring a sign that something is wrong with my breathing?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "ENT",
+    "title": "My ear feels blocked after a cold. Will it clear on its own?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Why do I hear ringing in my ears when everything is quiet?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Can using earbuds too much damage my hearing?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Why do I feel dizzy when I turn my head or get out of bed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Do tonsils need to be removed if I get repeated throat infections?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Why does my voice keep becoming hoarse?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Can sinus problems cause headaches around my eyes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Is it safe to clean inside my ears with cotton buds?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Why does one side of my nose always feel more blocked?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "ENT",
+    "title": "My child breathes through the mouth while sleeping. Is that a problem?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Can hearing loss be treated if it has been there for years?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Why do I keep getting nosebleeds?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Does every case of sinusitis need antibiotics?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Why do I feel pain in my ear when I swallow?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "ENT",
+    "title": "Can enlarged adenoids affect my child's sleep or speech?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "ENT",
+    "title": "What should I do if something gets stuck in my ear or nose?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "ENT",
+    "title": "How do I know if my dizziness is from my ear or something else?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Ear, nose and throat",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "How do I know if chest pain needs an ambulance?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "My fever is very high. When should I go to the emergency room?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "What should I do first if someone suddenly faints?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "How can I tell if a head injury is serious?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "Should I go to the hospital after a dog bite even if the wound looks small?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "What should I do if someone has a seizure in front of me?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "When does vomiting or diarrhoea become dangerous?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "What are the warning signs of a stroke that I should never ignore?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "Should I make someone vomit after they swallow a household cleaner?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "What should I do if someone is having trouble breathing?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "How do I know if a cut needs stitches?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "Can a person have internal bleeding after a road accident without visible injuries?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "What should I do if someone gets a burn from hot water or oil?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "When should a child with fever be taken to the emergency room?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "Is sudden severe abdominal pain always an emergency?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "What should I do if someone collapses and is not responding?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "How quickly should I get help after a suspected heart attack?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "Can dehydration become serious even if someone is still passing urine?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "What should I do if I accidentally take an extra dose of medicine?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Emergency Medicine",
+    "title": "Which symptoms should make me stop waiting for a regular appointment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Emergency awareness",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Why has my doctor asked for an ultrasound instead of an X-ray?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Does every scan expose me to radiation?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Do I need to fast before an ultrasound?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Why can't the scan report give me a definite answer?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Is an MRI safer than a CT scan?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Why do I need contrast dye for my scan?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Can I get an MRI if I have a metal implant or pacemaker?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Why has my doctor asked me to repeat a scan?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Does a normal scan mean there is definitely nothing wrong?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Can an ultrasound detect every problem in the abdomen?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Why do I need a mammogram if I don't feel a lump?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Is it safe to get an X-ray during pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Why does my scan report mention an incidental finding?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Should I bring my old scans when I go for a new one?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "How long does an MRI take, and will it hurt?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Why do I need a CT scan after an accident?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Can scans show whether a lump is cancerous?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Why do different scans sometimes give different results?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Can I eat or drink after a scan with contrast?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Radiology",
+    "title": "Who explains the scan findings and what happens after the report?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Medical imaging",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Why does my tooth hurt only when I drink something cold?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Can a cavity be present even if my tooth doesn't hurt?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Do I really need a dental cleaning if I brush every day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Why do my gums bleed when I brush?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Can a tooth infection go away with antibiotics alone?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Why does my mouth smell bad even after brushing?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Is it normal for teeth to become sensitive after cleaning?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "How often should I visit a dentist if nothing hurts?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Can a broken tooth be saved or does it need to be removed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Why do my teeth look yellow even though I brush twice a day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Does removing a wisdom tooth always require surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Can smoking or chewing tobacco damage my teeth and gums?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Why do I keep getting ulcers inside my mouth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Is it safe to get dental treatment during pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "What should I do if a permanent tooth gets knocked out?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Can grinding my teeth at night damage them?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Why does food keep getting stuck between the same two teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Are tooth-coloured fillings as strong as silver fillings?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "How do I know if my child needs a dental check-up?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dentistry",
+    "title": "Can gum disease affect my overall health?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "My tooth hurts when I drink cold water. Does that mean I need a root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Can a deep cavity be treated without removing the whole tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Why does my tooth still hurt after a filling?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "How do I know if my tooth nerve is infected?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Will a root canal hurt during or after the procedure?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Can a tooth that has had a root canal break later?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Why has my filling fallen out again?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Do I need a crown after a root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Can a cracked tooth be saved?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Why does one tooth hurt when I bite down?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Is it better to save my natural tooth or remove it?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "How long will a dental filling last?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Can sensitivity after a filling be normal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Why does my tooth hurt at night but feel better during the day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Can a cavity under an old filling be missed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Will I need multiple visits for a root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Can whitening damage my enamel?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "Why has my tooth changed colour after an injury?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "What happens if I leave a cavity untreated?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Conservative Dentistry",
+    "title": "How do I protect a tooth after a large filling?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Restorative dentistry",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "How often should I take my child for a dental check-up?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Does drinking packaged juice every day increase the risk of cavities?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "How much toothpaste should my child use?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Is brushing once a day enough if I don't eat sweets?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Can poor dental health affect a child's school performance?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Why do so many people lose teeth as they get older?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Does chewing tobacco cause problems even if I don't smoke?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "How can I prevent cavities if my family cannot afford frequent dental visits?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Are government dental clinics safe to visit?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Do pregnant women need a dental check-up?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Can sugary tea or coffee harm my teeth if I sip it all day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Why should baby teeth be treated if they will fall out anyway?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "How can I help an older family member keep their mouth clean?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Is mouthwash enough if I don't brush properly?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Can dental problems spread through shared toothbrushes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "What should I do if my child is afraid of visiting a dentist?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Are dental problems more common in people with diabetes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "How do I know if a school dental camp has checked my child properly?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "Can a lack of fluoride cause cavities?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Dental Public Health",
+    "title": "What are the easiest ways to protect my family's teeth on a tight budget?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral health prevention",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "My toothache wakes me up at night. Could I need a root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Can a tooth need a root canal even if it doesn't hurt?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Will I feel pain during a root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Why does my tooth hurt when I chew after a root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "How many visits will my root canal take?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Can an infected tooth be saved instead of removed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Why do I need a crown after a root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "What happens if I delay a recommended root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Can a root canal fail after a few years?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Why is my tooth still painful after the root canal is finished?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Can an old root canal become infected again?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Does every dark or discoloured tooth need a root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Can a cracked tooth be treated with a root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Why has my dentist referred me to a root canal specialist?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Is a root canal safe during pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Will I be able to eat normally after a root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Can antibiotics cure the infection inside my tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Why do I need an X-ray before and after a root canal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "Is removing the tooth cheaper or better than saving it?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Endodontics",
+    "title": "How should I look after my tooth while waiting for the final crown?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Root canal care",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Am I too old to get a dental implant?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Will a dental implant feel like my natural tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "How painful is getting a dental implant?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "How long will I have to wait before I get my new tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Can I get an implant if I have diabetes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "What happens if I don't have enough bone for an implant?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Are dental implants better than a bridge?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Can an implant fail after it has been placed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "How do I clean around a dental implant?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Will people be able to tell that I have an implant?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Can I get an implant soon after removing a tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Why is my dentist asking me to stop smoking before an implant?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Are implants safe if I have gum disease?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "How long do dental implants usually last?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Will I be able to eat hard foods with an implant?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Can I get multiple teeth replaced with fewer implants?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "What happens if the bone around my implant starts shrinking?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Are cheaper implants less reliable?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "Can I get an MRI if I have dental implants?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Implant Dentistry",
+    "title": "What should I ask before agreeing to implant treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental implants",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Why is my jaw painful when I open my mouth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Do I need surgery if my jaw clicks every time I chew?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Can a facial injury affect my teeth or jaw even if nothing looks broken?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Why is my face swollen on one side?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Can a jaw fracture heal without surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Will jaw surgery change the way my face looks?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Why am I finding it difficult to open my mouth fully?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Can an impacted wisdom tooth damage nearby teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "How long will swelling last after jaw surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Will I be able to eat normally after jaw surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Can a lump inside my mouth be serious?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Why has my dentist referred me to a maxillofacial surgeon?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Can jaw problems cause headaches or ear pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "What happens if I leave an untreated jaw cyst?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Will I need my jaw wired after an injury?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Can facial asymmetry be corrected with surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "How do I look after my mouth after facial surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Is it normal to have numbness after wisdom tooth surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "Can an infection from a tooth spread into the face or neck?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Maxillofacial Surgery",
+    "title": "When should facial swelling be treated as an emergency?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Facial and jaw surgery",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Why do I keep getting ulcers in my mouth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Why does my tongue burn even when there is no visible sore?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Is a white patch inside my mouth something to worry about?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Why does my mouth feel dry all the time?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Can mouth ulcers be caused by vitamin deficiencies?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "When should a mouth ulcer be checked for cancer?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Why do I get a burning feeling after eating certain foods?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Can diabetes cause problems inside my mouth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Why has my mouth developed a red or white patch that won't go away?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Are repeated mouth ulcers a sign of a bigger health problem?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Can stress cause ulcers or burning in the mouth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Why does my jaw hurt even though my teeth look fine?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Can medicines make my mouth dry or change my taste?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Why do I have a bad taste in my mouth every morning?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Is a lump under my tongue normal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Can tobacco-related mouth changes be reversed if I quit?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Why does my tongue look unusually smooth or change colour?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Do I need a biopsy for a patch inside my mouth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "Can an autoimmune disease affect my mouth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oral Medicine",
+    "title": "How do I know whether my mouth problem needs a dentist or a doctor?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral diagnosis",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Do all wisdom teeth need to be removed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Will wisdom tooth removal be painful?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "How long will I be swollen after getting a tooth removed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "What should I eat after a tooth extraction?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Why is my tooth socket still hurting days after removal?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Can I smoke after getting a tooth removed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "What happens if a tooth breaks while the dentist is removing it?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Will I need stitches after a tooth extraction?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Can an infected tooth be removed on the same day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Why is my mouth difficult to open after wisdom tooth surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "How do I know if my extraction site is healing properly?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Can removing a tooth affect the nerves in my lip or tongue?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Should I remove a wisdom tooth that isn't causing pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "What should I do if bleeding continues after a tooth extraction?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Can a cyst around a tooth damage my jaw?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Will I need time off work after oral surgery?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Is it safe to have a tooth removed if I take blood thinners?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Why has my dentist asked for a scan before removing my wisdom tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "Can an upper tooth infection affect my sinuses?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Oral Surgery",
+    "title": "When should pain or swelling after extraction make me call the dentist?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Oral surgery",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Do I need braces if my teeth are only slightly crooked?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "At what age should my child first see an orthodontist?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Will braces change the shape of my face?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "How long will I have to wear braces?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Are clear aligners as effective as regular braces?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Will braces hurt every time they are tightened?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Can I eat normally while wearing braces?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Why do my teeth look uneven again after I stopped wearing my retainer?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Can adults get braces, or is it too late?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Will removing teeth make my face look sunken?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Do gaps between teeth always need to be closed?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Can braces fix an overbite or underbite?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Why does my child breathe through the mouth, and could it affect their teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Are home teeth-straightening kits safe?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "What happens if I don't wear my retainer?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Can braces damage my teeth or gums?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "How often will I need appointments during orthodontic treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Can I play sports while wearing braces?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "Will I need surgery to correct my jaw position?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Orthodontics",
+    "title": "How do I keep my teeth clean with braces?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Bite and alignment",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "When should I take my child to the dentist for the first time?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Why does my child have cavities in baby teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Do baby teeth really need fillings if they will fall out?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "My child is scared of the dentist. How can we make the visit easier?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "How much toothpaste should I put on my child's toothbrush?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Why are my child's new teeth coming in crooked?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Can thumb-sucking change the shape of my child's teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "What should I do if my child knocks out a permanent tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Are sugary drinks in a feeding bottle harmful to baby teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Why does my child grind their teeth while sleeping?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "When should children start brushing without help?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Is it normal for a child to have gaps between their front teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Does my child need fluoride treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Why are my child's gums swollen around a new tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Can a cavity in a baby tooth cause pain or infection?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "What should I do if my child refuses to brush?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Are dental X-rays safe for children?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "Can mouth breathing affect my child's teeth and jaw?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "How do I protect my child's teeth during sports?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Paediatric Dentistry",
+    "title": "How can I help my child stop using a pacifier without harming their teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Children's oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Why do my gums bleed even when I brush gently?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "My gums are pulling away from my teeth. Can they grow back?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Can gum disease make my teeth loose?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Why does my breath smell bad even after brushing?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Is gum disease linked to diabetes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Can a deep dental cleaning save my loose teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Why do my gums swell around only one tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Does smoking make gum disease worse?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Can gum disease come back after treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "How do I know if my gums are healthy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Why do my teeth look longer than they used to?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Will gum treatment be painful?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Can receding gums cause sensitivity?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Do I need surgery if my gums have shrunk?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Can I lose teeth even if I don't have cavities?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Why does food keep getting trapped under my gums?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Is bleeding while flossing normal when I have just started?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "Can pregnancy make my gums bleed or swell?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "What happens if I ignore gum disease?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Periodontics",
+    "title": "How often should I get my gums checked after treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Gum health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Should I get a crown or remove the damaged tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "How do I know if I need a denture, bridge, or implant?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Will my new dentures look natural?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Why do my dentures keep slipping when I talk or eat?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "How long does it take to get used to wearing dentures?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Can I sleep with my dentures in?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Why does my crown feel too high when I bite?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Can a broken denture be repaired?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "How long should a dental crown last?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Will a bridge damage the teeth next to the missing tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Can I replace all my teeth if they are badly damaged?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Why does food get stuck under my dental bridge?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Will I be able to eat normally with full dentures?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "How do I clean and store my dentures?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Can I get a fixed set of teeth if I have lost all my teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Why has my crown become loose?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Are expensive crowns always better?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "Can worn-down teeth be rebuilt?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "How many visits will it take to replace my missing teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Prosthodontics",
+    "title": "What should I do if my denture starts causing sores?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Dental restoration",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "How can I protect my family's teeth if we cannot visit a dentist often?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Does using a fluoride toothpaste really prevent cavities?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Why are cavities so common in children?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Is chewing tobacco harmful to my mouth even if I don't smoke?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "How often should adults get their teeth checked?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Can poor oral health affect pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Why should children get dental check-ups before they have pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Is it safe to get dental treatment at a government hospital?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "How do I choose a safe and affordable dental clinic?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Can sharing a toothbrush spread infections?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Does rinsing my mouth after sweets prevent cavities?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Why do older people often struggle to keep their teeth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Are dental camps enough to check my child's oral health?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "How can I help my parents clean their teeth if they have limited movement?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Can diabetes make gum problems worse?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Is mouthwash necessary for everyone?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "What should I do if I cannot afford to replace a missing tooth?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "Can frequent sugary drinks damage teeth even if I brush twice a day?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "How do I know if a dental product advertised online actually works?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Public Health Dentistry",
+    "title": "What simple changes can reduce cavities in the whole family?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Community oral health",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Can Ayurveda help with my problem, and how do I know what is actually proven?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Can I take Ayurvedic medicines along with my regular tablets?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Are herbal medicines always safe because they are natural?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "How can I check whether an Ayurvedic product contains heavy metals?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Can I stop my prescribed medicine after starting Ayurvedic treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Why do two Ayurvedic practitioners suggest different treatments for the same problem?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Can Ayurvedic treatment help with long-term joint pain?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Are Ayurvedic medicines safe during pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Can I use Ayurvedic products for my child's fever or cough?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "How long should I wait to see whether an Ayurvedic treatment is helping?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Can Ayurvedic medicines affect my liver or kidneys?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Is fasting or detox treatment safe for everyone?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "What should I tell my doctor if I am taking herbal medicines?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Can Ayurveda help me manage stress and sleep problems?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Are all products labelled Ayurvedic approved and tested?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Can Ayurvedic treatment replace insulin or BP medicines?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "How do I know if a treatment claim is exaggerated?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Can I use Ayurvedic oils or remedies on a skin condition?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "Are there warning signs that mean I should stop a herbal product?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Ayurveda",
+    "title": "How can I use traditional treatments without delaying necessary medical care?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Traditional medicine literacy",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Can homeopathy help with my problem, and what does the evidence say?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Can I take homeopathic medicines along with my regular treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Are homeopathic medicines safe for babies and children?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Can I stop my prescribed medicine if I start homeopathy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "How long should I wait before deciding a homeopathic treatment isn't helping?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Can homeopathy treat infections that usually need antibiotics?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Is it safe to use homeopathy for asthma?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Can homeopathic treatment replace insulin for diabetes?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "How do I know if a homeopathic product contains active ingredients?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Can I use homeopathy during pregnancy?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Why do different homeopaths give different remedies for the same symptoms?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Can homeopathy help with allergies or repeated colds?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Should I delay a biopsy or scan while trying homeopathic treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Can homeopathic medicines interact with other medicines?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "How do I check whether a homeopathic product is regulated?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Can homeopathy help with pain without hiding a serious cause?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Case-based Explainer"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "What should I tell my doctor if I am using homeopathic treatment?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Talking Head"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "Are claims that homeopathy can cure cancer reliable?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Myth vs Fact"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "How do I avoid spending money on treatments that have no proven benefit?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Visual Explainer"
+  },
+  {
+    "specialty": "Homeopathy",
+    "title": "When should I stop trying home treatment and see a doctor?",
+    "description": "",
+    "category": "Patient education",
+    "subcategory": "Treatment evidence and safety",
+    "format": "Case-based Explainer"
+  }
+]

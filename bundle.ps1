@@ -6,6 +6,7 @@ $FILES_TO_BUNDLE = @(
   'js/formats.js',
   'js/utils.js',
   'js/ideamate.js',
+  'IdeaMate/default-data.js',
   'js/scheduler.js',
   'js/sampleData.js',
   'js/components/dashboard.js',
@@ -27,6 +28,7 @@ $FILES_TO_BUNDLE = @(
 )
 
 $ROOT_DIR = $PSScriptRoot
+$patientQuestionsJson = Get-Content (Join-Path $ROOT_DIR 'ideamate_patient_voice_questions_expanded.json') -Raw -Encoding UTF8
 
 $bundledCode = @"
 /**
@@ -36,6 +38,7 @@ $bundledCode = @"
 
 (function () {
   "use strict";
+  const PATIENT_QUESTIONS = $patientQuestionsJson;
 "@
 
 foreach ($fileRelPath in $FILES_TO_BUNDLE) {
