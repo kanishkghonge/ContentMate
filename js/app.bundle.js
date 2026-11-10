@@ -101,10 +101,9 @@ const defaultDoctorProfile = {
   tone: 'Conversational & Empathetic', // 'Conversational' | 'Authoritative' | 'Friendly'
   cta: 'both', // 'caption' | 'comment' | 'both'
   reelLength: '45-60s',
-  postingDays: ['Mon', 'Wed', 'Fri'], // Posting schedule
-  sprinkleWindowDays: 14, // Uniform 2-week scheduling window by default
-  maxPostsPerDay: 1, // Max posts per day limit
-  sprinkleStrategy: 'uniform', // 'uniform' | 'front_loaded' | 'preferred_days'
+  postingDays: ['Daily'], // Calendar days on which auto-scheduling may place posts
+  maxPostsPerDay: 3, // A firm safety limit; the scheduler aims for an even split below this.
+  schedulerVersion: 2,
   enableFilmingWorkflow: true, // Keep filming tasks visible for new workspaces
   enableTrialReelWorkflow: true, // Test-and-evaluate workflow stays on by default
   // When enabled, each accepted trial also gets an editable mirrored trial.
@@ -118,6 +117,12 @@ const defaultDoctorProfile = {
 };
 
 
+function notifyDataChanged() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('contentmate-data-changed'));
+  }
+}
+
 const db = {
   // PROFILE
   async getProfile() {
@@ -125,15 +130,31 @@ const db = {
       return new Promise((resolve) => {
         const req = store.get('doctor_profile');
         // Merge defaults so older workspaces receive newly introduced defaults.
-        req.onsuccess = () => resolve(req.result ? { ...defaultDoctorProfile, ...req.result } : { ...defaultDoctorProfile, onboarded: false });
+        req.onsuccess = () => {
+          if (!req.result) {
+            resolve({ ...defaultDoctorProfile, onboarded: false });
+            return;
+          }
+          // Version 2 replaces the old one-post, Mon/Wed/Fri sprinkle with
+          // the compact daily batch scheduler. Later changes remain entirely
+          // user-controlled through Settings.
+          const isLegacySchedule = !req.result.schedulerVersion;
+          resolve({
+            ...defaultDoctorProfile,
+            ...req.result,
+            ...(isLegacySchedule ? { postingDays: ['Daily'], maxPostsPerDay: 3, schedulerVersion: 2 } : {})
+          });
+        };
       });
     });
   },
 
   async saveProfile(profile) {
-    return performTx('profile', 'readwrite', (store) => {
+    const res = await performTx('profile', 'readwrite', (store) => {
       store.put(profile, 'doctor_profile');
     });
+    notifyDataChanged();
+    return res;
   },
 
   // NOTES (Lightweight thoughts)
@@ -148,24 +169,28 @@ const db = {
         };
       });
     });
-  },
-
-  async addNote(note) {
-    return performTx('notes', 'readwrite', (store) => {
+  },  async addNote(note) {
+    const res = await performTx('notes', 'readwrite', (store) => {
       store.put(note);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async updateNote(note) {
-    return performTx('notes', 'readwrite', (store) => {
+    const res = await performTx('notes', 'readwrite', (store) => {
       store.put(note);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteNote(id) {
-    return performTx('notes', 'readwrite', (store) => {
+    const res = await performTx('notes', 'readwrite', (store) => {
       store.delete(id);
     });
+    notifyDataChanged();
+    return res;
   },
 
   // INSIGHTS (Core clinical ideas)
@@ -192,9 +217,11 @@ const db = {
   },
 
   async saveInsight(insight) {
-    return performTx('insights', 'readwrite', (store) => {
+    const res = await performTx('insights', 'readwrite', (store) => {
       store.put(insight);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteInsight(id) {
@@ -206,6 +233,7 @@ const db = {
     for (const s of scripts) {
       await this.deleteScript(s.id);
     }
+    notifyDataChanged();
   },
 
   // SCRIPTS (Flashcard review queue)
@@ -242,32 +270,40 @@ const db = {
   },
 
   async saveScript(script) {
-    return performTx('scripts', 'readwrite', (store) => {
+    const res = await performTx('scripts', 'readwrite', (store) => {
       store.put(script);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async saveScripts(scriptsArray) {
     const database = await openDatabase();
-    return new Promise((resolve, reject) => {
+    const res = await new Promise((resolve, reject) => {
       const tx = database.transaction('scripts', 'readwrite');
       const store = tx.objectStore('scripts');
       scriptsArray.forEach((script) => store.put(script));
       tx.oncomplete = () => resolve(true);
       tx.onerror = (e) => reject(e.target.error);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async updateScript(script) {
-    return performTx('scripts', 'readwrite', (store) => {
+    const res = await performTx('scripts', 'readwrite', (store) => {
       store.put(script);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteScript(id) {
-    return performTx('scripts', 'readwrite', (store) => {
+    const res = await performTx('scripts', 'readwrite', (store) => {
       store.delete(id);
     });
+    notifyDataChanged();
+    return res;
   },
 
   // SCHEDULED REELS (Trial Reels & Main Reels on Calendar)
@@ -277,7 +313,7 @@ const db = {
         const req = store.getAll();
         req.onsuccess = () => {
           const items = req.result || [];
-          items.sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
+          items.sort((a, b) => new Date(a.scheduled_date) - new Date(a.scheduled_date));
           resolve(items);
         };
       });
@@ -294,32 +330,40 @@ const db = {
   },
 
   async saveScheduledReel(reel) {
-    return performTx('scheduled_reels', 'readwrite', (store) => {
+    const res = await performTx('scheduled_reels', 'readwrite', (store) => {
       store.put(reel);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async saveScheduledReels(reelsArray) {
     const database = await openDatabase();
-    return new Promise((resolve, reject) => {
+    const res = await new Promise((resolve, reject) => {
       const tx = database.transaction('scheduled_reels', 'readwrite');
       const store = tx.objectStore('scheduled_reels');
       reelsArray.forEach((reel) => store.put(reel));
       tx.oncomplete = () => resolve(true);
       tx.onerror = (e) => reject(e.target.error);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async updateScheduledReel(reel) {
-    return performTx('scheduled_reels', 'readwrite', (store) => {
+    const res = await performTx('scheduled_reels', 'readwrite', (store) => {
       store.put(reel);
     });
+    notifyDataChanged();
+    return res;
   },
 
   async deleteScheduledReel(id) {
-    return performTx('scheduled_reels', 'readwrite', (store) => {
+    const res = await performTx('scheduled_reels', 'readwrite', (store) => {
       store.delete(id);
     });
+    notifyDataChanged();
+    return res;
   },
 
   // FULL EXPORT & IMPORT (Zero-loss JSON Backup)
@@ -758,7 +802,7 @@ function getIdeaMateIdeas() { return JSON.parse(localStorage.getItem('ideaBank_i
 /**
  * Content OS for Doctors — Intelligent Auto-Scheduler
  * Balances content formats and medical topics across calendar days.
- * Uniformly sprinkles unposted scripts over 14 days (or doctor's configured window).
+ * Randomly orders an incoming queue and evenly fills the next calendar days.
  */
 
 
@@ -789,6 +833,105 @@ function getNextPostingDates(startDate, count, postingDays = ['Mon', 'Wed', 'Fri
   }
 
   return dates;
+}
+
+/**
+ * Returns every available posting slot inside a real calendar-day window.
+ * This differs from getNextPostingDates(): a 14-day window means 14 calendar
+ * days, not 14 Mon/Wed/Fri occurrences.
+ */
+function getPostingSlotsInWindow(startDate, windowDays, postingDays, maxPostsPerDay, existingCounts = {}) {
+  const slots = [];
+  const current = new Date(startDate);
+  current.setHours(0, 0, 0, 0);
+  const end = new Date(addDays(current, Math.max(0, windowDays - 1)));
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const allowAllDays = !postingDays || postingDays.length === 0 || postingDays.includes('Daily');
+
+  while (current <= end) {
+    const dateStr = formatDateForInput(current);
+    if (allowAllDays || postingDays.includes(dayNames[current.getDay()])) {
+      const available = Math.max(0, maxPostsPerDay - (existingCounts[dateStr] || 0));
+      for (let slot = 0; slot < available; slot++) slots.push(dateStr);
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  return slots;
+}
+
+function shuffle(items) {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const swapIndex = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[i]];
+  }
+  return shuffled;
+}
+
+/**
+ * Builds consecutive eligible-day slots for a batch. It uses the fewest days
+ * allowed by the daily cap, then spreads the batch as evenly as possible. For
+ * example, seven reels with a cap of three becomes 2 / 3 / 2.
+ */
+function getBalancedBatchSlots(startDate, itemCount, postingDays, maxPostsPerDay, existingCounts = {}) {
+  if (itemCount <= 0) return [];
+
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const allowAllDays = !postingDays || postingDays.length === 0 || postingDays.includes('Daily');
+  const candidateDays = [];
+  const current = new Date(startDate);
+  current.setHours(0, 0, 0, 0);
+
+  // Gather eligible days until their remaining capacity can hold the batch.
+  let capacity = 0;
+  for (let safety = 0; capacity < itemCount && safety < 365; safety++) {
+    const date = formatDateForInput(current);
+    if (allowAllDays || postingDays.includes(dayNames[current.getDay()])) {
+      const available = Math.max(0, maxPostsPerDay - (existingCounts[date] || 0));
+      if (available > 0) {
+        candidateDays.push({ date, available });
+        capacity += available;
+      }
+    }
+    current.setDate(current.getDate() + 1);
+  }
+
+  const dayCount = candidateDays.length;
+  const plannedCounts = Array(dayCount).fill(Math.floor(itemCount / dayCount));
+  let extras = itemCount % dayCount;
+  // Add extras from the centre outwards so a seven-reel batch is 2 / 3 / 2.
+  const centre = Math.floor(dayCount / 2);
+  const extraOrder = [centre];
+  for (let offset = 1; extraOrder.length < dayCount; offset++) {
+    if (centre - offset >= 0) extraOrder.push(centre - offset);
+    if (centre + offset < dayCount) extraOrder.push(centre + offset);
+  }
+  for (const index of extraOrder) {
+    if (extras-- <= 0) break;
+    plannedCounts[index]++;
+  }
+
+  let remaining = itemCount;
+  const assignedCounts = plannedCounts.map((planned, index) => {
+    const count = Math.min(planned, candidateDays[index].available);
+    remaining -= count;
+    return count;
+  });
+  // A pinned/filmed item can leave fewer open spaces on a particular day;
+  // place any overflow in the nearest later available calendar slots.
+  for (let index = 0; remaining > 0 && index < candidateDays.length; index++) {
+    const extraCapacity = candidateDays[index].available - assignedCounts[index];
+    const count = Math.min(extraCapacity, remaining);
+    assignedCounts[index] += count;
+    remaining -= count;
+  }
+
+  const slots = [];
+  candidateDays.forEach(({ date }, index) => {
+    for (let slot = 0; slot < assignedCounts[index]; slot++) slots.push(date);
+  });
+
+  return slots;
 }
 
 /**
@@ -837,9 +980,9 @@ function balanceContentQueue(items) {
 }
 
 /**
- * Core Uniform Sprinkle Auto-Scheduling Routine
- * - Preserves posted, filmed (if enabled), locked, or past reels.
- * - Uniformly distributes all unposted, unlocked trial reels over the sprinkle window (default 14 days).
+ * Core batch auto-scheduler.
+ * - Preserves posted, filmed, pinned, and main reels.
+ * - Reorders every other reel into an even, compact run beginning today.
  * - Enforces max posts per day limit.
  */
 async function recalculateFutureSchedule() {
@@ -847,22 +990,19 @@ async function recalculateFutureSchedule() {
   const allReels = await db.getScheduledReels();
   const todayStr = formatDateForInput(getSystemDate());
 
-  const sprinkleWindowDays = profile.sprinkleWindowDays || 14;
-  const maxPostsPerDay = profile.maxPostsPerDay || 1;
-  const postingDays = profile.postingDays || ['Mon', 'Wed', 'Fri'];
-  const strategy = profile.sprinkleStrategy || 'uniform';
-  const enableFilming = profile.enableFilmingWorkflow === true;
+  const maxPostsPerDay = Math.min(3, Math.max(1, Number(profile.maxPostsPerDay) || 3));
+  const postingDays = profile.postingDays || ['Daily'];
 
   // 1. Separate FROZEN reels from MUTABLE reels
-  // Frozen: already posted, strictly past date (< todayStr), locked, or filmed (if filming enabled)
+  // Frozen: already posted, filmed, pinned, or a main reel. Past scheduled
+  // items remain mutable so a new batch also catches up missed work.
   const frozenReels = allReels.filter((reel) => {
-    const isPast = reel.scheduled_date < todayStr;
-    const isPosted = reel.status === 'posted';
-    const isFilmed = enableFilming && (reel.status === 'filmed' || reel.is_filmed);
+    const isPosted = ['posted', 'archived', 'winner'].includes(reel.status);
+    const isFilmed = reel.status === 'filmed' || reel.is_filmed;
     const isLocked = reel.is_locked === true;
     const isMainReel = reel.is_main_reel === true;
 
-    return isPast || isPosted || isFilmed || isLocked || isMainReel;
+    return isPosted || isFilmed || isLocked || isMainReel;
   });
 
   // Count how many frozen posts exist on each date
@@ -873,7 +1013,7 @@ async function recalculateFutureSchedule() {
     }
   });
 
-  // Mutable reels: unposted, unlocked, non-filmed reels on or after today
+  // Mutable reels: every unposted, unpinned, unfilmed non-main reel.
   const mutableReels = allReels.filter((reel) => {
     return !frozenReels.some((f) => f.id === reel.id);
   });
@@ -882,47 +1022,14 @@ async function recalculateFutureSchedule() {
     return { updatedCount: 0, totalReels: allReels.length };
   }
 
-  // 2. Interleave formats & topics for variety
-  const balancedQueue = balanceContentQueue(mutableReels);
-
-  // 3. Generate candidate open dates for the sprinkle window
-  // Represent every available post slot, not just every available day. This is
-  // essential when the doctor allows more than one post per day.
-  const candidateDates = [];
-  const rawDates = getNextPostingDates(getSystemDate(), Math.max(sprinkleWindowDays * 3, balancedQueue.length * 2), postingDays);
-
-  for (const dateStr of rawDates) {
-    const existingCount = postsCountByDate[dateStr] || 0;
-    const openSlots = Math.max(0, maxPostsPerDay - existingCount);
-    for (let slot = 0; slot < openSlots; slot++) {
-      candidateDates.push(dateStr);
-    }
-    if (candidateDates.length >= Math.max(sprinkleWindowDays, balancedQueue.length * 3)) {
-      break;
-    }
-  }
-
-  // 4. Uniformly space posts across candidate dates
-  const assignedDates = [];
+  // 2. Randomize each new batch, then interleave formats/topics where possible.
+  const balancedQueue = balanceContentQueue(shuffle(mutableReels));
   const totalPosts = balancedQueue.length;
 
-  if (strategy === 'front_loaded' || totalPosts === 1 || candidateDates.length <= totalPosts) {
-    // Fill first available open slots
-    for (let i = 0; i < totalPosts; i++) {
-      assignedDates.push(candidateDates[i] || candidateDates[candidateDates.length - 1]);
-    }
-  } else {
-    // True UNIFORM SPRINKLE: Spreads totalPosts evenly across candidateDates over 2 weeks
-    // Repeated dates only occur when that day genuinely has remaining capacity.
-    const maxIndex = candidateDates.length - 1;
-    const step = maxIndex / Math.max(1, totalPosts - 1 || 1);
-
-    for (let i = 0; i < totalPosts; i++) {
-      let targetIdx = Math.round(i * step);
-      if (targetIdx > maxIndex) targetIdx = maxIndex;
-      assignedDates.push(candidateDates[targetIdx]);
-    }
-  }
+  // 3. Fill the next eligible calendar days as evenly as possible.
+  const assignedDates = getBalancedBatchSlots(
+    getSystemDate(), totalPosts, postingDays, maxPostsPerDay, postsCountByDate
+  );
 
   // Keep variants of the same script apart. A mirrored trial should have time
   // to gather an independent audience, so reserve at least one other posting
@@ -941,7 +1048,7 @@ async function recalculateFutureSchedule() {
     lastVariantSlot.set(key, idx);
   });
 
-  // 5. Assign calculated dates to the balanced queue
+  // 4. Assign calculated dates to the balanced queue
   const updatedReels = balancedQueue.map((reel, idx) => {
     return {
       ...reel,
@@ -950,7 +1057,7 @@ async function recalculateFutureSchedule() {
     };
   });
 
-  // 6. Save back to IndexedDB
+  // 5. Save back to IndexedDB
   await db.saveScheduledReels([...frozenReels, ...updatedReels]);
 
   return {
@@ -968,13 +1075,12 @@ async function rescheduleMissedPosts() {
   const profile = await db.getProfile();
   const allReels = await db.getScheduledReels();
   const todayStr = formatDateForInput(getSystemDate());
-  const maxPostsPerDay = profile.maxPostsPerDay || 1;
-  const postingDays = profile.postingDays || ['Mon', 'Wed', 'Fri'];
-  const enableFilming = profile.enableFilmingWorkflow === true;
+  const maxPostsPerDay = Math.min(3, Math.max(1, Number(profile.maxPostsPerDay) || 3));
+  const postingDays = profile.postingDays || ['Daily'];
 
   const missedReels = allReels.filter((reel) => {
     const isMissed = reel.scheduled_date < todayStr && reel.status === 'scheduled';
-    const isFilmed = enableFilming && (reel.status === 'filmed' || reel.is_filmed);
+    const isFilmed = reel.status === 'filmed' || reel.is_filmed;
     return isMissed && !reel.is_locked && !reel.is_main_reel && !isFilmed;
   });
 
@@ -1014,9 +1120,9 @@ async function rescheduleMissedPosts() {
 }
 
 /**
- * Creates a Trial Reel from an accepted script and triggers uniform sprinkle auto-scheduling.
+ * Creates a Trial Reel from an accepted script and reshuffles the eligible queue.
  */
-async function scheduleAcceptedScript(script) {
+async function scheduleAcceptedScript(script, reelType = 'trial') {
   const profile = await db.getProfile();
   const existingReels = await db.getScheduledReels();
   const duplicate = existingReels.find((r) => r.script_id === script.id);
@@ -1041,8 +1147,8 @@ async function scheduleAcceptedScript(script) {
     scheduled_date: todayStr, // Will be uniformly positioned by recalculateFutureSchedule
     status: 'scheduled',
     is_locked: false,
-    is_main_reel: false,
-    is_trial_reel: profile.enableTrialReelWorkflow !== false,
+    is_main_reel: reelType === 'main',
+    is_trial_reel: reelType === 'trial',
     created_at: now,
     updated_at: now
   };
@@ -1050,7 +1156,7 @@ async function scheduleAcceptedScript(script) {
   const reelsToSave = [newReel];
   // A mirrored trial is deliberately a separate reel (and remains editable),
   // allowing the same insight to be tested with a different cut/packaging.
-  if (profile.enableMirroredTrialWorkflow === true && profile.enableTrialReelWorkflow !== false) {
+  if (reelType === 'trial' && profile.enableMirroredTrialWorkflow === true && profile.enableTrialReelWorkflow !== false) {
     reelsToSave.push({
       ...newReel,
       id: uuidv4(),
@@ -1070,11 +1176,46 @@ async function scheduleAcceptedScript(script) {
   return newReel;
 }
 
+async function mirrorFutureTrialReels() {
+  const [profile, reels] = await Promise.all([db.getProfile(), db.getScheduledReels()]);
+  const today = formatDateForInput(getSystemDate());
+  const now = new Date().toISOString();
+  const mirrors = reels.filter((reel) => (
+    reel.is_trial_reel && !reel.is_mirrored_trial && !reel.is_main_reel &&
+    reel.status === 'scheduled' && !reel.is_filmed && !reel.is_locked &&
+    reel.scheduled_date >= today
+  )).map((reel) => ({
+    ...reel,
+    id: uuidv4(),
+    title: `🔁 [Mirrored Trial] ${reel.title}`,
+    variant: 'mirrored_trial',
+    is_mirrored_trial: true,
+    mirror_edit_required: true,
+    parent_trial_reel_id: reel.id,
+    created_at: now,
+    updated_at: now
+  }));
+  if (mirrors.length) {
+    await db.saveScheduledReels(mirrors);
+    await recalculateFutureSchedule();
+  }
+  return mirrors.length;
+}
+
 /**
  * Adds a hand-written script straight to the publishing calendar. Manual
- * entries are pinned so a future Re-Sprinkle never changes the chosen date.
+ * entries start unpinned, like every other reel, so the schedule remains
+ * flexible until the user explicitly pins a date.
  */
 async function scheduleManualScript({ title, script, scheduledDate, cta = '' }) {
+  const profile = await db.getProfile();
+  const existingReels = await db.getScheduledReels();
+  const maxPostsPerDay = Math.min(3, Math.max(1, Number(profile.maxPostsPerDay) || 3));
+  const postsOnDate = existingReels.filter((reel) => reel.scheduled_date === scheduledDate);
+  if (postsOnDate.length >= maxPostsPerDay) {
+    throw new Error(`This day already has the ${maxPostsPerDay}-post limit. Choose another date.`);
+  }
+
   const newReel = {
     id: uuidv4(),
     script_id: null,
@@ -1088,13 +1229,14 @@ async function scheduleManualScript({ title, script, scheduledDate, cta = '' }) 
     estimated_duration: '',
     scheduled_date: scheduledDate,
     status: 'scheduled',
-    is_locked: true,
+    is_locked: false,
     is_main_reel: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
 
   await db.saveScheduledReel(newReel);
+  await recalculateFutureSchedule();
   return newReel;
 }
 
@@ -1123,7 +1265,7 @@ async function promoteToMainReel(trialReelId) {
     estimated_duration: reel.estimated_duration,
     scheduled_date: mainReelDate,
     status: 'scheduled',
-    is_locked: true,
+    is_locked: false,
     is_main_reel: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -1315,7 +1457,7 @@ async function populateSampleDoctorWorkspace() {
       scheduled_date: threeDaysAgoStr,
       status: 'posted',
       posted_date: threeDaysAgoStr,
-      is_locked: true,
+      is_locked: false,
       is_main_reel: false,
       created_at: new Date(Date.now() - 3600000 * 96).toISOString()
     },
@@ -1412,6 +1554,10 @@ function scriptViewerButton(reelId) {
   return `<button class="btn btn-sm btn-secondary btn-view-script" data-id="${reelId}">View Script</button>`;
 }
 
+function helpButton(text) {
+  return `<button class="btn btn-ghost btn-sm dash-help" data-help="${text}" aria-label="What is this?">?</button>`;
+}
+
 const DashboardView = {
   async render(container, navigateTo, openModal) {
     const profile = await db.getProfile();
@@ -1445,15 +1591,7 @@ const DashboardView = {
       (r) => r.scheduled_date < todayStr && r.status !== 'posted' && r.status !== 'archived' && r.status !== 'winner'
     );
 
-    // D. Feedback Due (posted >= 3 days ago and no metrics logged yet)
-    const feedbackDuePosts = allReels.filter((r) => {
-      if (!enableTrialReels || r.status !== 'posted' || r.is_main_reel_winner || r.feedback_logged) return false;
-      const postDate = new Date(r.posted_date || r.scheduled_date);
-      const diffDays = Math.floor((systemDate - postDate) / (1000 * 60 * 60 * 24));
-      return diffDays >= 3;
-    });
-
-    // E. Promoted Main Reels awaiting scheduling
+    // D. Promoted Main Reels awaiting scheduling
     const pendingMainReels = allReels.filter(
       (r) => r.is_main_reel && r.status === 'scheduled'
     );
@@ -1471,7 +1609,6 @@ const DashboardView = {
           <div class="dashboard-daily-summary" aria-label="Today\'s content summary">
             <div class="dashboard-summary-item"><strong>${todayPosts.length}</strong><span>${todayPosts.length === 1 ? 'post scheduled' : 'posts scheduled'}</span></div>
             <div class="dashboard-summary-item"><strong>${pendingScripts.length}</strong><span>${pendingScripts.length === 1 ? 'script to review' : 'scripts to review'}</span></div>
-            <div class="dashboard-summary-item"><strong>${feedbackDuePosts.length}</strong><span>${feedbackDuePosts.length === 1 ? 'performance update due' : 'performance updates due'}</span></div>
             ${enableFilming ? `<div class="dashboard-summary-item"><strong>${filmingToday}</strong><span>${filmingToday === 1 ? 'post to film today' : 'posts to film today'}</span></div>` : ''}
           </div>
         </div>
@@ -1483,7 +1620,7 @@ const DashboardView = {
         <div class="action-card" style="border-left: 4px solid var(--accent-blue);">
           <div class="action-card-header">
             <span class="action-card-badge badge-blue">⚡ Scheduled For Today</span>
-            <span style="font-size: 12px; color: var(--text-tertiary);">${formatDate(todayStr)}</span>
+            <div class="flex items-center gap-2"><span style="font-size: 12px; color: var(--text-tertiary);">${formatDate(todayStr)}</span>${helpButton('These are the posts planned for today. Open the script, publish it, then mark it posted so your calendar stays accurate.')}</div>
           </div>
           <h3 class="action-card-title">${todayPosts.length === 1 ? '1 Post to Publish Today' : `${todayPosts.length} Posts to Publish Today`}</h3>
           <p class="action-card-desc">Review your hook and mark as posted once published to social media.</p>
@@ -1525,7 +1662,7 @@ const DashboardView = {
         <div class="action-card" style="border-left: 4px solid var(--accent-amber);">
           <div class="action-card-header">
             <span class="action-card-badge badge-amber">🃏 Review Queue</span>
-            <span style="font-size: 12px; font-weight: 600; color: var(--accent-amber);">${pendingScripts.length} Pending</span>
+            <div class="flex items-center gap-2"><span style="font-size: 12px; font-weight: 600; color: var(--accent-amber);">${pendingScripts.length} Pending</span>${helpButton('Review generated scripts here. Choose Trial when you want to compare variations later, or Main Reel when it is ready to publish directly.')}</div>
           </div>
           <h3 class="action-card-title">Scripts Waiting for Review</h3>
           <p class="action-card-desc">Swipe through scripts one card at a time. Accept, edit inline, or reject in under 30 seconds.</p>
@@ -1539,49 +1676,16 @@ const DashboardView = {
       `;
     }
 
-    // 3. Feedback Due Card (3-day post evaluation)
-    if (feedbackDuePosts.length > 0) {
-      html += `
-        <div class="action-card" style="border-left: 4px solid var(--accent-purple);">
-          <div class="action-card-header">
-            <span class="action-card-badge badge-purple">📊 3-Day Performance Check</span>
-            <span style="font-size: 12px; color: var(--accent-purple); font-weight: 600;">${feedbackDuePosts.length} Due</span>
-          </div>
-          <h3 class="action-card-title">Trial Reel Feedback Due</h3>
-          <p class="action-card-desc">It's been 3 days since you posted. Enter your basic engagement to decide if this should become a permanent Main Reel.</p>
-
-          <div class="today-item-list">
-            ${feedbackDuePosts.map((post) => `
-              <div class="today-item">
-                <div class="today-item-info">
-                  <div class="today-item-title">${post.title}</div>
-                  <div class="today-item-meta">
-                    <span>Posted ${formatRelativeDate(post.posted_date || post.scheduled_date)}</span>
-                    <span>•</span>
-                    <span>${post.format}</span>
-                  </div>
-                </div>
-                <div class="flex gap-2">
-                  ${scriptViewerButton(post.id)}
-                  <button class="btn btn-sm btn-primary btn-log-feedback" data-id="${post.id}">Log Feedback & Decide</button>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }
-
-    // 4. Posts That Were Missed Card (Auto Reshuffle trigger)
+    // 3. Posts That Were Missed Card (Auto Reshuffle trigger)
     if (missedPosts.length > 0) {
       html += `
         <div class="action-card" style="border-left: 4px solid var(--accent-red);">
           <div class="action-card-header">
             <span class="action-card-badge badge-red">⚠️ Past Due</span>
-            <span style="font-size: 12px; color: var(--accent-red); font-weight: 600;">${missedPosts.length} Missed</span>
+            <div class="flex items-center gap-2"><span style="font-size: 12px; color: var(--accent-red); font-weight: 600;">${missedPosts.length} Missed</span>${helpButton('These scheduled posts were not marked as published. Pick a new date, mark one posted if it already went live, or skip it.')}</div>
           </div>
           <h3 class="action-card-title">Posts That Were Missed</h3>
-          <p class="action-card-desc">Life in clinic gets busy. Reschedule these into open upcoming slots, or skip any post you no longer want to publish.</p>
+          <p class="action-card-desc">Choose a new date, mark an already-published post, or skip a post you no longer want to publish.</p>
           <div class="today-item-list">
             ${missedPosts.map((post) => `
               <div class="today-item">
@@ -1593,6 +1697,7 @@ const DashboardView = {
                   ${scriptViewerButton(post.id)}
                   <input class="form-input missed-date-input" data-id="${post.id}" type="date" min="${todayStr}" value="${todayStr}" aria-label="New post date" style="width: 142px; padding: 6px 8px; font-size: 12px;" />
                   <button class="btn btn-sm btn-primary btn-reschedule-missed-date" data-id="${post.id}">Reschedule</button>
+                  <button class="btn btn-sm btn-secondary btn-mark-missed-posted" data-id="${post.id}">Posted Already</button>
                   <button class="btn btn-sm btn-secondary btn-skip-missed" data-id="${post.id}">Skip</button>
                 </div>
               </div>
@@ -1615,10 +1720,10 @@ const DashboardView = {
         <div class="action-card">
           <div class="action-card-header">
             <span class="action-card-badge badge-gray">🎥 Filming Queue</span>
-            <span style="font-size: 12px; color: var(--text-tertiary);">Next Up</span>
+            <div class="flex items-center gap-2"><span style="font-size: 12px; color: var(--text-tertiary);">Next Up</span>${helpButton('This is your upcoming recording list. Mark a reel filmed to protect its scheduled date from automatic reshuffles.')}</div>
           </div>
           <h3 class="action-card-title">Trial Reels Not Yet Shot</h3>
-          <p class="action-card-desc">Ready to record between patient consultations? Keep these 45-second scripts handy.</p>
+          <p class="action-card-desc">Your next scripts ready to record.</p>
 
           <div class="today-item-list">
             ${filmingQueue.map((post) => `
@@ -1652,7 +1757,7 @@ const DashboardView = {
         <div class="action-card">
           <div class="action-card-header">
             <span class="action-card-badge badge-gray">💡 Recent Thoughts</span>
-            <button class="btn btn-ghost btn-sm" id="dash-btn-view-notes">All Notes →</button>
+            <div class="flex items-center gap-2">${helpButton('Recent thoughts are quick captures. Convert one into an insight when you are ready to turn it into scripts.')}<button class="btn btn-ghost btn-sm" id="dash-btn-view-notes">All Notes →</button></div>
           </div>
           <div class="today-item-list" style="margin-bottom: 0;">
             ${activeNotes.map((note) => `
@@ -1672,7 +1777,7 @@ const DashboardView = {
     }
 
     // Zen state if all caught up
-    if (todayPosts.length === 0 && pendingScripts.length === 0 && feedbackDuePosts.length === 0 && missedPosts.length === 0) {
+    if (todayPosts.length === 0 && pendingScripts.length === 0 && missedPosts.length === 0) {
       html += `
         <div class="action-card text-center" style="padding: 32px 20px; align-items: center;">
           <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--accent-green-subtle); color: var(--accent-green); display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
@@ -1680,7 +1785,7 @@ const DashboardView = {
           </div>
           <h3 style="font-size: 17px; font-weight: 700; color: var(--text-primary);">All Caught Up for Today!</h3>
           <p style="font-size: 13.5px; color: var(--text-secondary); max-width: 380px; margin-top: 4px;">
-            Your calendar is naturally balanced. Have a new clinical thought from your clinic rounds? Tap below.
+            Your calendar is naturally balanced. Capture a new content idea whenever one comes up.
           </p>
           <button class="btn btn-primary btn-sm" id="dash-zen-record-insight" style="margin-top: 16px;">
             Record a New Insight
@@ -1718,6 +1823,33 @@ const DashboardView = {
         reel.skipped_at = new Date().toISOString();
         await db.saveScheduledReel(reel);
         showToast('Missed post skipped.', 'info');
+        DashboardView.render(container, navigateTo, openModal);
+      });
+    });
+
+    container.querySelectorAll('.btn-mark-missed-posted').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const reel = await db.getScheduledReel(e.currentTarget.dataset.id);
+        if (!reel) return;
+
+        const postedOnScheduledDate = confirm(
+          `Was “${reel.title}” posted on its scheduled date (${formatDate(reel.scheduled_date)})?\n\nSelect OK for the scheduled date, or Cancel to choose another date.`
+        );
+        let postedDate = reel.scheduled_date;
+        if (!postedOnScheduledDate) {
+          postedDate = prompt('Enter the posting date (YYYY-MM-DD):', todayStr);
+          if (!postedDate) return;
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(postedDate) || Number.isNaN(new Date(`${postedDate}T00:00:00`).getTime())) {
+            showToast('Enter a valid posting date in YYYY-MM-DD format.', 'error');
+            return;
+          }
+        }
+
+        reel.status = 'posted';
+        reel.posted_date = postedDate;
+        reel.updated_at = new Date().toISOString();
+        await db.saveScheduledReel(reel);
+        showToast(`Marked as posted on ${formatDate(postedDate)}.`, 'success');
         DashboardView.render(container, navigateTo, openModal);
       });
     });
@@ -1777,18 +1909,14 @@ const DashboardView = {
           reel.status = 'posted';
           reel.posted_date = formatDateForInput(new Date());
           await db.saveScheduledReel(reel);
-          showToast('Marked as Posted! 3-day feedback timer started.', 'success');
+          showToast('Marked as posted.', 'success');
           DashboardView.render(container, navigateTo, openModal);
         }
       });
     });
 
-    // Log Feedback buttons
-    container.querySelectorAll('.btn-log-feedback').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const id = e.currentTarget.dataset.id;
-        openModal('trialFeedback', { reelId: id });
-      });
+    container.querySelectorAll('.dash-help').forEach((btn) => {
+      btn.addEventListener('click', (e) => window.alert(e.currentTarget.dataset.help));
     });
 
     // Convert Note buttons
@@ -2149,7 +2277,7 @@ const InsightCreateModal = {
               id="insight-details" 
               class="form-textarea" 
               rows="4" 
-              placeholder="What key points should the video cover?&#10;1. Main idea or explanation&#10;2. Important context for the audience&#10;3. Practical takeaway or recommendation"
+              placeholder="Add the key points you want covered in this video..."
               value="${escapeHtml(prefillDetails)}"
               required
             ></textarea>
@@ -2892,7 +3020,7 @@ const ScriptReviewView = {
             </div>
           </div>
 
-          <!-- 4 Clear Dedicated Actions: Accept | Edit | Reject | Review Later -->
+          <!-- Clear acceptance choices: trial or main, plus edit/reject/later. -->
           <div class="flashcard-actions">
             <button class="btn btn-reject btn-lg" id="btn-card-reject" title="Archive and remove from workflow" ${this.isEditing ? 'disabled aria-disabled="true"' : ''}>
               <span>✕ Reject</span>
@@ -2906,8 +3034,11 @@ const ScriptReviewView = {
               <span>${this.isEditing ? '✓ Done Editing' : '✎ Edit'}</span>
             </button>
 
-            <button class="btn btn-accept btn-lg" id="btn-card-accept" title="${this.enableTrialReelWorkflow ? 'Good enough to become a Trial Reel' : 'Add this script to your publishing calendar'}" ${this.isEditing ? 'disabled aria-disabled="true"' : ''}>
-              <span>${this.enableTrialReelWorkflow ? 'Accept (Trial Reel) →' : 'Accept & Schedule →'}</span>
+            <button class="btn btn-secondary btn-lg" id="btn-card-accept-trial" title="Schedule this as a trial to compare with other trials for the same insight" ${this.isEditing ? 'disabled aria-disabled="true"' : ''}>
+              <span>Accept as Trial</span>
+            </button>
+            <button class="btn btn-accept btn-lg" id="btn-card-accept-main" title="Schedule this directly as a main reel; it will not enter trial feedback" ${this.isEditing ? 'disabled aria-disabled="true"' : ''}>
+              <span>Accept as Main Reel →</span>
             </button>
           </div>
         </div>
@@ -2916,8 +3047,7 @@ const ScriptReviewView = {
 
     container.innerHTML = html;
 
-    // 1. ACCEPT ACTION (Converts to Trial Reel & auto-schedules)
-    document.getElementById('btn-card-accept')?.addEventListener('click', async () => {
+    const acceptScript = async (reelType) => {
       // If was editing, capture latest changes first
       if (this.isEditing) {
         this.saveCurrentEdits(script);
@@ -2927,15 +3057,16 @@ const ScriptReviewView = {
       script.updated_at = new Date().toISOString();
       await db.updateScript(script);
 
-      // Auto-schedule accepted Trial Reel into smart calendar
-      await scheduleAcceptedScript(script);
+      await scheduleAcceptedScript(script, reelType);
       this.acceptedCount++;
 
-      showToast(this.enableTrialReelWorkflow ? 'Accepted! Added to Trial Reel schedule.' : 'Accepted! Added to your publishing calendar.', 'success');
+      showToast(reelType === 'main' ? 'Accepted as a Main Reel.' : 'Accepted as a Trial Reel.', 'success');
       this.isEditing = false;
       this.currentIndex++;
       this.renderCurrentCard(container, navigateTo, openModal);
-    });
+    };
+    document.getElementById('btn-card-accept-trial')?.addEventListener('click', () => acceptScript('trial'));
+    document.getElementById('btn-card-accept-main')?.addEventListener('click', () => acceptScript('main'));
 
     // 2. IN-PLACE EDIT ACTION (No page jump!)
     document.getElementById('btn-card-edit')?.addEventListener('click', async () => {
@@ -3000,7 +3131,7 @@ const ScriptReviewView = {
           </h2>
 
           <p style="font-size: 14.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 24px;">
-            Every accepted script has been automatically balanced across your content calendar as a <strong>Trial Reel</strong>.
+            Your accepted scripts have been added to the calendar using the choices you made.
           </p>
 
           <div class="flex gap-3 justify-center" style="flex-wrap: wrap;">
@@ -3069,7 +3200,7 @@ const ScheduleView = {
               Publishing Calendar
             </h2>
             <p style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">
-              Uniformly sprinkled across ${profile.sprinkleWindowDays || 14} days. Click any cell to view post details.
+              New reels are evenly arranged from today onward. Pinned and filmed reels keep their dates.
             </p>
           </div>
 
@@ -3079,7 +3210,7 @@ const ScheduleView = {
             </button>
             <button class="btn btn-secondary btn-sm" id="btn-recalculate-schedule">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
-              <span>Re-Sprinkle Schedule</span>
+              <span>Reshuffle Unpinned</span>
             </button>
           </div>
         </div>
@@ -3100,17 +3231,20 @@ const ScheduleView = {
         </div>
 
         <!-- Visual Grid Calendar -->
-        <div class="card" style="padding: 12px; overflow-x: auto;">
-          <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; font-size: 12px; font-weight: 700; color: var(--text-tertiary); margin-bottom: 8px;">
-            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;">
+        <div class="card calendar-scroll-wrap">
+          <div class="calendar-grid" role="grid" aria-label="${escapeHtml(monthName)} publishing calendar">
+            <div class="calendar-weekday" role="columnheader">Sun</div>
+            <div class="calendar-weekday" role="columnheader">Mon</div>
+            <div class="calendar-weekday" role="columnheader">Tue</div>
+            <div class="calendar-weekday" role="columnheader">Wed</div>
+            <div class="calendar-weekday" role="columnheader">Thu</div>
+            <div class="calendar-weekday" role="columnheader">Fri</div>
+            <div class="calendar-weekday" role="columnheader">Sat</div>
     `;
 
     // Blank cells before first day
     for (let i = 0; i < firstDayIndex; i++) {
-      html += `<div style="background: var(--bg-subtle); border-radius: var(--radius-sm); min-height: 78px; opacity: 0.3;"></div>`;
+      html += `<div class="cal-day-empty" aria-hidden="true"></div>`;
     }
 
     // Days of the month
@@ -3120,22 +3254,17 @@ const ScheduleView = {
       const isToday = dateStr === todayStr;
       const reelsOnDay = reelsByDate[dateStr] || [];
 
-      let dayStyle = 'background: #FFFFFF; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 6px; min-height: 84px; display: flex; flex-direction: column; cursor: pointer; transition: all var(--transition-fast);';
-      if (isToday) {
-        dayStyle = 'background: #FFFFFF; border: 2px solid var(--accent-blue); border-radius: var(--radius-md); padding: 6px; min-height: 84px; display: flex; flex-direction: column; cursor: pointer; box-shadow: var(--shadow-xs);';
-      }
-
       html += `
-        <div class="cal-day-cell" data-date="${dateStr}" style="${dayStyle}">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-            <span style="font-size: 13px; font-weight: ${isToday ? '800' : '600'}; color: ${isToday ? 'var(--accent-blue)' : 'var(--text-primary)'};">
+        <div class="cal-day-cell${isToday ? ' is-today' : ''}" data-date="${dateStr}" role="gridcell" aria-label="${escapeHtml(formatFullDate(dateStr))}, ${reelsOnDay.length} scheduled ${reelsOnDay.length === 1 ? 'post' : 'posts'}">
+          <div class="cal-day-cell-header">
+            <span class="cal-day-number">
               ${day} ${isToday ? '📍' : ''}
             </span>
-            ${reelsOnDay.length > 0 ? `<span class="nav-badge" style="font-size: 10px; padding: 1px 5px;">${reelsOnDay.length}</span>` : ''}
+            ${reelsOnDay.length > 0 ? `<span class="cal-day-count">${reelsOnDay.length}</span>` : ''}
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 3px; flex: 1; overflow: hidden;">
-            ${reelsOnDay.slice(0, 3).map((r) => {
+          <div class="cal-day-reels">
+            ${reelsOnDay.map((r) => {
               const formatMeta = getFormatById(r.format);
               const isMain = r.is_main_reel;
               const isPosted = r.status === 'posted';
@@ -3147,14 +3276,13 @@ const ScheduleView = {
               else if (isFilmed) badgeBg = 'background: var(--accent-blue-subtle); color: var(--accent-blue);';
 
               return `
-                <div class="cal-reel-card" draggable="true" data-reel-id="${r.id}" style="font-size: 10.5px; font-weight: 600; padding: 2px 4px; border-radius: var(--radius-xs); ${badgeBg} white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; items-center; gap: 3px; cursor: grab;" title="Drag to another date: ${escapeHtml(r.title)}">
+                <div class="cal-reel-card" draggable="true" data-reel-id="${r.id}" style="${badgeBg}" title="Drag to another date: ${escapeHtml(r.title)}">
                   <span>${formatMeta.icon || '💡'}</span>
                   <span>${isMain ? '⭐ ' : ''}${escapeHtml(r.title)}</span>
                 </div>
               `;
             }).join('')}
 
-            ${reelsOnDay.length > 3 ? `<span style="font-size: 10px; color: var(--text-tertiary);">+${reelsOnDay.length - 3} more</span>` : ''}
           </div>
         </div>
       `;
@@ -3186,7 +3314,7 @@ const ScheduleView = {
     // Auto Reshuffle Future
     document.getElementById('btn-recalculate-schedule')?.addEventListener('click', async () => {
       const res = await recalculateFutureSchedule();
-      showToast(`Uniformly re-sprinkled ${res.updatedCount} future trial reels over 2 weeks!`, 'success');
+      showToast(`Reshuffled ${res.updatedCount} unpinned reels.`, 'success');
       ScheduleView.render(container, navigateTo, openModal);
     });
 
@@ -3224,6 +3352,11 @@ const ScheduleView = {
         }
         if (reel.status === 'posted' || reel.is_locked) {
           showToast(reel.is_locked ? 'Unpin this date before moving the post.' : 'Posted items cannot be rescheduled.', 'info');
+          return;
+        }
+        const dailyLimit = profile.maxPostsPerDay || 1;
+        if ((reelsByDate[newDate] || []).length >= dailyLimit) {
+          showToast(`This day already has the ${dailyLimit}-post limit. Choose another date.`, 'info');
           return;
         }
         reel.scheduled_date = newDate;
@@ -3285,7 +3418,7 @@ const ScheduleView = {
                 <div class="flex items-center gap-2">
                   <span style="font-size: 18px;">${formatMeta.icon || '💡'}</span>
                   <span class="action-card-badge ${isMain ? 'badge-purple' : 'badge-gray'}">
-                    ${isMain ? '⭐ Main Reel' : reel.is_mirrored_trial ? '🔁 Mirrored Trial' : enableTrialReels ? 'Trial Reel' : 'Scheduled Post'}
+                    ${isMain ? '⭐ Main Reel' : reel.is_mirrored_trial ? '🔁 Mirrored Trial' : reel.is_trial_reel ? 'Trial Reel' : 'Scheduled Post'}
                   </span>
                   <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">
                     ${escapeHtml(reel.format)}
@@ -3342,14 +3475,24 @@ const ScheduleView = {
 
                 <div class="flex gap-2">
                   ${
+                    reel.script
+                      ? `<button class="btn btn-secondary btn-sm btn-detail-view-script" data-id="${reel.id}">View & Edit Script</button>`
+                      : ''
+                  }
+                  ${
                     enableFilming && !isFilmed && !isPosted
                       ? `<button class="btn btn-secondary btn-sm btn-detail-film" data-id="${reel.id}">Mark Filmed</button>`
                       : ''
                   }
                   ${
+                    !isPosted && !isFilmed
+                      ? `<button class="btn btn-secondary btn-sm btn-detail-convert" data-id="${reel.id}" data-type="${isMain ? 'trial' : 'main'}">${isMain ? 'Convert to Trial' : 'Convert to Main'}</button>`
+                      : ''
+                  }
+                  ${
                     !isPosted
                       ? `<button class="btn btn-primary btn-sm btn-detail-post" data-id="${reel.id}">Mark Posted</button>`
-                      : enableTrialReels ? `<button class="btn btn-secondary btn-sm btn-detail-feedback" data-id="${reel.id}">Log 3-Day Feedback</button>` : ''
+                      : enableTrialReels && reel.is_trial_reel ? `<button class="btn btn-secondary btn-sm btn-detail-feedback" data-id="${reel.id}">Log 3-Day Feedback</button>` : ''
                   }
                 </div>
               </div>
@@ -3378,6 +3521,18 @@ const ScheduleView = {
       });
     });
 
+    modalBody.querySelectorAll('.btn-detail-view-script').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const reel = await db.getScheduledReel(e.currentTarget.dataset.id);
+        if (!reel?.script) {
+          showToast('There is no script available for this reel.', 'info');
+          return;
+        }
+        modalOverlay.classList.add('hidden');
+        openModal('scriptDetail', { reel });
+      });
+    });
+
     modalBody.querySelectorAll('.btn-detail-post').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         const id = e.currentTarget.dataset.id;
@@ -3386,10 +3541,27 @@ const ScheduleView = {
           reel.status = 'posted';
           reel.posted_date = formatDateForInput(new Date());
           await db.saveScheduledReel(reel);
-          showToast('Marked as Posted! 3-day feedback timer started.', 'success');
+          showToast(reel.is_trial_reel ? 'Marked as posted. It can be compared after three days.' : 'Marked as posted.', 'success');
           modalOverlay.classList.add('hidden');
           ScheduleView.render(document.getElementById('view-container'), navigateTo, openModal);
         }
+      });
+    });
+
+    modalBody.querySelectorAll('.btn-detail-convert').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const reel = await db.getScheduledReel(e.currentTarget.dataset.id);
+        if (!reel) return;
+        const becomesTrial = e.currentTarget.dataset.type === 'trial';
+        reel.is_main_reel = !becomesTrial;
+        reel.is_trial_reel = becomesTrial;
+        reel.is_mirrored_trial = false;
+        reel.variant = becomesTrial ? undefined : 'main';
+        await db.saveScheduledReel(reel);
+        await recalculateFutureSchedule();
+        showToast(becomesTrial ? 'Converted to a Trial Reel.' : 'Converted to a Main Reel.', 'success');
+        modalOverlay.classList.add('hidden');
+        ScheduleView.render(document.getElementById('view-container'), navigateTo, openModal);
       });
     });
 
@@ -3429,6 +3601,14 @@ const ScheduleView = {
         if (!reel || reel.status === 'posted') return;
         if (reel.is_locked) {
           showToast('Unpin this date before rescheduling.', 'info');
+          return;
+        }
+        const profile = await db.getProfile();
+        const dailyLimit = profile.maxPostsPerDay || 1;
+        const allReels = await db.getScheduledReels();
+        const postsOnNewDate = allReels.filter((item) => item.id !== reel.id && item.scheduled_date === newDate);
+        if (postsOnNewDate.length >= dailyLimit) {
+          showToast(`This day already has the ${dailyLimit}-post limit. Choose another date.`, 'info');
           return;
         }
         reel.scheduled_date = newDate;
@@ -3495,10 +3675,14 @@ const ManualScriptModal = {
         return;
       }
 
-      await scheduleManualScript({ title, script, scheduledDate: date });
-      showToast(`Added to ${date}.`, 'success');
-      closeModal();
-      navigateTo('schedule');
+      try {
+        await scheduleManualScript({ title, script, scheduledDate: date });
+        showToast(`Added to ${date}.`, 'success');
+        closeModal();
+        navigateTo('schedule');
+      } catch (error) {
+        showToast(error.message || 'Unable to add this script to that date.', 'error');
+      }
     });
   }
 };
@@ -3523,14 +3707,19 @@ const TrialFeedbackModal = {
     }
 
     const currentReel = await db.getScheduledReel(reelId);
-    if (!currentReel) {
+    if (!currentReel || !currentReel.is_trial_reel || !currentReel.insight_id) {
       onDone();
       return;
     }
 
     // Fetch all reels for the same parent Insight to compare formats
     const allReels = await db.getScheduledReels();
-    const siblingReels = allReels.filter((r) => r.insight_id === currentReel.insight_id);
+    const siblingReels = allReels.filter((r) => r.insight_id === currentReel.insight_id && r.is_trial_reel);
+    if (siblingReels.length < 2) {
+      showToast('Feedback is available only when there are at least two trial reels to compare.', 'info');
+      onDone();
+      return;
+    }
     const postedSiblings = siblingReels.filter((r) => r.status === 'posted' || r.feedback_logged || r.id === currentReel.id);
 
     const existingMetrics = currentReel.metrics || {};
@@ -3700,8 +3889,15 @@ const FeedbackView = {
     const feedbackDue = [];
     const awaitingCheck = [];
     const historyReels = [];
+    const trialCountByInsight = allReels.reduce((counts, reel) => {
+      if (reel.is_trial_reel && reel.insight_id) counts[reel.insight_id] = (counts[reel.insight_id] || 0) + 1;
+      return counts;
+    }, {});
 
     allReels.forEach((r) => {
+      // Feedback exists to compare trials. Direct-to-main and custom scripts
+      // intentionally never appear here; neither has a meaningful comparison.
+      if (!r.is_trial_reel || !r.insight_id || trialCountByInsight[r.insight_id] < 2) return;
       if (r.status !== 'posted' && !r.feedback_logged) return;
 
       if (r.feedback_logged) {
@@ -4269,10 +4465,9 @@ const SettingsView = {
           </section>
 
           <section class="card settings-card">
-            ${cardHead('🗓️', 'Schedule', 'Space approved scripts evenly and avoid overloading a single day.')}
-            <div class="form-group"><label class="form-label" for="setting-sprinkle-window">Scheduling window</label><select id="setting-sprinkle-window" class="form-select"><option value="7" ${profile.sprinkleWindowDays === 7 ? 'selected' : ''}>1 week (7 days)</option><option value="14" ${!profile.sprinkleWindowDays || profile.sprinkleWindowDays === 14 ? 'selected' : ''}>2 weeks (14 days)</option><option value="21" ${profile.sprinkleWindowDays === 21 ? 'selected' : ''}>3 weeks (21 days)</option><option value="30" ${profile.sprinkleWindowDays === 30 ? 'selected' : ''}>1 month (30 days)</option></select></div>
-            <div class="form-group"><label class="form-label" for="setting-max-posts">Maximum posts per day</label><select id="setting-max-posts" class="form-select"><option value="1" ${!profile.maxPostsPerDay || profile.maxPostsPerDay === 1 ? 'selected' : ''}>1 post</option><option value="2" ${profile.maxPostsPerDay === 2 ? 'selected' : ''}>2 posts</option><option value="3" ${profile.maxPostsPerDay === 3 ? 'selected' : ''}>3 posts</option></select></div>
-            <div class="form-group"><label class="form-label" for="setting-sprinkle-strategy">Distribution</label><select id="setting-sprinkle-strategy" class="form-select"><option value="uniform" ${!profile.sprinkleStrategy || profile.sprinkleStrategy === 'uniform' ? 'selected' : ''}>Uniform spacing</option><option value="front_loaded" ${profile.sprinkleStrategy === 'front_loaded' ? 'selected' : ''}>Front-loaded</option></select></div><div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-resprinkle-now">Re-space schedule</button><button class="btn btn-primary btn-sm" id="btn-save-sprinkle-settings">Save</button></div>
+            ${cardHead('🗓️', 'Auto-schedule', 'New scripts reshuffle automatically. Pinned, filmed, posted, and main reels stay exactly where they are.')}
+            <div class="form-group"><label class="form-label" for="setting-posting-days">Schedule on</label><select id="setting-posting-days" class="form-select"><option value="daily" ${!profile.postingDays || profile.postingDays.includes('Daily') ? 'selected' : ''}>Every calendar day</option><option value="weekdays" ${profile.postingDays?.join(',') === 'Mon,Tue,Wed,Thu,Fri' ? 'selected' : ''}>Weekdays only</option><option value="mwf" ${profile.postingDays?.join(',') === 'Mon,Wed,Fri' ? 'selected' : ''}>Monday, Wednesday & Friday</option></select></div>
+            <div class="form-group"><label class="form-label" for="setting-max-posts">Maximum posts per day</label><select id="setting-max-posts" class="form-select"><option value="1" ${profile.maxPostsPerDay === 1 ? 'selected' : ''}>1 post</option><option value="2" ${profile.maxPostsPerDay === 2 ? 'selected' : ''}>2 posts</option><option value="3" ${!profile.maxPostsPerDay || profile.maxPostsPerDay === 3 ? 'selected' : ''}>3 posts</option></select><p class="settings-helper">The scheduler spreads a batch evenly and only uses a third post when needed (for example, 7 reels becomes 2 / 3 / 2).</p></div><div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-resprinkle-now">Reshuffle unpinned reels</button><button class="btn btn-primary btn-sm" id="btn-save-sprinkle-settings">Save</button></div>
           </section>
 
           <section class="card settings-card">
@@ -4281,6 +4476,70 @@ const SettingsView = {
             <div class="settings-choice" style="margin-top:16px;"><input type="checkbox" id="setting-enable-trial-reels" ${profile.enableTrialReelWorkflow !== false ? 'checked' : ''}><div><label for="setting-enable-trial-reels">Enable trial reels and performance evaluation</label><p>Test accepted scripts as trial reels, then request a 3-day performance check and main-reel decision. Turn this off for a simpler publishing workflow.</p></div></div>
             <div class="settings-choice" style="margin-top:16px;"><input type="checkbox" id="setting-enable-mirrored-trials" ${profile.enableMirroredTrialWorkflow === true ? 'checked' : ''}><div><label for="setting-enable-mirrored-trials">Create mirrored trial reels</label><p>Also schedule an editable second version of each trial. Versions are sprinkled apart so one script can become a trial, mirrored trial, and (if it wins) a main reel.</p></div></div>
             <div class="form-group" style="margin-top:16px; margin-bottom:0;"><label class="form-label" for="setting-missed-post-mode">When a post is missed</label><select id="setting-missed-post-mode" class="form-select"><option value="manual" ${(profile.missedPostRescheduleMode || 'manual') === 'manual' ? 'selected' : ''}>Ask me first</option><option value="auto" ${profile.missedPostRescheduleMode === 'auto' ? 'selected' : ''}>Automatically reschedule</option></select><p class="settings-helper">Automatic mode moves only missed posts and leaves filmed reels in place.</p></div><div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-replay-tutorial">Replay guided tutorial</button></div>
+          </section>
+
+          <!-- WebDAV Cloud Sync Card -->
+          <section class="card settings-card settings-card-wide" id="section-webdav-sync">
+            ${cardHead('☁️', 'Cloud Sync (WebDAV)', 'Sync your workspace across devices with your own cloud or self-hosted server (Nextcloud, ownCloud, NAS, Caddy/Nginx).')}
+            
+            <div class="webdav-status-bar ${isWebDavConfigured ? 'status-connected' : 'status-disconnected'}">
+              <div class="status-badge-dot"></div>
+              <div class="status-badge-text">
+                <strong>${isWebDavConfigured ? (webdavConfig.autoSync ? 'Auto-Sync Active' : 'Connected (Manual Sync)') : 'Local-First (Offline)'}</strong>
+                <span>${webdavMeta?.lastSync ? `Last synced: ${new Date(webdavMeta.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} (${webdavMeta.lastSyncAction === 'push' ? 'Uploaded' : 'Downloaded'})` : 'Your workspace stays private in local browser storage until configured.'}</span>
+              </div>
+            </div>
+
+            <form id="form-webdav-config" style="margin-top:16px;">
+              <div class="settings-form-grid">
+                <div class="form-group full-width">
+                  <label class="form-label" for="webdav-url">WebDAV Server Directory URL</label>
+                  <input type="url" id="webdav-url" class="form-input" placeholder="https://cloud.example.com/remote.php/dav/files/user/ContentMate/" value="${escapeHtml(webdavConfig.url || '')}">
+                  <p class="settings-helper">URL of your WebDAV directory. Examples: Nextcloud, ownCloud, NAS WebDAV, or self-hosted server.</p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="webdav-user">Username</label>
+                  <input type="text" id="webdav-user" class="form-input" autocomplete="username" value="${escapeHtml(webdavConfig.username || '')}">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="webdav-pass">App Password / Token</label>
+                  <input type="password" id="webdav-pass" class="form-input" autocomplete="current-password" placeholder="${webdavConfig.password ? '••••••••' : 'App password or token'}" value="${escapeHtml(webdavConfig.password || '')}">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="webdav-filename">Remote Sync File Name</label>
+                  <input type="text" id="webdav-filename" class="form-input" value="${escapeHtml(webdavConfig.filename || 'contentmate-data.json')}">
+                </div>
+                <div class="form-group">
+                  <div class="settings-choice" style="margin-top:22px;">
+                    <input type="checkbox" id="webdav-autosync" ${webdavConfig.autoSync ? 'checked' : ''}>
+                    <div>
+                      <label for="webdav-autosync">Enable Background Auto-Sync</label>
+                      <p>Syncs on startup and debounces cloud updates after local edits.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-card-actions">
+                <button type="submit" class="btn btn-primary btn-sm" id="btn-save-webdav">Save Cloud Settings</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-test-webdav">Test Connection</button>
+                ${isWebDavConfigured ? `
+                  <button type="button" class="btn btn-primary btn-sm" id="btn-sync-now" style="background:var(--accent-blue);">⚡ Sync Now</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-push-webdav" title="Upload local state to WebDAV">Push to Cloud</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-pull-webdav" title="Download latest state from WebDAV">Pull from Cloud</button>
+                  <button type="button" class="btn btn-danger btn-sm" id="btn-disconnect-webdav">Disconnect</button>
+                ` : ''}
+              </div>
+            </form>
+
+            <details class="webdav-help-details" style="margin-top:14px;">
+              <summary style="font-size:12.5px; color:var(--text-secondary); cursor:pointer; font-weight:500;">💡 Self-hosting & CORS setup guide</summary>
+              <div style="font-size:12px; color:var(--text-secondary); line-height:1.5; margin-top:8px; padding:10px 12px; background:var(--bg-subtle); border-radius:var(--radius-sm);">
+                <p style="margin:0 0 6px;"><strong>Nextcloud / ownCloud:</strong> Go to <em>Settings → Security → Devices & client passwords</em> to generate a dedicated App Password.</p>
+                <p style="margin:0 0 6px;"><strong>Self-hosted Nginx / Caddy:</strong> Ensure CORS headers (<code>Access-Control-Allow-Origin: *</code>, <code>Access-Control-Allow-Methods: PROPFIND, GET, PUT, HEAD, OPTIONS, MKCOL, DELETE</code>, <code>Access-Control-Allow-Headers: Authorization, Content-Type, Depth</code>) are configured, or host ContentMate behind the same reverse proxy.</p>
+                <p style="margin:0;"><strong>Offline Safety:</strong> All data is stored in browser IndexedDB first. WebDAV operates non-destructively.</p>
+              </div>
+            </details>
           </section>
 
           <section class="card settings-card">${cardHead('↥', 'Backup & restore', 'Your workspace stays in this browser. Save a JSON backup before changing devices or resetting data.')}<div class="settings-card-actions"><button class="btn btn-secondary btn-sm" id="btn-export-json">Export backup</button><button class="btn btn-secondary btn-sm" id="btn-import-json-trigger">Restore backup</button><input type="file" id="input-file-backup" accept=".json,application/json" class="hidden"></div></section>
@@ -4336,14 +4595,128 @@ const SettingsView = {
       showToast('Default writing instructions restored.', 'success');
     });
 
-    const saveSchedule = async (andRespace = false) => { await saveProfile({ sprinkleWindowDays: Number(document.getElementById('setting-sprinkle-window').value), maxPostsPerDay: Number(document.getElementById('setting-max-posts').value), sprinkleStrategy: document.getElementById('setting-sprinkle-strategy').value }); const result = await recalculateFutureSchedule(); showToast(andRespace ? `Re-spaced ${result.updatedCount} future reels.` : 'Schedule settings saved and re-spaced.', 'success'); };
+    const saveSchedule = async (andRespace = false) => { const postingDayOptions = { daily: ['Daily'], weekdays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], mwf: ['Mon', 'Wed', 'Fri'] }; await saveProfile({ postingDays: postingDayOptions[document.getElementById('setting-posting-days').value], maxPostsPerDay: Number(document.getElementById('setting-max-posts').value), schedulerVersion: 2 }); const result = await recalculateFutureSchedule(); showToast(andRespace ? `Reshuffled ${result.updatedCount} unpinned reels.` : 'Schedule settings saved and reels reshuffled.', 'success'); };
     document.getElementById('btn-save-sprinkle-settings')?.addEventListener('click', () => saveSchedule(false));
     document.getElementById('btn-resprinkle-now')?.addEventListener('click', () => saveSchedule(true));
     document.getElementById('setting-enable-filming')?.addEventListener('change', (event) => saveProfile({ enableFilmingWorkflow: event.target.checked }, event.target.checked ? 'Filming workflow enabled.' : 'Filming workflow disabled.'));
     document.getElementById('setting-enable-trial-reels')?.addEventListener('change', (event) => saveProfile({ enableTrialReelWorkflow: event.target.checked }, event.target.checked ? 'Trial reels and performance evaluation enabled.' : 'Simple publishing workflow enabled.'));
-    document.getElementById('setting-enable-mirrored-trials')?.addEventListener('change', async (event) => { await saveProfile({ enableMirroredTrialWorkflow: event.target.checked }, event.target.checked ? 'Mirrored trial reels enabled.' : 'Mirrored trial reels disabled.'); if (event.target.checked) { await recalculateFutureSchedule(); } });
+    document.getElementById('setting-enable-mirrored-trials')?.addEventListener('change', async (event) => {
+      const enabled = event.target.checked;
+      if (!enabled) {
+        const mirrored = (await db.getScheduledReels()).filter((reel) => reel.is_mirrored_trial && reel.status === 'scheduled');
+        if (mirrored.length && confirm(`Remove ${mirrored.length} scheduled mirrored trial${mirrored.length === 1 ? '' : 's'} as well?`)) {
+          for (const reel of mirrored) await db.deleteScheduledReel(reel.id);
+        }
+        await saveProfile({ enableMirroredTrialWorkflow: false }, 'Mirrored trials disabled.');
+        await recalculateFutureSchedule();
+        return;
+      }
+
+      await saveProfile({ enableMirroredTrialWorkflow: true }, 'Mirrored trials enabled.');
+      if (confirm('Also create mirrored versions of all eligible future trial reels?')) {
+        const created = await mirrorFutureTrialReels();
+        showToast(created ? `Created ${created} mirrored future trial${created === 1 ? '' : 's'}.` : 'No eligible future trial reels to mirror.', 'success');
+      } else {
+        await recalculateFutureSchedule();
+      }
+    });
     document.getElementById('setting-missed-post-mode')?.addEventListener('change', (event) => saveProfile({ missedPostRescheduleMode: event.target.value }, 'Missed-post preference saved.'));
     document.getElementById('btn-replay-tutorial')?.addEventListener('click', () => window.dispatchEvent(new Event('contentmate-replay-tutorial')));
+
+    // WebDAV Form & Action Listeners
+    const getWebDavFormValues = () => ({
+      url: document.getElementById('webdav-url')?.value.trim() || '',
+      username: document.getElementById('webdav-user')?.value.trim() || '',
+      password: document.getElementById('webdav-pass')?.value || '',
+      filename: document.getElementById('webdav-filename')?.value.trim() || 'contentmate-data.json',
+      autoSync: Boolean(document.getElementById('webdav-autosync')?.checked)
+    });
+
+    document.getElementById('form-webdav-config')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const config = getWebDavFormValues();
+      if (!config.url) {
+        showToast('Please enter a WebDAV server URL.', 'error');
+        return;
+      }
+      WebDAVClient.saveConfig(config);
+      showToast('WebDAV settings saved.', 'success');
+      this.render(container, navigateTo);
+    });
+
+    document.getElementById('btn-test-webdav')?.addEventListener('click', async () => {
+      const config = getWebDavFormValues();
+      if (!config.url) {
+        showToast('Please enter a WebDAV server URL first.', 'error');
+        return;
+      }
+      const testBtn = document.getElementById('btn-test-webdav');
+      if (testBtn) { testBtn.disabled = true; testBtn.textContent = 'Testing...'; }
+      try {
+        const result = await WebDAVClient.testConnection(config);
+        showToast(result.message || 'Successfully connected to WebDAV server!', 'success');
+      } catch (err) {
+        showToast(`Connection test failed: ${err.message}`, 'error');
+      } finally {
+        if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test Connection'; }
+      }
+    });
+
+    document.getElementById('btn-sync-now')?.addEventListener('click', async () => {
+      const syncBtn = document.getElementById('btn-sync-now');
+      if (syncBtn) { syncBtn.disabled = true; syncBtn.textContent = 'Syncing...'; }
+      try {
+        const result = await WebDAVClient.syncNow();
+        showToast(result.message || 'Sync completed successfully.', 'success');
+        this.render(container, navigateTo);
+      } catch (err) {
+        showToast(`Sync failed: ${err.message}`, 'error');
+      } finally {
+        if (syncBtn) { syncBtn.disabled = false; syncBtn.textContent = '⚡ Sync Now'; }
+      }
+    });
+
+    document.getElementById('btn-push-webdav')?.addEventListener('click', async () => {
+      if (!confirm('Push your local workspace to WebDAV cloud? This will overwrite the remote backup.')) return;
+      const pushBtn = document.getElementById('btn-push-webdav');
+      if (pushBtn) { pushBtn.disabled = true; pushBtn.textContent = 'Uploading...'; }
+      try {
+        const result = await WebDAVClient.pushToCloud();
+        showToast(result.message, 'success');
+        this.render(container, navigateTo);
+      } catch (err) {
+        showToast(`Push failed: ${err.message}`, 'error');
+      } finally {
+        if (pushBtn) { pushBtn.disabled = false; pushBtn.textContent = 'Push to Cloud'; }
+      }
+    });
+
+    document.getElementById('btn-pull-webdav')?.addEventListener('click', async () => {
+      if (!confirm('Pull workspace from WebDAV cloud? This will overwrite local changes with the cloud copy.')) return;
+      const pullBtn = document.getElementById('btn-pull-webdav');
+      if (pullBtn) { pullBtn.disabled = true; pullBtn.textContent = 'Downloading...'; }
+      try {
+        const result = await WebDAVClient.pullFromCloud();
+        if (result.found) {
+          showToast(result.message, 'success');
+          this.render(container, navigateTo);
+        } else {
+          showToast(result.message, 'info');
+        }
+      } catch (err) {
+        showToast(`Pull failed: ${err.message}`, 'error');
+      } finally {
+        if (pullBtn) { pullBtn.disabled = false; pullBtn.textContent = 'Pull from Cloud'; }
+      }
+    });
+
+    document.getElementById('btn-disconnect-webdav')?.addEventListener('click', () => {
+      if (confirm('Disconnect WebDAV sync? Your local data will remain intact in this browser.')) {
+        WebDAVClient.clearConfig();
+        showToast('WebDAV disconnected. App is now local-first only.', 'info');
+        this.render(container, navigateTo);
+      }
+    });
 
     document.getElementById('setting-dev-tools')?.addEventListener('change', (event) => {
       if (event.target.checked && !getDevToolsEnabled()) { event.target.checked = false; document.getElementById('dev-access-form')?.classList.remove('hidden'); document.getElementById('dev-access-key')?.focus(); }
@@ -5123,10 +5496,12 @@ class WorkflowTutorial {
 
 
 
+
 class ContentOSApp {
   constructor() {
     this.currentView = 'dashboard';
     this.modalActive = false;
+    this.activeModalType = null;
     this.onboardingActive = false;
     this.viewContainer = document.getElementById('view-container');
     this.modalOverlay = document.getElementById('modal-overlay');
@@ -5173,7 +5548,13 @@ class ContentOSApp {
     // 4. Setup Modal listeners
     this.setupModals();
 
-    // 5. Initial View Load
+    // 5. Setup WebDAV Sync & listeners
+    this.setupWebDAV();
+    window.addEventListener('contentmate-data-changed', () => {
+      WebDAVClient.scheduleAutoPush();
+    });
+
+    // 6. Initial View Load
     const hash = window.location.hash.replace(/^#/, '');
     await this.navigateTo(hash || 'dashboard');
 
@@ -5181,8 +5562,66 @@ class ContentOSApp {
       await this.startOnboarding();
     }
 
-    // 6. Update Badge Counts
+    // 7. Update Badge Counts
     this.updateBadges();
+  }
+
+  setupWebDAV() {
+    const syncBtn = document.getElementById('header-btn-sync');
+    const syncDot = document.getElementById('header-sync-dot');
+
+    const updateSyncIndicator = () => {
+      const isConfigured = WebDAVClient.isConfigured();
+      if (syncBtn) {
+        syncBtn.classList.toggle('is-configured', isConfigured);
+        syncBtn.title = isConfigured ? 'WebDAV Cloud Sync: Connected (Click to sync now)' : 'WebDAV Cloud Sync: Offline / Local only';
+      }
+      if (syncDot) {
+        syncDot.classList.toggle('hidden', !isConfigured);
+      }
+    };
+
+    updateSyncIndicator();
+
+    window.addEventListener('contentmate-webdav-status-change', updateSyncIndicator);
+    window.addEventListener('contentmate-webdav-synced', updateSyncIndicator);
+
+    syncBtn?.addEventListener('click', async () => {
+      if (!WebDAVClient.isConfigured()) {
+        window.location.hash = 'settings';
+        setTimeout(() => {
+          document.getElementById('section-webdav-sync')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+        showToast('Configure your WebDAV server in Settings.', 'info');
+        return;
+      }
+
+      syncBtn.classList.add('syncing');
+      try {
+        const res = await WebDAVClient.syncNow();
+        showToast(res.message || 'Synced with cloud.', 'success');
+        this.navigateTo(this.currentView);
+        this.updateBadges();
+      } catch (err) {
+        showToast(`WebDAV Sync Error: ${err.message}`, 'error');
+      } finally {
+        syncBtn.classList.remove('syncing');
+      }
+    });
+
+    // Check startup auto-sync if enabled
+    const config = WebDAVClient.getConfig();
+    if (config?.autoSync && WebDAVClient.isConfigured()) {
+      WebDAVClient.syncNow().then((res) => {
+        if (res.action === 'pulled') {
+          showToast('Updated workspace from WebDAV cloud.', 'info');
+          this.navigateTo(this.currentView);
+          this.updateBadges();
+        }
+      }).catch((e) => {
+        console.warn('[WebDAV startup sync]:', e.message);
+      });
+    }
   }
 
   setupNavigation() {
@@ -5270,6 +5709,7 @@ class ContentOSApp {
 
   openModal(modalType, options = {}) {
     this.modalActive = true;
+    this.activeModalType = modalType;
     this.onboardingActive = modalType === 'onboarding';
     this.modalOverlay.classList.remove('hidden');
     this.modalCard?.classList.toggle('onboarding-card', modalType === 'onboarding');
@@ -5597,9 +6037,39 @@ class ContentOSApp {
     });
   }
 
-  closeModal() {
+  async closeModal() {
     if (this.onboardingActive) return;
+
+    if (this.activeModalType === 'insightCreate') {
+      const title = document.getElementById('insight-title')?.value.trim() || '';
+      const details = document.getElementById('insight-details')?.value.trim() || '';
+      const cta = document.getElementById('insight-cta')?.value.trim() || '';
+      const references = document.getElementById('insight-references')?.value.trim() || '';
+      const hasUnfinishedIdea = Boolean(title || details || cta || references);
+
+      if (hasUnfinishedIdea) {
+        const shouldSave = confirm('Your idea is not finished. Save your progress to Notes before leaving?\n\nSelect OK to save it, or Cancel to keep working.');
+        if (!shouldSave) return;
+
+        const noteText = [
+          title && `Idea: ${title}`,
+          details && `Details: ${details}`,
+          cta && `CTA: ${cta}`,
+          references && `Extra context: ${references}`
+        ].filter(Boolean).join('\n\n');
+        await db.addNote({
+          id: `note-${Date.now()}`,
+          text: noteText,
+          created_at: new Date().toISOString(),
+          is_archived: false,
+          source: 'unfinished_insight'
+        });
+        showToast('Unfinished idea saved to Notes.', 'success');
+      }
+    }
+
     this.modalActive = false;
+    this.activeModalType = null;
     this.modalOverlay.classList.add('hidden');
     this.modalCard?.classList.remove('onboarding-card');
     this.modalBody.innerHTML = '';
@@ -5625,8 +6095,12 @@ class ContentOSApp {
 
     // Feedback badge (posted >= 3 days ago)
     const systemDate = getSystemDate();
+    const trialCountByInsight = allReels.reduce((counts, reel) => {
+      if (reel.is_trial_reel && reel.insight_id) counts[reel.insight_id] = (counts[reel.insight_id] || 0) + 1;
+      return counts;
+    }, {});
     const feedbackDueCount = allReels.filter((r) => {
-      if (profile.enableTrialReelWorkflow === false || r.status !== 'posted' || r.feedback_logged) return false;
+      if (profile.enableTrialReelWorkflow === false || !r.is_trial_reel || !r.insight_id || trialCountByInsight[r.insight_id] < 2 || r.status !== 'posted' || r.feedback_logged) return false;
       const diff = Math.floor((systemDate - new Date(r.posted_date || r.scheduled_date)) / (1000 * 60 * 60 * 24));
       return diff >= 3;
     }).length;

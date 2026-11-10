@@ -17,14 +17,19 @@ export const TrialFeedbackModal = {
     }
 
     const currentReel = await db.getScheduledReel(reelId);
-    if (!currentReel) {
+    if (!currentReel || !currentReel.is_trial_reel || !currentReel.insight_id) {
       onDone();
       return;
     }
 
     // Fetch all reels for the same parent Insight to compare formats
     const allReels = await db.getScheduledReels();
-    const siblingReels = allReels.filter((r) => r.insight_id === currentReel.insight_id);
+    const siblingReels = allReels.filter((r) => r.insight_id === currentReel.insight_id && r.is_trial_reel);
+    if (siblingReels.length < 2) {
+      showToast('Feedback is available only when there are at least two trial reels to compare.', 'info');
+      onDone();
+      return;
+    }
     const postedSiblings = siblingReels.filter((r) => r.status === 'posted' || r.feedback_logged || r.id === currentReel.id);
 
     const existingMetrics = currentReel.metrics || {};

@@ -49,10 +49,14 @@ export const ManualScriptModal = {
         return;
       }
 
-      await scheduleManualScript({ title, script, scheduledDate: date });
-      showToast(`Added to ${date}.`, 'success');
-      closeModal();
-      navigateTo('schedule');
+      try {
+        await scheduleManualScript({ title, script, scheduledDate: date });
+        showToast(`Added to ${date}.`, 'success');
+        closeModal();
+        navigateTo('schedule');
+      } catch (error) {
+        showToast(error.message || 'Unable to add this script to that date.', 'error');
+      }
     });
   }
 };

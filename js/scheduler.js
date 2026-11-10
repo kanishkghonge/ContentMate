@@ -1,7 +1,7 @@
 /**
  * Content OS for Doctors — Intelligent Auto-Scheduler
  * Balances content formats and medical topics across calendar days.
- * Uniformly sprinkles unposted scripts over 14 days (or doctor's configured window).
+ * Randomly orders an incoming queue and evenly fills the next calendar days.
  */
 
 import { db } from './db.js';
@@ -32,6 +32,105 @@ export function getNextPostingDates(startDate, count, postingDays = ['Mon', 'Wed
   }
 
   return dates;
+}
+
+/**
+ * Returns every available posting slot inside a real calendar-day window.
+ * This differs from getNextPostingDates(): a 14-day window means 14 calendar
+ * days, not 14 Mon/Wed/Fri occurrences.
+ */
+function getPostingSlotsInWindow(startDate, windowDays, postingDays, maxPostsPerDay, existingCounts = {}) {
+  const slots = [];
+  const current = new Date(startDate);
+  current.setHours(0, 0, 0, 0);
+  const end = new Date(addDays(current, Math.max(0, windowDays - 1)));
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const allowAllDays = !postingDays || postingDays.length === 0 || postingDays.includes('Daily');
+
+  while (current <= end) {
+    const dateStr = formatDateForInput(current);
+    if (allowAllDays || postingDays.includes(dayNames[current.getDay()])) {
+      const available = Math.max(0, maxPostsPerDay - (existingCounts[dateStr] || 0));
+      for (let slot = 0; slot < available; slot++) slots.push(dateStr);
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  return slots;
+}
+
+function shuffle(items) {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const swapIndex = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[i]];
+  }
+  return shuffled;
+}
+
+/**
+ * Builds consecutive eligible-day slots for a batch. It uses the fewest days
+ * allowed by the daily cap, then spreads the batch as evenly as possible. For
+ * example, seven reels with a cap of three becomes 2 / 3 / 2.
+ */
+function getBalancedBatchSlots(startDate, itemCount, postingDays, maxPostsPerDay, existingCounts = {}) {
+  if (itemCount <= 0) return [];
+
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const allowAllDays = !postingDays || postingDays.length === 0 || postingDays.includes('Daily');
+  const candidateDays = [];
+  const current = new Date(startDate);
+  current.setHours(0, 0, 0, 0);
+
+  // Gather eligible days until their remaining capacity can hold the batch.
+  let capacity = 0;
+  for (let safety = 0; capacity < itemCount && safety < 365; safety++) {
+    const date = formatDateForInput(current);
+    if (allowAllDays || postingDays.includes(dayNames[current.getDay()])) {
+      const available = Math.max(0, maxPostsPerDay - (existingCounts[date] || 0));
+      if (available > 0) {
+        candidateDays.push({ date, available });
+        capacity += available;
+      }
+    }
+    current.setDate(current.getDate() + 1);
+  }
+
+  const dayCount = candidateDays.length;
+  const plannedCounts = Array(dayCount).fill(Math.floor(itemCount / dayCount));
+  let extras = itemCount % dayCount;
+  // Add extras from the centre outwards so a seven-reel batch is 2 / 3 / 2.
+  const centre = Math.floor(dayCount / 2);
+  const extraOrder = [centre];
+  for (let offset = 1; extraOrder.length < dayCount; offset++) {
+    if (centre - offset >= 0) extraOrder.push(centre - offset);
+    if (centre + offset < dayCount) extraOrder.push(centre + offset);
+  }
+  for (const index of extraOrder) {
+    if (extras-- <= 0) break;
+    plannedCounts[index]++;
+  }
+
+  let remaining = itemCount;
+  const assignedCounts = plannedCounts.map((planned, index) => {
+    const count = Math.min(planned, candidateDays[index].available);
+    remaining -= count;
+    return count;
+  });
+  // A pinned/filmed item can leave fewer open spaces on a particular day;
+  // place any overflow in the nearest later available calendar slots.
+  for (let index = 0; remaining > 0 && index < candidateDays.length; index++) {
+    const extraCapacity = candidateDays[index].available - assignedCounts[index];
+    const count = Math.min(extraCapacity, remaining);
+    assignedCounts[index] += count;
+    remaining -= count;
+  }
+
+  const slots = [];
+  candidateDays.forEach(({ date }, index) => {
+    for (let slot = 0; slot < assignedCounts[index]; slot++) slots.push(date);
+  });
+
+  return slots;
 }
 
 /**
@@ -80,9 +179,9 @@ export function balanceContentQueue(items) {
 }
 
 /**
- * Core Uniform Sprinkle Auto-Scheduling Routine
- * - Preserves posted, filmed (if enabled), locked, or past reels.
- * - Uniformly distributes all unposted, unlocked trial reels over the sprinkle window (default 14 days).
+ * Core batch auto-scheduler.
+ * - Preserves posted, filmed, pinned, and main reels.
+ * - Reorders every other reel into an even, compact run beginning today.
  * - Enforces max posts per day limit.
  */
 export async function recalculateFutureSchedule() {
@@ -90,22 +189,19 @@ export async function recalculateFutureSchedule() {
   const allReels = await db.getScheduledReels();
   const todayStr = formatDateForInput(getSystemDate());
 
-  const sprinkleWindowDays = profile.sprinkleWindowDays || 14;
-  const maxPostsPerDay = profile.maxPostsPerDay || 1;
-  const postingDays = profile.postingDays || ['Mon', 'Wed', 'Fri'];
-  const strategy = profile.sprinkleStrategy || 'uniform';
-  const enableFilming = profile.enableFilmingWorkflow === true;
+  const maxPostsPerDay = Math.min(3, Math.max(1, Number(profile.maxPostsPerDay) || 3));
+  const postingDays = profile.postingDays || ['Daily'];
 
   // 1. Separate FROZEN reels from MUTABLE reels
-  // Frozen: already posted, strictly past date (< todayStr), locked, or filmed (if filming enabled)
+  // Frozen: already posted, filmed, pinned, or a main reel. Past scheduled
+  // items remain mutable so a new batch also catches up missed work.
   const frozenReels = allReels.filter((reel) => {
-    const isPast = reel.scheduled_date < todayStr;
-    const isPosted = reel.status === 'posted';
-    const isFilmed = enableFilming && (reel.status === 'filmed' || reel.is_filmed);
+    const isPosted = ['posted', 'archived', 'winner'].includes(reel.status);
+    const isFilmed = reel.status === 'filmed' || reel.is_filmed;
     const isLocked = reel.is_locked === true;
     const isMainReel = reel.is_main_reel === true;
 
-    return isPast || isPosted || isFilmed || isLocked || isMainReel;
+    return isPosted || isFilmed || isLocked || isMainReel;
   });
 
   // Count how many frozen posts exist on each date
@@ -116,7 +212,7 @@ export async function recalculateFutureSchedule() {
     }
   });
 
-  // Mutable reels: unposted, unlocked, non-filmed reels on or after today
+  // Mutable reels: every unposted, unpinned, unfilmed non-main reel.
   const mutableReels = allReels.filter((reel) => {
     return !frozenReels.some((f) => f.id === reel.id);
   });
@@ -125,47 +221,14 @@ export async function recalculateFutureSchedule() {
     return { updatedCount: 0, totalReels: allReels.length };
   }
 
-  // 2. Interleave formats & topics for variety
-  const balancedQueue = balanceContentQueue(mutableReels);
-
-  // 3. Generate candidate open dates for the sprinkle window
-  // Represent every available post slot, not just every available day. This is
-  // essential when the doctor allows more than one post per day.
-  const candidateDates = [];
-  const rawDates = getNextPostingDates(getSystemDate(), Math.max(sprinkleWindowDays * 3, balancedQueue.length * 2), postingDays);
-
-  for (const dateStr of rawDates) {
-    const existingCount = postsCountByDate[dateStr] || 0;
-    const openSlots = Math.max(0, maxPostsPerDay - existingCount);
-    for (let slot = 0; slot < openSlots; slot++) {
-      candidateDates.push(dateStr);
-    }
-    if (candidateDates.length >= Math.max(sprinkleWindowDays, balancedQueue.length * 3)) {
-      break;
-    }
-  }
-
-  // 4. Uniformly space posts across candidate dates
-  const assignedDates = [];
+  // 2. Randomize each new batch, then interleave formats/topics where possible.
+  const balancedQueue = balanceContentQueue(shuffle(mutableReels));
   const totalPosts = balancedQueue.length;
 
-  if (strategy === 'front_loaded' || totalPosts === 1 || candidateDates.length <= totalPosts) {
-    // Fill first available open slots
-    for (let i = 0; i < totalPosts; i++) {
-      assignedDates.push(candidateDates[i] || candidateDates[candidateDates.length - 1]);
-    }
-  } else {
-    // True UNIFORM SPRINKLE: Spreads totalPosts evenly across candidateDates over 2 weeks
-    // Repeated dates only occur when that day genuinely has remaining capacity.
-    const maxIndex = candidateDates.length - 1;
-    const step = maxIndex / Math.max(1, totalPosts - 1 || 1);
-
-    for (let i = 0; i < totalPosts; i++) {
-      let targetIdx = Math.round(i * step);
-      if (targetIdx > maxIndex) targetIdx = maxIndex;
-      assignedDates.push(candidateDates[targetIdx]);
-    }
-  }
+  // 3. Fill the next eligible calendar days as evenly as possible.
+  const assignedDates = getBalancedBatchSlots(
+    getSystemDate(), totalPosts, postingDays, maxPostsPerDay, postsCountByDate
+  );
 
   // Keep variants of the same script apart. A mirrored trial should have time
   // to gather an independent audience, so reserve at least one other posting
@@ -184,7 +247,7 @@ export async function recalculateFutureSchedule() {
     lastVariantSlot.set(key, idx);
   });
 
-  // 5. Assign calculated dates to the balanced queue
+  // 4. Assign calculated dates to the balanced queue
   const updatedReels = balancedQueue.map((reel, idx) => {
     return {
       ...reel,
@@ -193,7 +256,7 @@ export async function recalculateFutureSchedule() {
     };
   });
 
-  // 6. Save back to IndexedDB
+  // 5. Save back to IndexedDB
   await db.saveScheduledReels([...frozenReels, ...updatedReels]);
 
   return {
@@ -211,13 +274,12 @@ export async function rescheduleMissedPosts() {
   const profile = await db.getProfile();
   const allReels = await db.getScheduledReels();
   const todayStr = formatDateForInput(getSystemDate());
-  const maxPostsPerDay = profile.maxPostsPerDay || 1;
-  const postingDays = profile.postingDays || ['Mon', 'Wed', 'Fri'];
-  const enableFilming = profile.enableFilmingWorkflow === true;
+  const maxPostsPerDay = Math.min(3, Math.max(1, Number(profile.maxPostsPerDay) || 3));
+  const postingDays = profile.postingDays || ['Daily'];
 
   const missedReels = allReels.filter((reel) => {
     const isMissed = reel.scheduled_date < todayStr && reel.status === 'scheduled';
-    const isFilmed = enableFilming && (reel.status === 'filmed' || reel.is_filmed);
+    const isFilmed = reel.status === 'filmed' || reel.is_filmed;
     return isMissed && !reel.is_locked && !reel.is_main_reel && !isFilmed;
   });
 
@@ -257,9 +319,9 @@ export async function rescheduleMissedPosts() {
 }
 
 /**
- * Creates a Trial Reel from an accepted script and triggers uniform sprinkle auto-scheduling.
+ * Creates a Trial Reel from an accepted script and reshuffles the eligible queue.
  */
-export async function scheduleAcceptedScript(script) {
+export async function scheduleAcceptedScript(script, reelType = 'trial') {
   const profile = await db.getProfile();
   const existingReels = await db.getScheduledReels();
   const duplicate = existingReels.find((r) => r.script_id === script.id);
@@ -284,8 +346,8 @@ export async function scheduleAcceptedScript(script) {
     scheduled_date: todayStr, // Will be uniformly positioned by recalculateFutureSchedule
     status: 'scheduled',
     is_locked: false,
-    is_main_reel: false,
-    is_trial_reel: profile.enableTrialReelWorkflow !== false,
+    is_main_reel: reelType === 'main',
+    is_trial_reel: reelType === 'trial',
     created_at: now,
     updated_at: now
   };
@@ -293,7 +355,7 @@ export async function scheduleAcceptedScript(script) {
   const reelsToSave = [newReel];
   // A mirrored trial is deliberately a separate reel (and remains editable),
   // allowing the same insight to be tested with a different cut/packaging.
-  if (profile.enableMirroredTrialWorkflow === true && profile.enableTrialReelWorkflow !== false) {
+  if (reelType === 'trial' && profile.enableMirroredTrialWorkflow === true && profile.enableTrialReelWorkflow !== false) {
     reelsToSave.push({
       ...newReel,
       id: uuidv4(),
@@ -313,11 +375,46 @@ export async function scheduleAcceptedScript(script) {
   return newReel;
 }
 
+export async function mirrorFutureTrialReels() {
+  const [profile, reels] = await Promise.all([db.getProfile(), db.getScheduledReels()]);
+  const today = formatDateForInput(getSystemDate());
+  const now = new Date().toISOString();
+  const mirrors = reels.filter((reel) => (
+    reel.is_trial_reel && !reel.is_mirrored_trial && !reel.is_main_reel &&
+    reel.status === 'scheduled' && !reel.is_filmed && !reel.is_locked &&
+    reel.scheduled_date >= today
+  )).map((reel) => ({
+    ...reel,
+    id: uuidv4(),
+    title: `🔁 [Mirrored Trial] ${reel.title}`,
+    variant: 'mirrored_trial',
+    is_mirrored_trial: true,
+    mirror_edit_required: true,
+    parent_trial_reel_id: reel.id,
+    created_at: now,
+    updated_at: now
+  }));
+  if (mirrors.length) {
+    await db.saveScheduledReels(mirrors);
+    await recalculateFutureSchedule();
+  }
+  return mirrors.length;
+}
+
 /**
  * Adds a hand-written script straight to the publishing calendar. Manual
- * entries are pinned so a future Re-Sprinkle never changes the chosen date.
+ * entries start unpinned, like every other reel, so the schedule remains
+ * flexible until the user explicitly pins a date.
  */
 export async function scheduleManualScript({ title, script, scheduledDate, cta = '' }) {
+  const profile = await db.getProfile();
+  const existingReels = await db.getScheduledReels();
+  const maxPostsPerDay = Math.min(3, Math.max(1, Number(profile.maxPostsPerDay) || 3));
+  const postsOnDate = existingReels.filter((reel) => reel.scheduled_date === scheduledDate);
+  if (postsOnDate.length >= maxPostsPerDay) {
+    throw new Error(`This day already has the ${maxPostsPerDay}-post limit. Choose another date.`);
+  }
+
   const newReel = {
     id: uuidv4(),
     script_id: null,
@@ -331,13 +428,14 @@ export async function scheduleManualScript({ title, script, scheduledDate, cta =
     estimated_duration: '',
     scheduled_date: scheduledDate,
     status: 'scheduled',
-    is_locked: true,
+    is_locked: false,
     is_main_reel: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
 
   await db.saveScheduledReel(newReel);
+  await recalculateFutureSchedule();
   return newReel;
 }
 
@@ -366,7 +464,7 @@ export async function promoteToMainReel(trialReelId) {
     estimated_duration: reel.estimated_duration,
     scheduled_date: mainReelDate,
     status: 'scheduled',
-    is_locked: true,
+    is_locked: false,
     is_main_reel: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()

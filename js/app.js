@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Content OS for Doctors — Main Application Coordinator & Router
  * Orchestrates local-first database, mobile bottom-nav, modal sheets, and views.
  */
@@ -20,11 +20,13 @@ import { syncInsightToIdeaMate } from './ideamate.js';
 import { WorkflowTutorial } from './tutorial.js';
 import { rescheduleMissedPosts } from './scheduler.js';
 import { formatDate, getSystemDate, escapeHtml, showToast, copyToClipboard } from './utils.js';
+import { WebDAVClient } from './webdav.js';
 
 class ContentOSApp {
   constructor() {
     this.currentView = 'dashboard';
     this.modalActive = false;
+    this.activeModalType = null;
     this.onboardingActive = false;
     this.viewContainer = document.getElementById('view-container');
     this.modalOverlay = document.getElementById('modal-overlay');
@@ -71,7 +73,13 @@ class ContentOSApp {
     // 4. Setup Modal listeners
     this.setupModals();
 
-    // 5. Initial View Load
+    // 5. Setup WebDAV Sync & listeners
+    this.setupWebDAV();
+    window.addEventListener('contentmate-data-changed', () => {
+      WebDAVClient.scheduleAutoPush();
+    });
+
+    // 6. Initial View Load
     const hash = window.location.hash.replace(/^#/, '');
     await this.navigateTo(hash || 'dashboard');
 
@@ -79,8 +87,66 @@ class ContentOSApp {
       await this.startOnboarding();
     }
 
-    // 6. Update Badge Counts
+    // 7. Update Badge Counts
     this.updateBadges();
+  }
+
+  setupWebDAV() {
+    const syncBtn = document.getElementById('header-btn-sync');
+    const syncDot = document.getElementById('header-sync-dot');
+
+    const updateSyncIndicator = () => {
+      const isConfigured = WebDAVClient.isConfigured();
+      if (syncBtn) {
+        syncBtn.classList.toggle('is-configured', isConfigured);
+        syncBtn.title = isConfigured ? 'WebDAV Cloud Sync: Connected (Click to sync now)' : 'WebDAV Cloud Sync: Offline / Local only';
+      }
+      if (syncDot) {
+        syncDot.classList.toggle('hidden', !isConfigured);
+      }
+    };
+
+    updateSyncIndicator();
+
+    window.addEventListener('contentmate-webdav-status-change', updateSyncIndicator);
+    window.addEventListener('contentmate-webdav-synced', updateSyncIndicator);
+
+    syncBtn?.addEventListener('click', async () => {
+      if (!WebDAVClient.isConfigured()) {
+        window.location.hash = 'settings';
+        setTimeout(() => {
+          document.getElementById('section-webdav-sync')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+        showToast('Configure your WebDAV server in Settings.', 'info');
+        return;
+      }
+
+      syncBtn.classList.add('syncing');
+      try {
+        const res = await WebDAVClient.syncNow();
+        showToast(res.message || 'Synced with cloud.', 'success');
+        this.navigateTo(this.currentView);
+        this.updateBadges();
+      } catch (err) {
+        showToast(`WebDAV Sync Error: ${err.message}`, 'error');
+      } finally {
+        syncBtn.classList.remove('syncing');
+      }
+    });
+
+    // Check startup auto-sync if enabled
+    const config = WebDAVClient.getConfig();
+    if (config?.autoSync && WebDAVClient.isConfigured()) {
+      WebDAVClient.syncNow().then((res) => {
+        if (res.action === 'pulled') {
+          showToast('Updated workspace from WebDAV cloud.', 'info');
+          this.navigateTo(this.currentView);
+          this.updateBadges();
+        }
+      }).catch((e) => {
+        console.warn('[WebDAV startup sync]:', e.message);
+      });
+    }
   }
 
   setupNavigation() {
@@ -168,6 +234,7 @@ class ContentOSApp {
 
   openModal(modalType, options = {}) {
     this.modalActive = true;
+    this.activeModalType = modalType;
     this.onboardingActive = modalType === 'onboarding';
     this.modalOverlay.classList.remove('hidden');
     this.modalCard?.classList.toggle('onboarding-card', modalType === 'onboarding');
@@ -495,9 +562,39 @@ class ContentOSApp {
     });
   }
 
-  closeModal() {
+  async closeModal() {
     if (this.onboardingActive) return;
+
+    if (this.activeModalType === 'insightCreate') {
+      const title = document.getElementById('insight-title')?.value.trim() || '';
+      const details = document.getElementById('insight-details')?.value.trim() || '';
+      const cta = document.getElementById('insight-cta')?.value.trim() || '';
+      const references = document.getElementById('insight-references')?.value.trim() || '';
+      const hasUnfinishedIdea = Boolean(title || details || cta || references);
+
+      if (hasUnfinishedIdea) {
+        const shouldSave = confirm('Your idea is not finished. Save your progress to Notes before leaving?\n\nSelect OK to save it, or Cancel to keep working.');
+        if (!shouldSave) return;
+
+        const noteText = [
+          title && `Idea: ${title}`,
+          details && `Details: ${details}`,
+          cta && `CTA: ${cta}`,
+          references && `Extra context: ${references}`
+        ].filter(Boolean).join('\n\n');
+        await db.addNote({
+          id: `note-${Date.now()}`,
+          text: noteText,
+          created_at: new Date().toISOString(),
+          is_archived: false,
+          source: 'unfinished_insight'
+        });
+        showToast('Unfinished idea saved to Notes.', 'success');
+      }
+    }
+
     this.modalActive = false;
+    this.activeModalType = null;
     this.modalOverlay.classList.add('hidden');
     this.modalCard?.classList.remove('onboarding-card');
     this.modalBody.innerHTML = '';
@@ -523,8 +620,12 @@ class ContentOSApp {
 
     // Feedback badge (posted >= 3 days ago)
     const systemDate = getSystemDate();
+    const trialCountByInsight = allReels.reduce((counts, reel) => {
+      if (reel.is_trial_reel && reel.insight_id) counts[reel.insight_id] = (counts[reel.insight_id] || 0) + 1;
+      return counts;
+    }, {});
     const feedbackDueCount = allReels.filter((r) => {
-      if (profile.enableTrialReelWorkflow === false || r.status !== 'posted' || r.feedback_logged) return false;
+      if (profile.enableTrialReelWorkflow === false || !r.is_trial_reel || !r.insight_id || trialCountByInsight[r.insight_id] < 2 || r.status !== 'posted' || r.feedback_logged) return false;
       const diff = Math.floor((systemDate - new Date(r.posted_date || r.scheduled_date)) / (1000 * 60 * 60 * 24));
       return diff >= 3;
     }).length;

@@ -46,7 +46,7 @@ export const ScheduleView = {
               Publishing Calendar
             </h2>
             <p style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">
-              Uniformly sprinkled across ${profile.sprinkleWindowDays || 14} days. Click any cell to view post details.
+              New reels are evenly arranged from today onward. Pinned and filmed reels keep their dates.
             </p>
           </div>
 
@@ -56,7 +56,7 @@ export const ScheduleView = {
             </button>
             <button class="btn btn-secondary btn-sm" id="btn-recalculate-schedule">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
-              <span>Re-Sprinkle Schedule</span>
+              <span>Reshuffle Unpinned</span>
             </button>
           </div>
         </div>
@@ -77,17 +77,20 @@ export const ScheduleView = {
         </div>
 
         <!-- Visual Grid Calendar -->
-        <div class="card" style="padding: 12px; overflow-x: auto;">
-          <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; font-size: 12px; font-weight: 700; color: var(--text-tertiary); margin-bottom: 8px;">
-            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;">
+        <div class="card calendar-scroll-wrap">
+          <div class="calendar-grid" role="grid" aria-label="${escapeHtml(monthName)} publishing calendar">
+            <div class="calendar-weekday" role="columnheader">Sun</div>
+            <div class="calendar-weekday" role="columnheader">Mon</div>
+            <div class="calendar-weekday" role="columnheader">Tue</div>
+            <div class="calendar-weekday" role="columnheader">Wed</div>
+            <div class="calendar-weekday" role="columnheader">Thu</div>
+            <div class="calendar-weekday" role="columnheader">Fri</div>
+            <div class="calendar-weekday" role="columnheader">Sat</div>
     `;
 
     // Blank cells before first day
     for (let i = 0; i < firstDayIndex; i++) {
-      html += `<div style="background: var(--bg-subtle); border-radius: var(--radius-sm); min-height: 78px; opacity: 0.3;"></div>`;
+      html += `<div class="cal-day-empty" aria-hidden="true"></div>`;
     }
 
     // Days of the month
@@ -97,22 +100,17 @@ export const ScheduleView = {
       const isToday = dateStr === todayStr;
       const reelsOnDay = reelsByDate[dateStr] || [];
 
-      let dayStyle = 'background: #FFFFFF; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 6px; min-height: 84px; display: flex; flex-direction: column; cursor: pointer; transition: all var(--transition-fast);';
-      if (isToday) {
-        dayStyle = 'background: #FFFFFF; border: 2px solid var(--accent-blue); border-radius: var(--radius-md); padding: 6px; min-height: 84px; display: flex; flex-direction: column; cursor: pointer; box-shadow: var(--shadow-xs);';
-      }
-
       html += `
-        <div class="cal-day-cell" data-date="${dateStr}" style="${dayStyle}">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-            <span style="font-size: 13px; font-weight: ${isToday ? '800' : '600'}; color: ${isToday ? 'var(--accent-blue)' : 'var(--text-primary)'};">
+        <div class="cal-day-cell${isToday ? ' is-today' : ''}" data-date="${dateStr}" role="gridcell" aria-label="${escapeHtml(formatFullDate(dateStr))}, ${reelsOnDay.length} scheduled ${reelsOnDay.length === 1 ? 'post' : 'posts'}">
+          <div class="cal-day-cell-header">
+            <span class="cal-day-number">
               ${day} ${isToday ? '📍' : ''}
             </span>
-            ${reelsOnDay.length > 0 ? `<span class="nav-badge" style="font-size: 10px; padding: 1px 5px;">${reelsOnDay.length}</span>` : ''}
+            ${reelsOnDay.length > 0 ? `<span class="cal-day-count">${reelsOnDay.length}</span>` : ''}
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 3px; flex: 1; overflow: hidden;">
-            ${reelsOnDay.slice(0, 3).map((r) => {
+          <div class="cal-day-reels">
+            ${reelsOnDay.map((r) => {
               const formatMeta = getFormatById(r.format);
               const isMain = r.is_main_reel;
               const isPosted = r.status === 'posted';
@@ -124,14 +122,13 @@ export const ScheduleView = {
               else if (isFilmed) badgeBg = 'background: var(--accent-blue-subtle); color: var(--accent-blue);';
 
               return `
-                <div class="cal-reel-card" draggable="true" data-reel-id="${r.id}" style="font-size: 10.5px; font-weight: 600; padding: 2px 4px; border-radius: var(--radius-xs); ${badgeBg} white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; items-center; gap: 3px; cursor: grab;" title="Drag to another date: ${escapeHtml(r.title)}">
+                <div class="cal-reel-card" draggable="true" data-reel-id="${r.id}" style="${badgeBg}" title="Drag to another date: ${escapeHtml(r.title)}">
                   <span>${formatMeta.icon || '💡'}</span>
                   <span>${isMain ? '⭐ ' : ''}${escapeHtml(r.title)}</span>
                 </div>
               `;
             }).join('')}
 
-            ${reelsOnDay.length > 3 ? `<span style="font-size: 10px; color: var(--text-tertiary);">+${reelsOnDay.length - 3} more</span>` : ''}
           </div>
         </div>
       `;
@@ -163,7 +160,7 @@ export const ScheduleView = {
     // Auto Reshuffle Future
     document.getElementById('btn-recalculate-schedule')?.addEventListener('click', async () => {
       const res = await recalculateFutureSchedule();
-      showToast(`Uniformly re-sprinkled ${res.updatedCount} future trial reels over 2 weeks!`, 'success');
+      showToast(`Reshuffled ${res.updatedCount} unpinned reels.`, 'success');
       ScheduleView.render(container, navigateTo, openModal);
     });
 
@@ -201,6 +198,11 @@ export const ScheduleView = {
         }
         if (reel.status === 'posted' || reel.is_locked) {
           showToast(reel.is_locked ? 'Unpin this date before moving the post.' : 'Posted items cannot be rescheduled.', 'info');
+          return;
+        }
+        const dailyLimit = profile.maxPostsPerDay || 1;
+        if ((reelsByDate[newDate] || []).length >= dailyLimit) {
+          showToast(`This day already has the ${dailyLimit}-post limit. Choose another date.`, 'info');
           return;
         }
         reel.scheduled_date = newDate;
@@ -262,7 +264,7 @@ export const ScheduleView = {
                 <div class="flex items-center gap-2">
                   <span style="font-size: 18px;">${formatMeta.icon || '💡'}</span>
                   <span class="action-card-badge ${isMain ? 'badge-purple' : 'badge-gray'}">
-                    ${isMain ? '⭐ Main Reel' : reel.is_mirrored_trial ? '🔁 Mirrored Trial' : enableTrialReels ? 'Trial Reel' : 'Scheduled Post'}
+                    ${isMain ? '⭐ Main Reel' : reel.is_mirrored_trial ? '🔁 Mirrored Trial' : reel.is_trial_reel ? 'Trial Reel' : 'Scheduled Post'}
                   </span>
                   <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">
                     ${escapeHtml(reel.format)}
@@ -319,14 +321,24 @@ export const ScheduleView = {
 
                 <div class="flex gap-2">
                   ${
+                    reel.script
+                      ? `<button class="btn btn-secondary btn-sm btn-detail-view-script" data-id="${reel.id}">View & Edit Script</button>`
+                      : ''
+                  }
+                  ${
                     enableFilming && !isFilmed && !isPosted
                       ? `<button class="btn btn-secondary btn-sm btn-detail-film" data-id="${reel.id}">Mark Filmed</button>`
                       : ''
                   }
                   ${
+                    !isPosted && !isFilmed
+                      ? `<button class="btn btn-secondary btn-sm btn-detail-convert" data-id="${reel.id}" data-type="${isMain ? 'trial' : 'main'}">${isMain ? 'Convert to Trial' : 'Convert to Main'}</button>`
+                      : ''
+                  }
+                  ${
                     !isPosted
                       ? `<button class="btn btn-primary btn-sm btn-detail-post" data-id="${reel.id}">Mark Posted</button>`
-                      : enableTrialReels ? `<button class="btn btn-secondary btn-sm btn-detail-feedback" data-id="${reel.id}">Log 3-Day Feedback</button>` : ''
+                      : enableTrialReels && reel.is_trial_reel ? `<button class="btn btn-secondary btn-sm btn-detail-feedback" data-id="${reel.id}">Log 3-Day Feedback</button>` : ''
                   }
                 </div>
               </div>
@@ -355,6 +367,18 @@ export const ScheduleView = {
       });
     });
 
+    modalBody.querySelectorAll('.btn-detail-view-script').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const reel = await db.getScheduledReel(e.currentTarget.dataset.id);
+        if (!reel?.script) {
+          showToast('There is no script available for this reel.', 'info');
+          return;
+        }
+        modalOverlay.classList.add('hidden');
+        openModal('scriptDetail', { reel });
+      });
+    });
+
     modalBody.querySelectorAll('.btn-detail-post').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         const id = e.currentTarget.dataset.id;
@@ -363,10 +387,27 @@ export const ScheduleView = {
           reel.status = 'posted';
           reel.posted_date = formatDateForInput(new Date());
           await db.saveScheduledReel(reel);
-          showToast('Marked as Posted! 3-day feedback timer started.', 'success');
+          showToast(reel.is_trial_reel ? 'Marked as posted. It can be compared after three days.' : 'Marked as posted.', 'success');
           modalOverlay.classList.add('hidden');
           ScheduleView.render(document.getElementById('view-container'), navigateTo, openModal);
         }
+      });
+    });
+
+    modalBody.querySelectorAll('.btn-detail-convert').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const reel = await db.getScheduledReel(e.currentTarget.dataset.id);
+        if (!reel) return;
+        const becomesTrial = e.currentTarget.dataset.type === 'trial';
+        reel.is_main_reel = !becomesTrial;
+        reel.is_trial_reel = becomesTrial;
+        reel.is_mirrored_trial = false;
+        reel.variant = becomesTrial ? undefined : 'main';
+        await db.saveScheduledReel(reel);
+        await recalculateFutureSchedule();
+        showToast(becomesTrial ? 'Converted to a Trial Reel.' : 'Converted to a Main Reel.', 'success');
+        modalOverlay.classList.add('hidden');
+        ScheduleView.render(document.getElementById('view-container'), navigateTo, openModal);
       });
     });
 
@@ -406,6 +447,14 @@ export const ScheduleView = {
         if (!reel || reel.status === 'posted') return;
         if (reel.is_locked) {
           showToast('Unpin this date before rescheduling.', 'info');
+          return;
+        }
+        const profile = await db.getProfile();
+        const dailyLimit = profile.maxPostsPerDay || 1;
+        const allReels = await db.getScheduledReels();
+        const postsOnNewDate = allReels.filter((item) => item.id !== reel.id && item.scheduled_date === newDate);
+        if (postsOnNewDate.length >= dailyLimit) {
+          showToast(`This day already has the ${dailyLimit}-post limit. Choose another date.`, 'info');
           return;
         }
         reel.scheduled_date = newDate;

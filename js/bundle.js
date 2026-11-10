@@ -20,6 +20,7 @@ const FILES_TO_BUNDLE = [
   'js/components/trialFeedback.js',
   'js/components/feedbackView.js',
   'js/components/library.js',
+  'js/webdav.js',
   'js/components/settings.js',
   'js/tutorial.js',
   'js/app.js'

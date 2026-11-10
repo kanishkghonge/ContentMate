@@ -51,7 +51,7 @@ export const InsightCreateModal = {
               id="insight-details" 
               class="form-textarea" 
               rows="4" 
-              placeholder="What key points should the video cover?&#10;1. Main idea or explanation&#10;2. Important context for the audience&#10;3. Practical takeaway or recommendation"
+              placeholder="Add the key points you want covered in this video..."
               value="${escapeHtml(prefillDetails)}"
               required
             ></textarea>

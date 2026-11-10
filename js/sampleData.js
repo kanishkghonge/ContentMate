@@ -171,7 +171,7 @@ export async function populateSampleDoctorWorkspace() {
       scheduled_date: threeDaysAgoStr,
       status: 'posted',
       posted_date: threeDaysAgoStr,
-      is_locked: true,
+      is_locked: false,
       is_main_reel: false,
       created_at: new Date(Date.now() - 3600000 * 96).toISOString()
     },

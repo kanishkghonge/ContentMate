@@ -25,8 +25,15 @@ export const FeedbackView = {
     const feedbackDue = [];
     const awaitingCheck = [];
     const historyReels = [];
+    const trialCountByInsight = allReels.reduce((counts, reel) => {
+      if (reel.is_trial_reel && reel.insight_id) counts[reel.insight_id] = (counts[reel.insight_id] || 0) + 1;
+      return counts;
+    }, {});
 
     allReels.forEach((r) => {
+      // Feedback exists to compare trials. Direct-to-main and custom scripts
+      // intentionally never appear here; neither has a meaningful comparison.
+      if (!r.is_trial_reel || !r.insight_id || trialCountByInsight[r.insight_id] < 2) return;
       if (r.status !== 'posted' && !r.feedback_logged) return;
 
       if (r.feedback_logged) {
