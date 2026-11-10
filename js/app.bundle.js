@@ -24,8 +24,11 @@ function openDatabase() {
 
     req.onerror = (e) => {
       console.error('IndexedDB open error:', e.target.error);
+      dbInstance = null;
       reject(e.target.error);
     };
+
+    req.onblocked = () => reject(new Error('The workspace database is blocked by another tab. Please close other Content Mate tabs and try again.'));
 
     req.onsuccess = (e) => {
       dbInstance = e.target.result;
@@ -145,6 +148,7 @@ const db = {
             ...(isLegacySchedule ? { postingDays: ['Daily'], maxPostsPerDay: 3, schedulerVersion: 2 } : {})
           });
         };
+        req.onerror = () => reject(req.error || new Error('Could not read the workspace profile.'));
       });
     });
   },
@@ -167,6 +171,7 @@ const db = {
           notes.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
           resolve(notes);
         };
+        req.onerror = () => reject(req.error || new Error('Could not read workspace notes.'));
       });
     });
   },  async addNote(note) {
@@ -462,6 +467,23 @@ async function request(s, method, body) { if (!s.username || !s.password) throw 
 async function pushDatabase(s, backup) { await request(s, 'PUT', JSON.stringify(backup, null, 2)); }
 async function pullDatabase(s) { const data = await (await request(s, 'GET')).json().catch(() => null); if (!data || !data.version) throw new Error('The remote file is not a valid Content Mate backup.'); return data; }
 async function testWebDav(s) { await request(s, 'GET'); }
+
+// Public facade used by the app shell and Settings. WebDAV is optional: all
+// callers only touch this facade when sync is explicitly configured.
+const WebDAVClient = {
+  getConfig() { return getWebDavSettings(); },
+  isConfigured() { const s = getWebDavSettings(); return Boolean(s.url && s.username && s.password); },
+  saveConfig(value) { return saveWebDavSettings({ ...value, remoteFile: value.remoteFile || value.filename }); },
+  clearConfig() { localStorage.removeItem(KEY); window.dispatchEvent(new CustomEvent('contentmate-webdav-status-change')); },
+  async testConnection(config = getWebDavSettings()) { await testWebDav(config); return { message: 'Successfully connected to WebDAV server.' }; },
+  async pushToCloud() { await pushDatabase(getWebDavSettings(), await db.exportFullDatabase()); return { message: 'Workspace uploaded successfully.' }; },
+  async pullFromCloud() { const backup = await pullDatabase(getWebDavSettings()); await db.resetAllData(); await db.importFullDatabase(backup); return { found: true, message: 'Workspace downloaded successfully.' }; },
+  async syncNow() { await this.pushToCloud(); return { action: 'pushed', message: 'Workspace synced successfully.' }; },
+  scheduleAutoPush() {
+    const config = getWebDavSettings();
+    if (config.autoSync && this.isConfigured()) this.pushToCloud().catch((error) => console.warn('[WebDAV auto-sync]', error.message));
+  }
+};
 
 /* js/formats.js */
 /**
@@ -4433,6 +4455,9 @@ const SettingsView = {
     const devToolsEnabled = getDevToolsEnabled();
     const writingInstructions = profile.writingInstructions || getDefaultWritingInstructions();
     const webdav = getWebDavSettings();
+    const webdavConfig = webdav;
+    const isWebDavConfigured = Boolean(webdav.url && webdav.username && webdav.password);
+    const webdavMeta = webdav;
 
     container.innerHTML = `
       <div class="settings-shell">
@@ -6130,7 +6155,26 @@ class ContentOSApp {
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
   const app = new ContentOSApp();
-  app.init();
+  app.init().catch((error) => {
+    console.error('[Content Mate startup]', error);
+    const container = document.getElementById('view-container');
+    if (!container) return;
+    container.innerHTML = `
+      <div class="loading-state startup-error" role="alert">
+        <h2>We couldn’t open your workspace</h2>
+        <p>${escapeHtml(error?.message || 'The local workspace could not be loaded.')}</p>
+        <div class="flex justify-center gap-2">
+          <button class="btn btn-primary" id="startup-retry">Try again</button>
+          <button class="btn btn-secondary" id="startup-reset">Reset local workspace</button>
+        </div>
+        <small>Resetting removes this browser’s local workspace data. Use it only if retrying does not work.</small>
+      </div>`;
+    document.getElementById('startup-retry')?.addEventListener('click', () => window.location.reload());
+    document.getElementById('startup-reset')?.addEventListener('click', () => {
+      if (!confirm('Delete this browser\'s local workspace and start over?')) return;
+      indexedDB.deleteDatabase('DoctorContentOS_DB').onsuccess = () => window.location.reload();
+    });
+  });
 });
 
 })();

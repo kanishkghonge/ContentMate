@@ -655,5 +655,24 @@ class ContentOSApp {
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
   const app = new ContentOSApp();
-  app.init();
+  app.init().catch((error) => {
+    console.error('[Content Mate startup]', error);
+    const container = document.getElementById('view-container');
+    if (!container) return;
+    container.innerHTML = `
+      <div class="loading-state startup-error" role="alert">
+        <h2>We couldn’t open your workspace</h2>
+        <p>${escapeHtml(error?.message || 'The local workspace could not be loaded.')}</p>
+        <div class="flex justify-center gap-2">
+          <button class="btn btn-primary" id="startup-retry">Try again</button>
+          <button class="btn btn-secondary" id="startup-reset">Reset local workspace</button>
+        </div>
+        <small>Resetting removes this browser’s local workspace data. Use it only if retrying does not work.</small>
+      </div>`;
+    document.getElementById('startup-retry')?.addEventListener('click', () => window.location.reload());
+    document.getElementById('startup-reset')?.addEventListener('click', () => {
+      if (!confirm('Delete this browser\'s local workspace and start over?')) return;
+      indexedDB.deleteDatabase('DoctorContentOS_DB').onsuccess = () => window.location.reload();
+    });
+  });
 });

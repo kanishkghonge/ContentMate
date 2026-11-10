@@ -20,6 +20,9 @@ export const SettingsView = {
     const devToolsEnabled = getDevToolsEnabled();
     const writingInstructions = profile.writingInstructions || getDefaultWritingInstructions();
     const webdav = getWebDavSettings();
+    const webdavConfig = webdav;
+    const isWebDavConfigured = Boolean(webdav.url && webdav.username && webdav.password);
+    const webdavMeta = webdav;
 
     container.innerHTML = `
       <div class="settings-shell">

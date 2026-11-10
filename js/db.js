@@ -16,8 +16,11 @@ export function openDatabase() {
 
     req.onerror = (e) => {
       console.error('IndexedDB open error:', e.target.error);
+      dbInstance = null;
       reject(e.target.error);
     };
+
+    req.onblocked = () => reject(new Error('The workspace database is blocked by another tab. Please close other Content Mate tabs and try again.'));
 
     req.onsuccess = (e) => {
       dbInstance = e.target.result;
@@ -137,6 +140,7 @@ export const db = {
             ...(isLegacySchedule ? { postingDays: ['Daily'], maxPostsPerDay: 3, schedulerVersion: 2 } : {})
           });
         };
+        req.onerror = () => reject(req.error || new Error('Could not read the workspace profile.'));
       });
     });
   },
@@ -159,6 +163,7 @@ export const db = {
           notes.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
           resolve(notes);
         };
+        req.onerror = () => reject(req.error || new Error('Could not read workspace notes.'));
       });
     });
   },  async addNote(note) {
