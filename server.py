@@ -22,6 +22,8 @@ class Handler(SimpleHTTPRequestHandler):
                 raise ValueError('Only Koofr HTTPS WebDAV URLs are allowed')
             conn = http.client.HTTPSConnection(target.hostname, timeout=30)
             headers = {'Authorization': 'Basic ' + base64.b64encode((data['username'] + ':' + data['password']).encode()).decode()}
+            if data.get('method') == 'PROPFIND':
+                headers['Depth'] = '1'
             body = data.get('body')
             if body is not None:
                 headers['Content-Type'] = 'application/json; charset=utf-8'
